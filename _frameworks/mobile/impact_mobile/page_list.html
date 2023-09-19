@@ -1,0 +1,47 @@
+{header}
+
+<script id="script_replace_page">
+    urlPageHistory='{url_pages}{url_get_params}';
+</script>
+<!--<script type="text/javascript" src="{url_tmpl_mobile}js/pages.js{cache_version_param}"></script>
+
+<script language="javascript" type="text/javascript">
+	var clPages = new CPages('{user_id}');
+
+    clPages.setData({
+        urlPage:'{url_main}{url_pages}',
+        pageType:'{page_type}',
+        page:'{page_number}'*1,
+        type_order:'{type_order}',
+        tags:'{tags}',
+        only_friends:0,
+        only_live:0,
+        uid:'{page_user_id}'*1,
+        guid:'{page_guid}'*1,
+        param:'{page_param}'?'{page_param}':'page',
+        filter:0,
+        isMyFriend:0,
+        groupId:0,
+        groupType:''
+    });
+    clPages.initList();
+</script>-->
+
+<div class="head">
+    <span class="title">
+		<!-- begin_page_title_circle -->
+		<span class="page_title_circle">
+			<span class="ls_title_user_play"></span>
+		</span>
+		<!-- end_page_title_circle -->
+		{page_title}
+	</span>
+</div>
+
+<div class="page_cont_list">
+    {list}
+	{users_list}
+</div>
+
+
+{footer}
