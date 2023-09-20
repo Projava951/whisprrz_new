@@ -10,9 +10,11 @@ This notice may not be removed from the source code. */
 include("../_include/core/administration_start.php");
 require_once("../_include/current/places/tools.php");
 
-if (Common::getTmplName() == 'edge') {
-    redirect('music_songs.php');
-}
+// rade 2023-09-20 delete start
+// if (Common::getTmplName() == 'edge') {
+//     redirect('music_songs.php');
+// }
+// rade 2023-09-20 delete end
 
 class CPlaces extends CHtmlList
 {

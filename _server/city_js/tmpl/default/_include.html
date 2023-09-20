@@ -1,0 +1,112 @@
+<link rel="stylesheet" href="{url_tmpl_city}css/style_chat.css{cache_version_param}" />
+<link rel="stylesheet" href="{url_city}tmpl/common/css/jquery.jscrollpane.css{cache_version_param}" />
+
+<script language="javascript" type="text/javascript">
+    var urlMain='{url_main}';
+    var urlCity='{url_city}';
+    var urlTmplCity='{url_tmpl_city}';
+    var urlTmplImagesCity=urlTmplCity+'images/';
+</script>
+<script type="text/javascript" src="{url_city}tmpl/common/js/messages.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_city}tmpl/common/js/jquery.jscrollpane.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_city}tmpl/common/js/jquery.mousewheel.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_city}tmpl/common/js/lib.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_city}tmpl/common/js/cash.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_city}tmpl/common/js/media_chat.js{cache_version_param}"></script>
+
+<script type="text/javascript" src="{url_tmpl_city}js/tools.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/city.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/character.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/faceeditor.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/server.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/messages.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/script.js{cache_version_param}"></script>
+
+<script type="text/javascript" src="{url_tmpl_city}js/createjs/easeljs-0.7.1.min.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/createjs/tweenjs-0.5.1.min.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/createjs/movieclip-0.7.1.min.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/createjs/preloadjs-0.4.1.min.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/facescan.js{cache_version_param}"></script>
+
+<script type="text/javascript" src="{url_main}_server/jquery/zero_clipboard/jquery.zeroclipboard.min.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_main}_server/jquery/prettyCheckable.js{cache_version_param}"></script>
+
+<script type="text/javascript" src="https://maps.google.com/maps/api/js{google_maps_api_key_for_city}"></script>
+<!-- https://console.developers.google.com/flows/enableapi?apiid=maps_backend,geocoding_backend,directions_backend,distance_matrix_backend,elevation_backend,places_backend&keyType=CLIENT_SIDE&reusekey=true -->
+
+<script type="text/javascript" src="{url_main}_server/js/webrtc/media_utils_adapter.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_tmpl_city}js/media_live_streaming.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_city}tmpl/common/js/media_audio_chat.js{cache_version_param}"></script>
+<script type="text/javascript" src="{url_main}_server/js/webrtc/media_utils.js{cache_version_param}"></script>
+
+<script language="javascript" type="text/javascript">
+    var city = new CCity('{url_main}', '{url_city}', '{url_tmpl}', '{url_files}', '{url_files_city}', '{cache_version_param}');
+    var cityTools = new CToolsCity();
+    var postMessages = new CPostMessages();
+    var chars = new CСharacter('{url_main}','{url_files}');
+    var editorFace = new CEditorFace('{url_city}','{url_files}');
+    preloadImagesCity();
+    var isPageCity = true;
+
+	/* Live */
+	var urlAjaxCity='{url_city}ajax.php',
+	_lsCityIsAviable = '{city_live_stream_aviable}',
+	_lsCityMediaServer = '{media_server}',
+	_lsCityClientGuid = '{client_guid}',
+	_lsCityRoomID = '{client_id}',
+	_lsCityLiveId = 0,
+    _lsCityLiveIdEnd = 0,
+	_lsCityIsUserPresenter = true,
+	_lsLang = {
+		disconnect : '{j_stop_striming_presenter}',
+		camera_or_microphone_is_not_available: '{j_camera_or_microphone_is_not_available}',
+		camera_is_not_available: '{j_camera_is_not_available}',
+		microphone_is_not_available: '{j_microphone_is_not_available}',
+		start_striming_presenter : '{j_start_striming_presenter}',
+		something_went_wrong_please_reload_the_page : '{j_something_went_wrong_please_reload_the_page}',
+		error_creating : '{j_error_creating}',
+		you_are_already_streaming_from_another_device : '{j_you_are_already_streaming_from_another_device}',
+		this_license_is_not_valid : '{j_this_license_is_not_valid_please_contact_support}',
+		the_presenter_interrupted_the_live_streaming : '{j_the_presenter_interrupted_the_live_streaming}',
+		your_browser_needs_ssl_certificate_to_run_live_streaming : '{j_your_browser_needs_ssl_certificate_to_run_live_streaming}',
+		your_browser_does_not_support_live_streaming : '{j_your_browser_does_not_support_live_streaming}',
+		start_striming_presenter : '{j_start_striming_presenter}',
+		live_streaming_not_available : '{j_live_streaming_not_available}',
+		alert_html_alert : '{j_alert_html_alert}',
+	};
+	/* Live */
+
+	/* Audio chat */
+	var _acGuid = '{audio_chat_client_guid}',
+	_acMediaServer = '{audio_chat_media_server}',
+	_acIsAviable = '{audio_chat_aviable}'*1,
+	_acClientIdTmpl = '{audio_chat_client_id}',
+	_acCallUidTmpl = '{audio_chat_call_id}',
+	_acCallUid = 0;
+	_lsLangAudio = {
+		webrtc_no_support:'{j_your_browser_does_not_support_audio_chat}',
+		webrtc_needs_ssl: '{j_your_browser_needs_ssl_certificate_to_run_audio_chat}',
+		make_a_call : '{j_make_a_call}',
+		cancel_call : '{j_cancel_call}',
+		end_call : '{j_end_call}',
+
+		waiting_off_line : '{j_the_user_is_not_available_yet_please_wait}',
+		waiting_connect : '{j_waiting_for_the_other_user_to_connect}',
+
+		establishing_connection : '{j_establishing_connection}',
+		connection_established_loading : '{j_connection_established_loading}',
+
+		connection : '{j_establishing_connection}',
+		icoming_call : '{j_connection_established_loading}',
+
+		user_has_left_title : '{j_user_has_left_chat_title}',
+		user_has_left : '{j_user_has_left_chat}',
+		disconnect : '{j_end_call}',
+		something_went_wrong_please_reload : '{j_something_went_wrong_please_reload_the_page}',
+
+		reject_call_title : '{j_reject_call_title}',
+		reject_call : '{j_reject_call}',
+		chat_nowe : '{j_do_you_accept_this_chat}',
+	};
+	/* Audio chat */
+</script>

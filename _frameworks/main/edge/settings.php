@@ -20,7 +20,9 @@ $g['template_options'] = array(
 	'type_payment_module_credits' => 'payment_module_boost',
     //'type_payment_free' => 'Y',
 
-    'no_mobile_template' => 'Y',
+    // rade 2023-09-20 delete start
+    // 'no_mobile_template' => 'Y',
+    // rade 2023-09-20 delete end
 
     'logo_w' => 280,
     'logo_h' => 35,

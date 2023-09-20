@@ -10,9 +10,11 @@ This notice may not be removed from the source code. */
 #$area = "login";
 include("../_include/core/administration_start.php");
 
-if(Common::getTmplSet() == 'urban') {
-    redirect('fakes_reply_im.php');
-}
+// rade 2023-09-20 delete start
+// if(Common::getTmplSet() == 'urban') {
+//     redirect('fakes_reply_im.php');
+// }
+// rade 2023-09-20 delete end
 
 class FakesReplyMails extends CHtmlList
 {
