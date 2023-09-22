@@ -1,0 +1,183 @@
+<!-- begin_container_header -->
+<script type="text/javascript">
+
+function partyhouz_partyhou_list_{upcoming}_load_page(page_n)
+{
+	$('#partyhouz_partyhou_list_{upcoming}_load_animation').css('visibility', 'visible');
+
+	$('#partyhouz_partyhou_list_{upcoming}_container').load(
+			'{url_main}partyhouz_partyhou_list_ajax.php?n_results_per_page={n_results_per_page}&partyhou_where_when={partyhou_where_when}&user_id={user_id}&list_type={list_type}&country_id={country_id}&category_id={category_id}&partyhou_datetime={partyhou_datetime}&query={query}&upcoming={upcoming}&partyhou_id={partyhou_id}&partyhou_place={partyhou_place}&partyhouz_partyhou_list_page=' + page_n);
+}
+
+function partyhouz_partyhou_list_{upcoming}_delete_partyhou(partyhou_id, page_n)
+{
+    if(confirm('{l_are_you_sure}'))
+    {
+        $('#partyhou_list_partyhou_' + partyhou_id).fadeOut(400, function() {
+            $.ajax({
+                    type: 'POST',
+                    url: '{url_main}partyhouz_partyhou_delete_ajax.php',
+                    data: {
+                        partyhou_id: partyhou_id
+                        },
+                    success: function (data, textStatus, XMLHttpRequest)
+                        {
+                        	partyhouz_partyhou_list_{upcoming}_load_page(page_n);
+                        }
+                  });
+            });
+    }
+}
+
+</script>
+<div id="partyhouz_partyhou_list_{upcoming}_container">
+<!-- end_container_header -->
+
+<!-- begin_partyhouz -->
+<table class="partyhouz_new_tb_sub">
+    <!-- begin_partyhouz_where_when_title -->
+    <col width="7px"/>
+    <col width="32px"/>
+	<col width="0px"/>
+    <col width="75px"/>
+	<col width="0px"/>
+    <col width="80px"/>
+	<col width="0px"/>
+    <col width="50px"/>
+	<col width="0px"/>
+    <col width="120px"/>
+	<col width="0px"/>
+    <col width="50px"/>
+	<col width="0px"/>
+    <tr>
+        <th class="th_t_l nb first">&nbsp;</th>
+        <th class="th_t_c">{l_partyhouz_photo}</th>
+		<th class="th_t_b">&nbsp;</th>
+        <th class="th_t_c"><span>{l_partyhouz_partyhou}</span></th>
+        <th class="th_t_b">&nbsp;</th>
+		<th class="th_t_c"><span>{l_partyhouz_when}</span></th>
+        <th class="th_t_b">&nbsp;</th>
+		<th class="th_t_c"><span>{l_partyhouz_guests}</span></th>
+        <th class="th_t_b">&nbsp;</th>
+        <th class="th_t_c"><span>{l_partyhouz_allowed}</span></th>
+        <th class="th_t_b">&nbsp;</th>
+		<th class="th_t_c nb"><span>{l_partyhouz_comments}</span></th>
+        <th class="th_t_r nb first">&nbsp;</th>
+    </tr>
+    <!-- end_partyhouz_where_when_title -->
+    <!-- begin_partyhouz_when_guests_comments_title -->
+    <col width="7px"/>
+    <col width="32px"/>
+	<col width="0px"/>
+    <col width="75px"/>
+	<col width="0px"/>
+    <col width="80px"/>
+	<col width="0px"/>
+    <col width="50px"/>
+	<col width="0px"/>
+    <col width="120px"/>
+	<col width="0px"/>
+    <col width="50px"/>
+	<col width="0px"/>
+    <tr>
+        <th class="th_t_l nb first">&nbsp;</th>
+        <th class="th_t_c">{l_partyhouz_photo}</th>
+		<th class="th_t_b">&nbsp;</th>
+        <th class="th_t_c"><span>{l_partyhouz_partyhou}</span></th>
+        <th class="th_t_b">&nbsp;</th>
+		<th class="th_t_c"><span>{l_partyhouz_when}</span></th>
+        <th class="th_t_b">&nbsp;</th>
+		<th class="th_t_c"><span>{l_partyhouz_guests}</span></th>
+        <th class="th_t_b">&nbsp;</th>
+        <th class="th_t_c"><span>{l_partyhouz_allowed}</span></th>
+        <th class="th_t_b">&nbsp;</th>
+		<th class="th_t_c nb"><span>{l_partyhouz_comments}</span></th>
+        <th class="th_t_r nb first">&nbsp;</th>
+    </tr>
+    <!-- end_partyhouz_when_guests_comments_title -->
+
+    <!-- begin_partyhou -->
+    <tr id="partyhou_list_partyhou_{partyhou_id}" style="border-bottom: 1px solid black;">
+        <td class="first" colspan="2"><a class="foto" href="{url_main}partyhouz_partyhou_show.php?partyhou_id={partyhou_id}"><img style="position:absolute; margin-top:-15px;" src="{image_thumbnail}" width="39" height="29" alt=""/></a></td>
+        <td class="b">&nbsp;</td>
+		<td><span><a class="green" href="{url_main}partyhouz_partyhou_show.php?partyhou_id={partyhou_id}">{partyhou_title}</a></span></td>
+        <td class="b">&nbsp;</td>
+		<!-- begin_partyhou_where_when_rows -->
+        <td style="display: flex; flex-direction: column;">
+            <span><a style="color:black;" class="txt_upper_header_color" href="{url_main}search_results.php?display=profile_info&name={partyhou_host_id}" title="{partyhou_host_name}">{partyhou_host_name}</a></span>
+            <span style="color:black;"><a style="color:black;" class="txt_upper_header_color" href="{url_main}partyhouz_search.php?partyhou_datetime={partyhou_datetime_raw}">{partyhou_date}</a></span>
+            <span style="display: flex; gap: 5px;">
+                <span style="color:black;">{partyhou_time}</span>
+                <span style="color:black;">{formattedDifference}</span>
+            </span>
+        </td>
+        <td class="b">&nbsp;</td>
+		<td><span style="color:black;">{partyhou_n_guests}</span></td>
+        <td class="b">&nbsp;</td>
+        <td style="display: flex; flex-direction:column;">
+            <span style="color:black;">{locked_string}</span>
+            <span style="color:black;">{cum_string}</span>
+            <span style="color:black;">{lookin_string}</span>
+        </td>
+        <td class="b">&nbsp;</td>
+		<td class="nb play" colspan="2">
+            <span><a target="_blank" style="color:black;" href="https://meet.partyhouz.com/{partyhou_title}">Join</a></span>
+        </td>
+        <!-- end_partyhou_where_when_rows -->
+        <!-- begin_partyhou_when_guests_comments_rows -->
+        <td style="display: flex; flex-direction: column;">
+            <span><a style="color:black;" class="txt_upper_header_color" href="{url_main}search_results.php?display=profile_info&name={partyhou_host_id}" title="{partyhou_host_name}">{partyhou_host_name}</a></span>
+            <span style="color:black;"><a style="color:black;" class="txt_upper_header_color" href="{url_main}partyhouz_search.php?partyhou_datetime={partyhou_datetime_raw}">{partyhou_date}</a></span>
+            <span style="display: flex; gap: 5px;">
+                <span style="color:black;">{partyhou_time}</span>
+                <span style="color:black;">{formattedDifference}</span>
+            </span>
+        </td>
+        <td class="b">&nbsp;</td>
+		<td><span style="color:black;">{partyhou_n_guests}</span></td>
+        <td class="b">&nbsp;</td>
+        <td style="display: flex; flex-direction:column;">
+            <span style="color:black;">{locked_string}</span>
+            <span style="color:black;">{cum_string}</span>
+            <span style="color:black;">{lookin_string}</span>
+        </td>
+        <td class="b">&nbsp;</td>
+		<td class="nb play" colspan="2">
+            <span><a target="_blank" style="color:black;" href="https://meet.partyhouz.com/{partyhou_title}">Join</a></span>
+        </td>
+        <!-- end_partyhou_when_guests_comments_rows -->
+    </tr>
+    <!-- end_partyhou -->
+
+    <tr>
+        <th class="th_b_l nb">&nbsp;</th>
+    <!-- begin_partyhouz_where_when_footer -->
+        <th colspan="11" class="th_b_c nb">&nbsp;</th>
+    <!-- end_partyhouz_where_when_footer -->
+    <!-- begin_partyhouz_when_guests_comments_footer -->
+        <th colspan="11" class="th_b_c nb">&nbsp;</th>
+    <!-- end_partyhouz_when_guests_comments_footer -->
+        <th class="th_b_r nb">&nbsp;</th>
+    </tr>
+</table>
+
+<!-- begin_pager -->
+<div class="fl_right"><ul class="partyhouz_new_paging">
+    <li><img style="visibility:hidden;" id="partyhouz_partyhou_list_{upcoming}_load_animation" src="{url_tmpl_main}images/load_animation.gif"></li>
+    <!-- begin_pager_prev --><li><a href="javascript:partyhouz_partyhou_list_{upcoming}_load_page({page_n});">{l_pager_prev}</a></li>
+    <li>|&nbsp;&nbsp;</li><!-- end_pager_prev -->
+    <!-- begin_pager_link --><!-- begin_pager_link_active --><li class="active">{page_n}</li><!-- end_pager_link_active --><!-- begin_pager_link_not_active --><li><a href="javascript:partyhouz_partyhou_list_{upcoming}_load_page({page_n});">{page_n}</a></li><!-- end_pager_link_not_active --><!-- end_pager_link -->
+    <!-- begin_pager_next --><li>&nbsp;&nbsp;|</li>
+    <li><a href="javascript:partyhouz_partyhou_list_{upcoming}_load_page({page_n});">{l_pager_next}</a></li><!-- end_pager_next -->
+</ul></div><!-- end_pager -->
+<!-- end_partyhouz -->
+
+<!-- begin_no_partyhouz -->
+<div class="partyhouz_new_comments">
+    <!-- begin_no_partyhouz_message --><center>{l_partyhouz_no_partyhouz}</center><!-- end_no_partyhouz_message -->
+</div>
+<!-- end_no_partyhouz -->
+
+<!-- begin_container_footer -->
+</div>
+<!-- end_container_footer -->

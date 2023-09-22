@@ -1,2 +1,4 @@
 /_include/current/misc/ip.db
 /.htaccess
+/_files/cache
+/_cron/error_log

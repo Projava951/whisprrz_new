@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script type="text/javascript" src="./_server/jquery/jquery-last.js?v=408"></script>
+</head>
+
+<body>
+    <div id="meet">
+
+    </div>
+
+    <div>
+        <span id="count-down">
+
+        </span>
+    </div>
+    <script src='https://meet.partyhouz.com/external_api.js'></script>
+    <script type="text/javascript">
+        var user_name = '{user_name}';
+        var room_name = '{room_name}';
+        var user_mail = '{user_mail}';
+        const domain = 'meet.partyhouz.com';
+        const options = {
+            roomName: room_name,
+            width: "100%",
+            height: window.innerHeight,
+            parentNode: document.querySelector('#meet'),
+            lang: 'en',
+            userInfo: {
+                email: user_mail,
+                displayName: user_name
+            }
+        };
+        const api = new JitsiMeetExternalAPI(domain, options);
+
+    </script>
+</body>
+
+</html>
