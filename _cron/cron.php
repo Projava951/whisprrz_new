@@ -72,7 +72,7 @@ if ($min % 1 == 0) {
         Match_Mail::run();
     } else {
 		LiveStreaming::updateDemoData();
-	}
+    }
 
     /*$lastDataPostWall = Common::getOption('last_date', 'event_wall_birthday');
     $currentDate = date('Y-m-d');
@@ -266,6 +266,77 @@ if ($min % 1 == 0) {
             }
         }
     }
+
+    // Rade 2023-09-22 add start
+    $debug = false;
+
+    DB::query('SELECT * FROM masssms WHERE status = 0 ORDER BY id ASC LIMIT 1');
+    if (DB::num_rows()) {
+        $masssms = DB::fetch_row();
+        
+        debug_log("MASSSMS", print_r($masssms, true));
+
+        $subject = $masssms['subject'];
+
+        // limit based on settings
+        //$limit = (isset($g['massmail']['limit']) ? $g['massmail']['limit'] : 10);
+        $limit = 50;
+
+        $where = '';
+
+
+
+        $where = 'u.user_id != 0 AND u.lang IN (' . $masssms['languages'] . ') AND (u.user_id IS NULL OR (u.lang IN (' . $masssms['languages'] . ') ) ) AND ';
+
+
+        // choose by language
+        // select mails category
+        $sql = "SELECT s.id, u.nsc_phone, u.user_id, u.name, u.carrier_provider FROM sms AS s LEFT JOIN user AS u ON s.user_id=u.user_id WHERE $where s.id>0 ORDER BY s.id DESC LIMIT 1";
+        debug_log("LAST ID", $sql);
+        $last_id = DB::result($sql);
+
+        $sql = "SELECT s.id, u.nsc_phone, u.user_id, u.name, u.carrier_provider FROM sms AS s LEFT JOIN user AS u ON s.user_id=u.user_id WHERE $where s.id>" . $masssms['last_id'] . " ORDER BY s.id ASC LIMIT $limit";
+        //echo $sql;
+        DB::query($sql);
+
+        debug_log("SQL", $sql);
+        debug_log("SMS SELECTED", DB::num_rows());
+
+        if (DB::num_rows() == 0) {
+
+
+            $sql = "UPDATE masssms SET last_id=0, status=2, send_partner=0 WHERE id=" . $masssms['id'];
+            debug_log("SQL CLOSE", $sql);
+            DB::execute($sql);
+        }
+
+        
+        $i = 1;
+
+        while ($row = DB::fetch_row()) {
+            $text = str_replace("{title}", $g['main']['title'], $masssms['text']);
+            if (!isset($row['name']))
+                $row['name'] = "";
+            $text = str_replace("{name}", $row['name'], $text);
+            $carriernumber = str_replace("number", $row['nsc_phone'], $row['carrier_provider']);
+            if (!$debug) {
+                send_mail($carriernumber, $g['main']['info_mail'], $subject, $text);
+                debug_log('mail sent', $carriernumber . ':' . $g['main']['info_mail']);
+            } else {
+                debug_log('mail sent', $carriernumber . ':' . $g['main']['info_mail'] . ':' . $subject . ':' . $text);
+            }
+            // UPDATE last_id
+            $sql = "UPDATE masssms SET last_id=" . $row['id'] . " WHERE id=" . $masssms['id'];
+            debug_log($i++ . " :: SQL UPDATE", $sql);
+            DB::execute($sql);
+            if ($row['id'] == $last_id) {
+                $sql = "UPDATE masssms SET last_id=0, status=2, send_partner=0 WHERE id=" . $masssms['id'];
+                debug_log("SQL FINISH", $sql);
+                DB::execute($sql);
+            }
+        }
+    }
+    // Rade 2023-09-22 add end
 }
 
 function debug_log($msg, $val)
@@ -285,7 +356,7 @@ $timeCronHourly = Common::getOption('date','cron_hourly');
 if (date('Y-m-d H')>$timeCronHourly){
     Config::update('cron_hourly', 'date', date('Y-m-d H'));
 
-    $date = date('Y-m-d');
+	$date = date('Y-m-d');
     $hour = intval(date('H'));
 
     if (Common::isEnabledAutoMail('end_paid') && !Common::isOptionActive('free_site')) {
@@ -308,7 +379,7 @@ if (date('Y-m-d H')>$timeCronHourly){
 
     DB::execute('UPDATE user SET gold_days=(gold_days-1), last_visit=last_visit WHERE gold_days>0  AND payment_day<"'.$date.'" AND payment_hour='.$hour. ';');
 
-    $numberDaysDeleteProfile = abs(intval(Common::getOption('number_days_delete_profile_unconfirmed_email')));
+	$numberDaysDeleteProfile = abs(intval(Common::getOption('number_days_delete_profile_unconfirmed_email')));
     if ($numberDaysDeleteProfile) {
         $timeDelta = abs(intval(Common::getOption('join_unconfirmed_email_max_days'))) + $numberDaysDeleteProfile;
         $timeDelta *= 24 * 60 * 60;
