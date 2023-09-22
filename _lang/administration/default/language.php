@@ -13,6 +13,7 @@ $l['all']['send'] = "Send";
 $l['all']['reset'] = "Reset";
 $l['all']['action'] = "Action";
 $l['all']['next'] = "Next";
+$l['all']['managers'] = "Managers"; // Rade 2023-09-22
 $l['all']['prev'] = "Prev";
 $l['all']['answer'] = "Answer";
 $l['all']['page_1'] = "Page 1";
@@ -26,8 +27,12 @@ $l['all']['are_you_sure'] = "Are you sure?";
 $l['all']['menu_help_and_news'] = "Site news";
 $l['all']['mmenu_users'] = "Users";
 $l['all']['menu_modules'] = "Modules";
+$l['all']['menu_advertise'] = "Advertise"; // Rade 2023-09-22
+$l['all']['menu_media'] = "Media"; // Rade 2023-09-22
 $l['all']['menu_admin'] = "Admin";
 $l['all']['menu_partner'] = "Partner";
+$l['all']['add_manager'] = "Add manager"; // Rade 2023-09-22
+$l['all']['managers'] = "Managers"; // Rade 2023-09-22
 $l['all']['menu_games'] = "Games";
 $l['all']['menu_albums'] = "Albums";
 $l['all']['main_col_order'] = "Main Col. Order";
@@ -45,13 +50,14 @@ $l['all']['menu_edit_current_template'] = "Edit current";
 $l['all']['menu_edit_profile'] = "Edit Profile";
 $l['all']['menu_languages'] = "Languages";
 $l['all']['menu_add_language'] = "Add language";
-$l['all']['menu_auto_mail'] = "Auto-mail";
+$l['all']['menu_auto_mail'] = "Auto-email & site-mail";
 $l['all']['menu_auto_mail_settings'] = "Settings";
 $l['all']['menu_users'] = "Users";
 $l['all']['menu_users_approval'] = "Users approval";
 $l['all']['menu_users_activate'] = "Users activate";
 $l['all']['menu_search'] = "Search";
 $l['all']['menu_events'] = "Events";
+$l['all']['menu_hotdates'] = "Hot Dates"; // Rade 2023-09-22
 $l['all']['menu_places'] = "Places";
 $l['all']['menu_categories'] = "Categories";
 $l['all']['menu_music'] = "Music";
@@ -62,10 +68,10 @@ $l['all']['menu_texts'] = "Essay approval";
 $l['all']['menu_profile_fields'] = "Profile fields";
 $l['all']['menu_table_add'] = "Add field";
 $l['all']['menu_filter'] = "Filter";
-$l['all']['menu_mass_mail'] = "Mass mail";
+$l['all']['menu_mass_mail'] = "Mass email";
 $l['all']['menu_mass_add'] = "Add/remove";
 $l['all']['menu_mass_send'] = "Send";
-$l['all']['menu_banners'] = "Banners";
+$l['all']['menu_banners'] = "Main Banners";
 $l['all']['menu_add_banner'] = "Add banner";
 $l['all']['menu_options_main_page'] = "Main page";
 $l['all']['menu_partners_banners'] = "Banners";
@@ -107,6 +113,8 @@ $l['all']['menu_vids_videos'] = "Videos";
 $l['all']['menu_vids_comments'] = "Comments";
 $l['all']['menu_vids_users'] = "Users with videos";
 $l['all']['menu_event_comments'] = "Comments";
+$l['all']['menu_hotdate_comments'] = "Comments"; // Rade 2023-09-22
+$l['all']['menu_partyhou_comments'] = "Comments"; // Rade 2023-09-22
 $l['all']['menu_group_comments'] = "Comments";
 $l['all']['menu_group_categories'] = "Categories";
 $l['all']['menu_group_categories_add'] = "Add category";
@@ -118,9 +126,9 @@ $l['all']['menu_forum_forums'] = "Forums";
 $l['all']['menu_forum_forums_add'] = "Add forum";
 $l['all']['menu_forum_topics'] = "Topics";
 $l['all']['menu_forum_messages'] = "Messages";
-$l['all']['menu_adv'] = "Adv";
+$l['all']['menu_adv'] = "CraigsLicks";
 $l['all']['menu_groups'] = "Groups";
-$l['all']['menu_groups_social'] = "Groups (pages)";
+$l['all']['menu_groups_social'] = "Groups(social pages)";
 $l['all']['menu_groups_social_short'] = "Home";
 $l['all']['menu_groups_social_groups'] = "Groups";
 $l['all']['menu_groups_social_pages'] = "Pages";
@@ -187,7 +195,7 @@ $l['all']['videos_by'] = "Videos by";
 $l['all']['register'] = "Registration";
 $l['all']['edit_photos'] = "Edit Photos";
 $l['all']['posts'] = "Posts";
-$l['all']['assign_user_as_sender_of_welcoming_message'] = "Assign user as sender of welcoming message";
+$l['all']['assign_user_as_sender_of_welcoming_message'] = "Assign user Name as sender of All messages";
 $l['all']['moderator_photo'] = "Assign user as moderator of photos";
 $l['all']['moderator_video'] = "Assign user as moderator of videos";
 $l['all']['moderator_text'] = "Assign user as moderator of texts";
@@ -258,6 +266,7 @@ $l['all']['profile'] = "Profile";
 $l['all']['silver'] = "Silver";
 $l['all']['gold'] = "Gold";
 $l['all']['platinum'] = "Platinum";
+$l['all']['platinumevent'] = "Platinum Event"; // Rade 2023-09-22
 $l['all']['blog'] = "Blog";
 $l['all']['ban'] = "Ban";
 $l['all']['unban'] = "Unban";
@@ -355,6 +364,7 @@ $l['all']['date'] = "Date";
 $l['all']['menu_fakes_reply'] = "Fakes reply";
 $l['all']['menu_gifts'] = "Gifts";
 $l['all']['menu_gifts_add'] = "Add";
+$l['all']['menu_new_add'] = "New Menu"; // Rade 2023-09-22
 $l['all']['menu_style_set'] = "Style set";
 $l['all']['gold_memberships'] = "Paid memberships";
 $l['all']['set_as_default_city'] = "Set as default city";
@@ -479,9 +489,104 @@ $l['all']['menu_stickers_collections_sticker'] = "Stickers";
 $l['all']['transparent'] = "Transparent";
 $l['all']['ban_user'] = "Ban user";
 $l['all']['unban_user'] = "Unban user";
+$l['all']['admin_whisp_direction_03'] = "Country";  // Rade 2023-09-22 add start
+$l['all']['admin_whisp_direction_04'] = "State";
+$l['all']['admin_whisp_direction_05'] = "City";
+$l['all']['admin_whisp_direction_06'] = "Link";
+$l['all']['admin_whisp_direction_07'] = "From Date Time";
+$l['all']['admin_whisp_direction_08'] = "End Date Time";
+$l['all']['admin_whisp_direction_09'] = "Zip Code";
+$l['all']['admin_whisp_direction_10'] = "Image";
+$l['all']['admin_whisp_direction_11'] = "User";
+$l['all']['admin_whisp_direction_12'] = "Place";
+$l['all']['admin_whisp_direction_01'] = "Please Enter Details";
+$l['all']['admin_whisp_direction_02'] = "Title";
+$l['all']['insert_short_title'] = "Insert Short Title";
+$l['all']['admin_wowslider_create'] = "create";
+$l['all']['admin_wowslider_search'] = "search";
+$l['all']['admin_wowslider_update'] = "update";
+$l['all']['only_one_user_global_banner_will_show_at_a_time'] = "Only One User Global Banner Will Show At A Time";
+$l['all']['only_one_banner_will_show_at_a_time'] = "Only One Banner Will Show At A Time";
+$l['all']['insert_country_you_want_banner'] = "Insert Country You Want Banner";
+$l['all']['insert_location_of_banner'] = "Insert Location Of Banner";
+$l['all']['insert_state_you_want_banner'] = "Insert State You Want Banner";
+$l['all']['insert_city_you_want_banner'] = "Insert City You Want Banner";
+$l['all']['insert_website_banner_directed_to'] = "Insert Website Banner Directed To";
+$l['all']['insert_from_date_you_want_displayed'] = "Insert From Date You Want Displayed";
+$l['all']['insert_to_date_you_want_displayed'] = "Insert To Date You Want Displayed";
+$l['all']['insert_zipcode_you_want_banner'] = "Insert Zipcode You Want Banner";
+$l['all']['insert_exact_banner_size'] = "Insert Exact Banner Size";
+$l['all']['global_instruction'] = "One Global Per User Only";
+$l['all']['platinum_events'] = "( Platinum+ Wevents )";
+$l['all']['platinum_plus'] = "( Platinum+ WowSlider )";
+$l['all']['menu_sms_carrier'] = "SMS Carrier";
+$l['all']['export'] = "Export";
+$l['all']['import_carrier_csv'] = "Import Carrier CSV";
+$l['all']['menu_parthouz'] = "PartyHouZ";
+$l['all']['menu_partyhouz'] = "PartyHouz";
+$l['all']['menu_partyhouz_comments'] = "Partyhouz Comments";
+$l['all']['menu_partyhouz_category'] = "Partyhouz Category";
+$l['all']['menu_partyhouz_category_add'] = "Partyhouz Category Add";
+$l['all']['carrier'] = "Carrier";
+$l['all']['sms_mass_text'] = "Mass SMS";
+$l['all']['sms_auto_mailer'] = "Auto SMS";
+$l['all']['count_carriers'] = "Total Carriers";
+$l['all']['phone_info'] = "View only change below bottom of page";
+$l['all']['test_sms'] = "Test SMS";
+$l['all']['enter_phone'] = "Please enter phone number";
+$l['all']['select_carrier'] = "Please select carrier";
+$l['all']['test_sms_send'] = "Test sms send successfully";
+$l['all']['nickname_add_title'] = "Add Nick Name ";
+$l['all']['menu_fields_nickname_add'] = "Add Nickname";
+$l['all']['confirm_delete_events'] = "Delete This Event?";
+$l['all']['confirm_delete_hotdates'] = "Delete This Hotdate?";
+$l['all']['confirm_delete_partyhouz'] = "Delete This Partyhouz?";
+$l['all']['confirm_delete_craigs'] = "Delete This CraigsLick?";
+$l['all']['confirm_approve_events'] = "Approve This Event?";
+$l['all']['confirm_approve_hotdates'] = "Approve This Hotdate?";
+$l['all']['confirm_approve_partyhouz'] = "Approve This Partyhouz?";
+$l['all']['confirm_approve_craigs'] = "Approve This CraigsLick?";
+$l['all']['confirm_approve_all_events'] = "Approve All Events?";
+$l['all']['confirm_approve_all_hotdates'] = "Approve All Hotdates?";
+$l['all']['confirm_approve_all_partyhouz'] = "Approve All Partyhouz?";
+$l['all']['confirm_approve_all_craigs'] = "Approve All CraigsLicks?";
+$l['all']['moderator_username'] = "Username";
+$l['all']['moderator_title'] = "Title";
+$l['all']['moderator_category'] = "Category";
+$l['all']['moderator_description'] = "Description";
+$l['all']['moderator_price'] = "Price";
+$l['all']['moderator_edit_photo'] = "Edit Photo";
+$l['all']['moderator_event_title'] = "Approval Event";
+$l['all']['moderator_hotdate_title'] = "Approval Hotdate";
+$l['all']['moderator_partyhouz_title'] = "Approval Partyhouz";
+$l['all']['moderator_craigs_title'] = "Approval CraigsLicks";
+$l['all']['moderator_approve_all'] = "Approve All";
+$l['all']['moderator_wowslider_title'] = "Approval WowSlider";
+$l['all']['moderator_wowslider'] = "Wowslider";
+$l['all']['provider'] = "Cell Phone Provider";
+$l['all']['menu_moderator'] = "Moderator";
+$l['all']['menu_report'] = "Users Reports";
+
+$l['banner.php']['fill_title'] = "Please fill in the Title";
+$l['banner.php']['fill_country'] = "Please fill in the Country";
+$l['banner.php']['fill_state'] = "Please fill in the State";
+$l['banner.php']['fill_city'] = "Please fill in the City";
+$l['banner.php']['fill_date'] = "Please fill in the Date";
+$l['banner.php']['fill_time'] = "Please fill in the time";
+$l['banner.php']['fill_Zip'] = "Please fill in the Zip Code";
+$l['banner.php']['fill_Image'] = "Please fill in the Image";
+$l['banner.php']['title_current'] = "Main Banners";
+$l['banner.php']['on'] = "On";
+$l['banner.php']['off'] = "Off";
+$l['banner.php']['place'] = "Place";
+$l['banner.php']['no_banners'] = "No banners";
+$l['banner.php']['show'] = "Show";
+$l['banner.php']['fill_end_date'] = "Please fill in the End Date";
+$l['banner.php']['fill_end_time'] = "Please fill in the End Time"; // Rade 2023-09-22 add end
 
 $l['import_dolphin.php']['title_current'] = "Import Dolphin";
 $l['import_dolphin.php']['dir_photos'] = "Directory with photos";
+$l['import_dolphin.php']['start'] = "Start"; // Rade 2023-09-22
 $l['import_dolphin.php']['user_table'] = "User table";
 $l['import_dolphin.php']['media_table'] = "Media table";
 $l['import_dolphin.php']['extra_pars'] = "Extra info";
@@ -492,13 +597,23 @@ $l['index.php']['enter_password'] = "Please use this form to login";
 $l['index.php']['your_login'] = "Your Login";
 $l['index.php']['your_password'] = "Your Password";
 $l['index.php']['login_to_admin'] = "Login to admin cp";
+$l['index.php']['view_site'] = "View site"; // Rade 2023-09-22
 $l['index.php']['login_incorrect'] = "Login incorrect";
 $l['index.php']['time_incorrect'] = "You have made 5 attempts to enter. Please wait 10 minutes.";
+ // Rade 2023-09-22 add start
+$l['add_manager.php']['enter_manager_information'] = "Add manager";
+$l['add_manager.php']['add_manager'] = "Add manager";
+$l['add_manager.php']['manager_name'] = "Manager name";
+$l['add_manager.php']['manager_password'] = "Manager Password";
+$l['add_manager.php']['available_menu_select'] = "Select menu";
+ // Rade 2023-09-22 add end
 
 $l['home.php']['title_current'] = "Welcome back to administration panel!";
+$l['home.php']['date'] = "Date"; // Rade 2023-09-22
 $l['home.php']['today'] = "Today";
 $l['home.php']['this_month'] = "This month";
 $l['home.php']['this_year'] = "This year";
+$l['home.php']['all'] = "All"; // Rade 2023-09-22
 $l['home.php']['no_stats'] = "No stats.";
 $l['home.php']['since'] = "since";
 $l['home.php']['visitors'] = "Visitors";
@@ -522,6 +637,7 @@ $l['home.php']['visitors_per_country_today'] = "Visitors per country today";
 $l['stats.php']['title_current'] = "Site statistics";
 $l['stats.php']['no_stats'] = "No stats.";
 $l['stats.php']['visitors'] = "Visitors";
+$l['stats.php']['overall'] = "Overall visitors"; // Rade 2023-09-22
 $l['stats.php']['man_interested_in_women'] = "Man interested in women";
 $l['stats.php']['woman_interested_in_men'] = "Woman interested in men";
 $l['stats.php']['man_interested_in_men'] = "Man interested in men";
@@ -533,6 +649,7 @@ $l['stats.php']['postcards_sent'] = "Postcards sent";
 $l['stats.php']['videos_uploaded'] = "Videos uploaded";
 $l['stats.php']['videos_viewed'] = "Videos viewed";
 $l['stats.php']['videos_comments'] = "Videos comments";
+$l['stats.php']['profiles_viewved'] = "Profiles viewed"; // Rade 2023-09-22
 $l['stats.php']['3d_city_started'] = "3d city started";
 $l['stats.php']['hot_or_not_votes'] = "Hot or not votes";
 $l['stats.php']['pics_uploaded'] = " Pics uploaded";
@@ -541,6 +658,8 @@ $l['stats.php']['added_to_friends'] = "Added to friends";
 $l['stats.php']['3d_chat_opened'] = "3d chat opened";
 $l['stats.php']['new_blogs'] = "New blogs";
 $l['stats.php']['events_created'] = "Events created";
+$l['stats.php']['hotdates_created'] = "Hotdates created"; // Rade 2023-09-22
+$l['stats.php']['parthouz_created'] = "PartHouZ created"; // Rade 2023-09-22
 $l['stats.php']['new_forum_posts'] = "New forum posts";
 $l['stats.php']['groups_created'] = "Groups created";
 $l['stats.php']['winks_sent'] = "Winks sent";
@@ -587,6 +706,18 @@ $l['options.php']['field_facebook_like_button_html'] = "Facebook Like button cod
 $l['options.php']['field_ssl_seal_html'] = "SSL seal code";
 $l['options.php']['field_meta_tags'] = "Meta tags";
 $l['options.php']['icon_pwa'] = "Icon PWA";
+ // Rade 2023-09-22 add start
+$l['pages_add_banner.php']['fill_title'] = "Please fill in the Title";
+$l['pages_add_banner.php']['fill_country'] = "Please fill in the Country";
+$l['pages_add_banner.php']['fill_state'] = "Please fill in the State";
+$l['pages_add_banner.php']['fill_city'] = "Please fill in the City";
+$l['pages_add_banner.php']['fill_date'] = "Please fill in the Date";
+$l['pages_add_banner.php']['fill_end_date'] = "Please fill in the End Date";
+$l['pages_add_banner.php']['fill_time'] = "Please fill in the time";
+$l['pages_add_banner.php']['fill_end_time'] = "Please fill in the End time";
+$l['pages_add_banner.php']['fill_Zip'] = "Please fill in the Zip Code";
+$l['pages_add_banner.php']['fill_Image'] = "Please fill in the Image";
+ // Rade 2023-09-22 add end
 
 $l['image.php']['title_current'] = "Image options";
 $l['image.php']['field_logo'] = "Watermark text";
@@ -614,6 +745,7 @@ $l['image.php']['field_min_photo_height_urban'] = "Minimum photo height";
 $l['image.php']['field_min_photo_width_urban'] = "Minimum photo width";
 $l['image.php']['field_watermark_type'] = "Watermark type";
 $l['image.php']['field_watermark_image'] = "Watermark image";
+$l['image.php']['width'] = "Width"; // Rade 2023-09-22
 $l['image.php']['bottom_right'] = "Bottom Right";
 $l['image.php']['top_right'] = "Top Right";
 $l['image.php']['bottom_left'] = "Bottom Left";
@@ -623,6 +755,7 @@ $l['image.php']['field_blog_middle_x'] = "Middle blog post photo width";
 $l['image.php']['field_blog_middle_y'] = "Middle blog post photo height";
 $l['image.php']['field_blog_big_x'] = "Large blog post photo width";
 $l['image.php']['field_blog_big_y'] = "Large blog post photo height";
+$l['image.php']['update_size'] = "Update size"; // Rade 2023-09-22
 
 $l['site_options.php']['title_current'] = "Site options";
 $l['site_options.php']['field_frameworks_version'] = " User can choose desktop/mobile version in profile settings";
@@ -711,10 +844,10 @@ $l['site_options.php']['field_main_page_header_mode_html5'] = "HTML5 header";
 $l['site_options.php']['field_main_page_header_mode_flash'] = "Flash header";
 $l['site_options.php']['field_username_length'] = "Username length(max 50)";
 $l['site_options.php']['field_home_page_mode_social'] = "Home page Social mode (facebook mode)";
-$l['site_options.php']['field_home_page_mode_dating_wall'] = "Home page Dating with wall";
-$l['site_options.php']['field_home_page_mode_dating'] = "Home page Dating";
+$l['site_options.php']['field_home_page_mode_dating_wall'] = "Home page Whisprrz with wall";
+$l['site_options.php']['field_home_page_mode_dating'] = "Home page Whisprrz";
 $l['site_options.php']['field_main_page_mode_social'] = "Social main page";
-$l['site_options.php']['field_main_page_mode_dating'] = "Dating main page";
+$l['site_options.php']['field_main_page_mode_dating'] = "Whisprrz main page";
 $l['site_options.php']['field_manual_user_approval'] = "Manual User Approval";
 $l['site_options.php']['field_join_unconfirmed_email_max_days'] = "Join unconfirmed email max days";
 $l['site_options.php']['field_paid_access_mode_free_site'] = "Free site";
@@ -730,6 +863,8 @@ $l['site_options.php']['field_postcard'] = "Postcard enabled";
 $l['site_options.php']['field_music'] = "Music enabled";
 $l['site_options.php']['field_places'] = "Places enabled";
 $l['site_options.php']['field_events'] = "Events enabled";
+$l['site_options.php']['field_hotdates'] = "Hotdates enabled"; // Rade 2023-09-22
+$l['site_options.php']['field_partyhouz'] = "PatyHouZ enabled"; // Rade 2023-09-22
 $l['site_options.php']['field_groups'] = "Groups enabled";
 $l['site_options.php']['field_adv'] = "Ads enabled";
 $l['site_options.php']['field_widgets'] = "Widgets enabled";
@@ -780,6 +915,7 @@ $l['site_options.php']['none'] = "none";
 $l['site_options.php']['silvery'] = "silver";
 $l['site_options.php']['gold'] = "gold";
 $l['site_options.php']['platinum'] = "platinum";
+$l['site_options.php']['platinumevent'] = "platinum Event"; // Rade 2023-09-22
 $l['site_options.php']['field_adv_search'] = "Advanced search enabled";
 $l['site_options.php']['field_saved_searches'] = "Saved Searches enabled";
 $l['site_options.php']['field_bookmarks'] = "Bookmarks enabled";
@@ -813,6 +949,8 @@ $l['site_options.php']['field_main_new_videos'] = "New videos on main page";
 $l['site_options.php']['cancel'] = "Cancel";
 $l['site_options.php']['choose'] = "Choose";
 $l['site_options.php']['field_events_calendar'] = "Calendar enabled";
+$l['site_options.php']['field_hotdates_calendar'] = "Calendar enabled"; // Rade 2023-09-22
+$l['site_options.php']['field_partyhouz_calendar'] = "Calendar enabled"; // Rade 2023-09-22
 $l['site_options.php']['field_network'] = "Network enabled";
 $l['site_options.php']['field_allow_users_color_scheme'] = "Allow users to choose a color scheme";
 $l['site_options.php']['field_website_background_oryx'] = "Website&#39;s backround";
@@ -1208,10 +1346,19 @@ $l['site_options.php']['field_wall_join_message_enabled'] = "Wall join message e
 $l['site_options.php']['field_main_page_header_text_color'] = "Main page header text color";
 $l['site_options.php']['field_main_page_header_button_border_color'] = "Main page header button border color";
 $l['site_options.php']['field_main_page_title_shadow_color'] = "Main page title shadow color";
+ // Rade 2023-09-22 add start
+$l['site_options.php']['field_sms_alert'] = "SMS Alert Enabled";
+$l['site_options.php']['field_party_house'] = "Party House enabled";
+$l['site_options.php']['field_hot_dates'] = "Hotdate enabled";
+$l['site_options.php']['field_lookingglass'] = "LookingGlass enabled";
+$l['site_options.php']['field_live_streaming_auto_connect'] = "Live Streaming Auto Connect";
+$l['site_options.php']['field_live_streaming'] = "Live Streaming";
+ // Rade 2023-09-22 add end
 
 $l['language.php']['title_current'] = "Languages";
 $l['language.php']['new_language'] = "Create new language";
 $l['language.php']['new_title'] = "Title";
+$l['language.php']['default'] = "Default"; // Rade 2023-09-22
 $l['language.php']['rtl_on'] = "Rtl on";
 $l['language.php']['rtl_off'] = "Rtl off";
 
@@ -1245,6 +1392,7 @@ $l['massmail.php']['count_massmail'] = "massmail with your criteria.";
 $l['automail.php']['title_current'] = "Auto-mail";
 $l['automail.php']['header'] = "Header";
 $l['automail.php']['button'] = "Button";
+$l['automail.php']['url'] = "Url"; // Rade 2023-09-22
 $l['automail.php']['settings'] = "Settings";
 $l['automail.php']['enabled'] = "Enabled";
 $l['automail.php']['join'] = "Join";
@@ -1256,10 +1404,12 @@ $l['automail_settings.php']['template'] = "Template";
 $l['automail_settings.php']['logo'] = "Logo";
 
 $l['template.php']['title_current'] = "Frameworks";
+$l['template.php']['active'] = "Active"; // Rade 2023-09-22
 $l['template.php']['new_template'] = "Create new framework";
 $l['template.php']['new_title'] = "Title";
 
 $l['template_edit.php']['title_current'] = "Edit framework";
+$l['template_edit.php']['images'] = "Images"; // Rade 2023-09-22
 $l['template_edit.php']['popup'] = "Popups";
 $l['template_edit.php']['areas'] = "Areas";
 
@@ -1494,6 +1644,8 @@ $l['template_settings.php']['field_gallery_image_height'] = "Gallery image heigh
 $l['template_settings.php']['field_gallery_image_height_desc'] = "Height(20-100vh). <a target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2018-10-18_22-35-10.png\">View on the site</a>";
 $l['template_settings.php']['field_gallery_image_height_mobile'] = "Gallery image height mobile";
 $l['template_settings.php']['field_gallery_image_height_mobile_desc'] = "Height(20-100vh). <a target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2018-10-18_22-36-53.png\">View on the site</a>";
+$l['template_settings.php']['field_member_bl_wall_post_color'] = "Wall post block"; // Rade 2023-09-22
+$l['template_settings.php']['field_member_bl_wall_post_color_desc'] = "<a target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2018-10-18_23-29-26.png\">View on the site</a>"; // Rade 2023-09-22
 $l['template_settings.php']['field_member_navbar_background_color'] = "Navbar background color";
 $l['template_settings.php']['field_member_navbar_menu_short_color_section'] = "Navbar menu short <a target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2018-10-25_11-02-06.png\">view on the site</a>";
 $l['template_settings.php']['field_member_navbar_menu_short_color'] = "Color";
@@ -1515,7 +1667,11 @@ $l['template_settings.php']['join_page_settings'] = "Join page settings";
 $l['template_settings.php']['field_location_enabled'] = "Location enabled";
 $l['template_settings.php']['field_birthday_enabled'] = "Birthday enabled";
 $l['template_settings.php']['field_number_show_notif_events'] = "Number of event notifications to show after page load";
+$l['template_settings.php']['field_number_show_notif_hotdates'] = "Number of hotdate notifications to show after page load"; // Rade 2023-09-22
+$l['template_settings.php']['field_number_show_notif_partyhouz'] = "Number of Partyouz notifications to show after page load"; // Rade 2023-09-22
 $l['template_settings.php']['field_number_load_notif_events'] = "Number of event notifications to to load more";
+$l['template_settings.php']['field_number_load_notif_hotdates'] = "Number of hotdate notifications to to load more"; // Rade 2023-09-22
+$l['template_settings.php']['field_number_load_notif_partyhouz'] = "Number of partyhouz notifications to to load more"; // Rade 2023-09-22
 $l['template_settings.php']['field_cookie_popup_background_color'] = "GDPR cookie popup background color";
 $l['template_settings.php']['field_cookie_popup_text_color'] = "GDPR cookie popup text color";
 $l['template_settings.php']['field_gallery_show_download_original'] = "Show link download original";
@@ -1583,6 +1739,8 @@ $l['template_settings.php']['new_tasks'] = "New tasks";
 $l['template_settings.php']['subscribers_pending'] = "Members pending";
 $l['template_settings.php']['new_message'] = "Messages";
 $l['template_settings.php']['new_events'] = "Events";
+$l['template_settings.php']['new_hotdates'] = "Hotdates"; // Rade 2023-09-22
+$l['template_settings.php']['new_partyhouz'] = "PartyHouZ"; // Rade 2023-09-22
 $l['template_settings.php']['member_header_menu_description'] = "<a class=\"template_section_description\" target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2019-02-15_13-30-26.png\">View on the site</a>";
 $l['template_settings.php']['member_header_menu_short_description'] = "<a class=\"template_section_description\" target=\"_blank\" href=\"https://sitesman.com/s/1014/09-12-2019_19-58-20.png\">View on the site</a>";
 $l['template_settings.php']['member_groups_header_menu_short_description'] = "<a class=\"template_section_description\" target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2019-06-06_16-34-22.png\">View on the site</a><br>
@@ -1644,7 +1802,9 @@ $l['template_settings.php']['field_member_new_message_text_color_desc'] = "<a ta
 $l['template_settings.php']['field_member_new_message_sidepanel_text_color'] = "New message text color in the sidebar";
 $l['template_settings.php']['field_member_new_message_sidepanel_text_color_desc'] = "<a target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2019-03-18_11-13-41.png\">View on the site</a>";
 $l['template_settings.php']['field_member_event_comment_highlight_color'] = "Event comment highlight color";
+$l['template_settings.php']['field_member_hotdate_comment_highlight_color'] = "hotdate comment highlight color"; // Rade 2023-09-22
 $l['template_settings.php']['field_member_event_comment_highlight_color_desc'] = "<a target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2019-03-26_12-21-42.png\">View on the site</a>";
+$l['template_settings.php']['field_member_hotdate_comment_highlight_color_desc'] = "<a target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2019-03-26_12-21-42.png\">View on the site</a>"; // Rade 2023-09-22
 $l['template_settings.php']['field_member_message_sent_link_text_color'] = "Message link text color";
 $l['template_settings.php']['field_member_message_sent_link_text_color_desc'] = "<a target=\"_blank\" href=\"https://sitesman.com/s/1014/1014-2019-04-04_18-38-56.png\">View on the site</a>";
 $l['template_settings.php']['field_member_message_sent_link_text_color_hover'] = "Message link text color hover";
@@ -1685,6 +1845,9 @@ $l['template_settings.php']['subscribers_group'] = "Users liked page(users membe
 $l['template_settings.php']['menu_user_report_groups_edge'] = "Report page(group)";
 $l['template_settings.php']['menu_groups_like_edge'] = "Like page(members group)";
 $l['template_settings.php']['events_settings'] = "Calendar settings";
+$l['template_settings.php']['hotdates_settings'] = "Calendar settings"; // Rade 2023-09-22
+$l['template_settings.php']['partyhouz_settings'] = "Calendar settings"; // Rade 2023-09-22
+$l['template_settings.php']['field_number_calendar_item'] = "Количество отображаемых событий в одном дне"; // Rade 2023-09-22
 $l['template_settings.php']['order_near_me'] = "Near me";
 $l['template_settings.php']['order_online'] = "Online";
 $l['template_settings.php']['field_calendar_enabled'] = "Calendar enabled";
@@ -1841,8 +2004,10 @@ $l['users_search.php']['from'] = "From";
 $l['users_search.php']['years_old'] = "years old";
 $l['users_search.php']['select_all'] = "Select All";
 $l['users_search.php']['keyword'] = "Keyword";
+$l['users_search.php']['search'] = "Search"; // Rade 2023-09-22
 
 $l['users_photo.php']['title_current'] = "Photo Approval";
+$l['users_photo.php']['no_photo'] = "No photos yet!"; // Rade 2023-09-22
 
 $l['users_video.php']['title_current'] = "Video Approval";
 $l['users_video.php']['no_video'] = "No videos yet!";
@@ -1937,6 +2102,7 @@ $l['partner.php']['account'] = "Account";
 $l['partner.php']['users'] = "Users";
 $l['partner.php']['refers'] = "Refers";
 $l['partner.php']['golds'] = "Paids";
+$l['partner.php']['login'] = "Login"; // Rade 2023-09-22
 $l['partner.php']['domains'] = "Domains";
 $l['partner.php']['info'] = "Info";
 $l['partner.php']['bank'] = "Bank";
@@ -2011,12 +2177,15 @@ $l['banner_add.php']['enter_the_code'] = "Enter the code";
 $l['banner_add.php']['graphic'] = "Graphic";
 $l['banner_add.php']['flash'] = "Flash";
 $l['banner_add.php']['code'] = "Code";
+$l['banner_add.php']['width'] = "Width"; // Rade 2023-09-22
+$l['banner_add.php']['height'] = "Height"; // Rade 2023-09-22
 $l['banner_add.php']['file_is_not_selected'] = "The file is not selected";
 $l['banner_add.php']['file_must_be_formats_image'] = "The file must be in one of the following formats: GIF, JPG, JPEG, or PNG";
 $l['banner_add.php']['file_must_be_formats_flash'] = "The file must be in the format SWF";
 $l['banner_add.php']['not_correctly_set_the_size_of_the_flash'] = "Not correctly set the size of the flash";
 
 $l['pay.php']['title_current'] = "Payment";
+$l['pay.php']['active'] = "Active"; // Rade 2023-09-22
 $l['pay.php']['business'] = "Business";
 $l['pay.php']['currency_code'] = "Currency code";
 $l['pay.php']['demo'] = "Demo";
@@ -2043,6 +2212,7 @@ $l['pay_plans.php']['new_credits_plan'] = "New credits plan";
 $l['pay_plans.php']['new_credits_plan_impact'] = "New boosts plan";
 $l['pay_plans.php']['payment_2co_id'] = "2CO ID";
 $l['pay_plans.php']['credits_plans'] = "Credits plans";
+$l['pay_plans.php']['credits'] = "Credits"; // Rade 2023-09-22
 $l['pay_plans.php']['credits_impact'] = "Boosts";
 $l['pay_plans.php']['default_payment_plan'] = "Default payment plan";
 $l['pay_plans.php']['fortumo_service_id'] = "Fortumo service id";
@@ -2063,6 +2233,7 @@ $l['flashchat_rooms.php']['no_result'] = "Rooms do not have";
 
 $l['flashchat_ban.php']['title_current'] = "Ban";
 $l['flashchat_ban.php']['times'] = "Time, hours";
+$l['flashchat_ban.php']['name'] = "Name"; // Rade 2023-09-22
 $l['flashchat_ban.php']['banned_users'] = "Banned users";
 $l['flashchat_ban.php']['name_ban'] = "Name for ban";
 
@@ -2070,6 +2241,7 @@ $l['3dchat_rooms.php']['title_current'] = "Chat3D Rooms";
 $l['3dchat_rooms.php']['page'] = "You can change names of rooms at <a href=\"./language_edit.php?part=main&lang={lang}&lang_page=chat.php\">page</a> (language file for chat 3D). Current names of rooms:";
 $l['3dchat_rooms.php']['no_result'] = "Rooms do not have";
 
+$l['3dchat_edit.php']['name'] = "Name"; // Rade 2023-09-22
 $l['3dchat_edit.php']['background_room'] = "Background room";
 $l['3dchat_edit.php']['title_current'] = "Add in room 3DChat";
 $l['3dchat_edit.php']['error'] = "A room with that name already exists, or the name is not specified";
@@ -2122,6 +2294,7 @@ $l['places_results.php']['title_current'] = "Places";
 $l['places_results.php']['no_places'] = "No places";
 $l['places_results.php']['count_places'] = "places with your criteria.";
 $l['places_results.php']['reviews'] = "Reviews";
+$l['places_results.php']['name'] = "Name"; // Rade 2023-09-22
 $l['places_results.php']['city_id'] = "City";
 $l['places_results.php']['rating'] = "Rating";
 $l['places_results.php']['has_images'] = "Has Images";
@@ -2134,6 +2307,8 @@ $l['places_edit.php']['place_phone'] = "Phone";
 $l['places_edit.php']['place_site'] = "Site";
 $l['places_edit.php']['place_about'] = "About";
 $l['places_edit.php']['place_address'] = "Address";
+$l['places_edit.php']['country'] = "Country"; // Rade 2023-09-22
+$l['places_edit.php']['city'] = "City"; // Rade 2023-09-22
 $l['places_edit.php']['edit_reviews'] = "Place&#39;s Reviews";
 $l['places_edit.php']['please_specify_name'] = "Please specify name";
 $l['places_edit.php']['address_is_required'] = "Address is required";
@@ -2152,6 +2327,7 @@ $l['places_review_edit.php']['title_current'] = "Edit place review";
 $l['places_review_edit.php']['this_action'] = "This action can not be undone. Are you sure you wish to continue?";
 $l['places_review_edit.php']['review_title'] = "Title";
 $l['places_review_edit.php']['review_text'] = "Text";
+$l['places_review_edit.php']['please_specify_title'] = "Please specify title"; // Rade 2023-09-22
 
 $l['places_categories.php']['title_current'] = "Categories of places";
 $l['places_categories.php']['category_id'] = "ID";
@@ -2185,6 +2361,7 @@ $l['music_musician_edit.php']['musician_name'] = "Name";
 $l['music_musician_edit.php']['musician_leader'] = "Leader";
 $l['music_musician_edit.php']['musician_founded'] = "Founded";
 $l['music_musician_edit.php']['musician_about'] = "About";
+$l['music_musician_edit.php']['please_specify_title'] = "Please specify title"; // Rade 2023-09-22
 $l['music_musician_edit.php']['please_specify_leader'] = "Please specify leader";
 
 $l['music_musician_comments.php']['title_current'] = "Comments";
@@ -2197,14 +2374,19 @@ $l['music_musician_comment_edit.php']['title_current'] = "Edit musician comment"
 $l['music_songs.php']['title_current'] = "Songs";
 $l['music_songs.php']['no_places'] = "No songs";
 $l['music_songs.php']['songs'] = "songs";
+$l['music_songs.php']['song_title'] = "Title"; // Rade 2023-09-22
 $l['music_songs.php']['musician_id'] = "Musician";
+$l['music_songs.php']['song_id'] = "Id"; // Rade 2023-09-22
+$l['music_songs.php']['song_n_plays'] = "Plays"; // Rade 2023-09-22
 $l['music_songs.php']['song_rating'] = "Rating";
+$l['music_songs.php']['song_has_images'] = "Has images"; // Rade 2023-09-22
 
 $l['music_song_edit.php']['title_current'] = "Edit song";
 $l['music_song_edit.php']['this_action'] = "This action can not be undone. Are you sure you wish to continue?";
 $l['music_song_edit.php']['song_title'] = "Name";
 $l['music_song_edit.php']['song_year'] = "Year";
 $l['music_song_edit.php']['song_about'] = "About";
+$l['music_song_edit.php']['please_specify_title'] = "Please specify title"; // Rade 2023-09-22
 $l['music_song_edit.php']['listen_song'] = "Listen to the song";
 
 $l['music_song_comments.php']['title_current'] = "Song comments";
@@ -2281,6 +2463,7 @@ $l['events_event_edit.php']['event_address'] = "Address";
 $l['events_event_edit.php']['event_place'] = "Place";
 $l['events_event_edit.php']['event_site'] = "Site";
 $l['events_event_edit.php']['event_phone'] = "Phone";
+$l['events_event_edit.php']['please_specify_title'] = "Please specify title"; // Rade 2023-09-22
 $l['events_event_edit.php']['please_specify_date'] = "Please specify date";
 $l['events_event_edit.php']['please_specify_time'] = "Please specify time";
 $l['events_event_edit.php']['please_specify_address'] = "Please specify address";
@@ -2310,17 +2493,115 @@ $l['events_event_comment_comments.php']['no_places'] = "No event comments";
 $l['events_event_comment_comments.php']['count_places'] = "event comments with your criteria.";
 
 $l['events_event_comment_comment_edit.php']['title_current'] = "Edit event sub comment";
+ // Rade 2023-09-22 add start
+$l['hotdates_hotdates.php']['title_current'] = "hotdates";
+$l['hotdates_hotdates.php']['no_places'] = "No hotdates";
+$l['hotdates_hotdates.php']['count_places'] = "hotdates with your criteria.";
+$l['hotdates_hotdates.php']['hotdate_title'] = "Title";
+$l['hotdates_hotdates.php']['hotdate_id'] = "Id";
+$l['hotdates_hotdates.php']['hotdate_datetime'] = "hotdate date";
+$l['hotdates_hotdates.php']['hotdate_has_images'] = "Has images";
+
+$l['hotdates_hotdate_edit.php']['title_current'] = "Edit hotdate";
+$l['hotdates_hotdate_edit.php']['this_action'] = "This action can not be undone. Are you sure you wish to continue?";
+$l['hotdates_hotdate_edit.php']['hotdate_title'] = "Title";
+$l['hotdates_hotdate_edit.php']['hotdate_description'] = "Description";
+$l['hotdates_hotdate_edit.php']['hotdate_address'] = "Address";
+$l['hotdates_hotdate_edit.php']['hotdate_place'] = "Place";
+$l['hotdates_hotdate_edit.php']['hotdate_site'] = "Site";
+$l['hotdates_hotdate_edit.php']['hotdate_phone'] = "Phone";
+$l['hotdates_hotdate_edit.php']['please_specify_title'] = "Please specify title";
+$l['hotdates_hotdate_edit.php']['please_specify_date'] = "Please specify date";
+$l['hotdates_hotdate_edit.php']['please_specify_time'] = "Please specify time";
+$l['hotdates_hotdate_edit.php']['please_specify_address'] = "Please specify address";
+$l['hotdates_hotdate_edit.php']['please_specify_place'] = "Please specify place";
+$l['hotdates_hotdate_edit.php']['please_select_city'] = "Please select city";
+
+$l['hotdates_categories.php']['title_current'] = "Categories";
+$l['hotdates_categories.php']['category_id'] = "ID";
+$l['hotdates_categories.php']['category_title'] = "Title";
+$l['hotdates_categories.php']['are_you_sure_category'] = "Are you sure? All hotdates in this category will be deleted.";
+
+$l['hotdates_category_add.php']['category_title'] = "Title";
+$l['hotdates_category_add.php']['title_current'] = "Add category";
+
+$l['hotdates_category_edit.php']['title_current'] = "Edit category";
+$l['hotdates_category_edit.php']['category_title'] = "Title";
+
+$l['hotdates_hotdate_comments.php']['title_current'] = "Comments";
+$l['hotdates_hotdate_comments.php']['no_places'] = "No hotdate comments";
+$l['hotdates_hotdate_comments.php']['count_places'] = "comments";
+$l['hotdates_hotdate_comments.php']['hotdate_id'] = "hotdate";
+
+$l['hotdates_hotdate_comment_edit.php']['title_current'] = "Edit hotdate comment";
+
+$l['hotdates_hotdate_comment_comments.php']['title_current'] = "Sub comments";
+$l['hotdates_hotdate_comment_comments.php']['no_places'] = "No hotdate comments";
+$l['hotdates_hotdate_comment_comments.php']['count_places'] = "hotdate comments with your criteria.";
+
+$l['hotdates_hotdate_comment_comment_edit.php']['title_current'] = "Edit hotdate sub comment";
+
+$l['partyhouz_partyhouz.php']['title_current'] = "PartyHouZ";
+$l['partyhouz_partyhouz.php']['no_places'] = "No PartyHouZ";
+$l['partyhouz_partyhouz.php']['count_places'] = "PartyHouZ with your criteria.";
+$l['partyhouz_partyhouz.php']['partyhou_title'] = "Title";
+$l['partyhouz_partyhouz.php']['partyhou_id'] = "Id";
+$l['partyhouz_partyhouz.php']['partyhou_datetime'] = "PartyHouZ date";
+$l['partyhouz_partyhouz.php']['partyhou_has_images'] = "Has images";
+
+$l['partyhouz_partyhou_edit.php']['title_current'] = "Edit PartyHouZ";
+$l['partyhouz_partyhou_edit.php']['this_action'] = "This action can not be undone. Are you sure you wish to continue?";
+$l['partyhouz_partyhou_edit.php']['partyhou_title'] = "Title";
+$l['partyhouz_partyhou_edit.php']['partyhou_description'] = "Description";
+$l['partyhouz_partyhou_edit.php']['partyhou_address'] = "Address";
+$l['partyhouz_partyhou_edit.php']['partyhou_place'] = "Place";
+$l['partyhouz_partyhou_edit.php']['partyhou_site'] = "Site";
+$l['partyhouz_partyhou_edit.php']['partyhou_phone'] = "Phone";
+$l['partyhouz_partyhou_edit.php']['please_specify_title'] = "Please specify title";
+$l['partyhouz_partyhou_edit.php']['please_specify_date'] = "Please specify date";
+$l['partyhouz_partyhou_edit.php']['please_specify_time'] = "Please specify time";
+$l['partyhouz_partyhou_edit.php']['please_specify_address'] = "Please specify address";
+$l['partyhouz_partyhou_edit.php']['please_specify_place'] = "Please specify place";
+$l['partyhouz_partyhou_edit.php']['please_select_city'] = "Please select city";
+
+$l['partyhouz_categories.php']['title_current'] = "Categories";
+$l['partyhouz_categories.php']['category_id'] = "ID";
+$l['partyhouz_categories.php']['category_title'] = "Title";
+$l['partyhouz_categories.php']['are_you_sure_category'] = "Are you sure? All PartyHouZ in this category will be deleted.";
+
+$l['partyhouz_category_add.php']['category_title'] = "Title";
+$l['partyhouz_category_add.php']['title_current'] = "Add category";
+
+$l['partyhouz_category_edit.php']['title_current'] = "Edit category";
+$l['partyhouz_category_edit.php']['category_title'] = "Title";
+
+$l['partyhouz_partyhou_comments.php']['title_current'] = "Comments";
+$l['partyhouz_partyhou_comments.php']['no_places'] = "No PartyHouZ comments";
+$l['partyhouz_partyhou_comments.php']['count_places'] = "comments";
+$l['partyhouz_partyhou_comments.php']['partyhou_id'] = "PartyHouZ";
+
+$l['partyhouz_partyhou_comment_edit.php']['title_current'] = "Edit PartyHouZ comment";
+
+$l['partyhouz_partyhou_comment_comments.php']['title_current'] = "Sub comments";
+$l['partyhouz_partyhou_comment_comments.php']['no_places'] = "No PartyHouZ comments";
+$l['partyhouz_partyhou_comment_comments.php']['count_places'] = "PartyHouZ comments with your criteria.";
+
+$l['partyhouz_partyhou_comment_comment_edit.php']['title_current'] = "Edit PartyHouZ sub comment";
+ // Rade 2023-09-22 add end
 
 $l['groups_groups.php']['title_current'] = "Groups";
 $l['groups_groups.php']['no_places'] = "No groups";
 $l['groups_groups.php']['count_places'] = "groups with your criteria.";
 $l['groups_groups.php']['forums'] = "Forums";
+$l['groups_groups.php']['group_title'] = "Title"; // Rade 2023-09-22
 $l['groups_groups.php']['group_id'] = "Id";
 $l['groups_groups.php']['group_has_images'] = "Has images";
 
 $l['groups_group_edit.php']['title_current'] = "Edit group";
 $l['groups_group_edit.php']['this_action'] = "This action can not be undone. Are you sure you wish to continue?";
+$l['groups_group_edit.php']['group_title'] = "Title"; // Rade 2023-09-22
 $l['groups_group_edit.php']['group_description'] = "Description";
+$l['groups_group_edit.php']['please_specify_title'] = "Please specify title"; // Rade 2023-09-22
 $l['groups_group_edit.php']['please_specify_address'] = "Please specify address";
 $l['groups_group_edit.php']['please_specify_place'] = "Please specify place";
 $l['groups_group_edit.php']['please_select_city'] = "Please select city";
@@ -2351,6 +2632,7 @@ $l['groups_forums.php']['group_id'] = "Group";
 $l['groups_forum_edit.php']['title_current'] = "Edit forum";
 $l['groups_forum_edit.php']['forum_title'] = "Title";
 $l['groups_forum_edit.php']['forum_description'] = "Description";
+$l['groups_forum_edit.php']['please_specify_title'] = "Please specify title"; // Rade 2023-09-22
 
 $l['groups_forum_comments.php']['title_current'] = "Comments";
 $l['groups_forum_comments.php']['no_places'] = "No forum comments";
@@ -2461,6 +2743,8 @@ $l['matchmail.php']['field_photo_size'] = "Profile photo size";
 
 $l['banner_edit.php']['title_current'] = "Edit Banner";
 $l['banner_edit.php']['code'] = "Code";
+$l['banner_edit.php']['width'] = "Width"; // Rade 2023-09-22
+$l['banner_edit.php']['height'] = "Height"; // Rade 2023-09-22
 $l['banner_edit.php']['insert'] = "Please insert the name";
 $l['banner_edit.php']['enter_the_code'] = "Enter the code";
 
@@ -2582,12 +2866,14 @@ $l['pay_order.php']['title_current'] = "Payment system order";
 $l['gifts.php']['title_current'] = "Gifts";
 $l['gifts.php']['no_result'] = "No gifts found";
 $l['gifts.php']['image'] = "Image";
+$l['gifts.php']['credits'] = "Credits"; // Rade 2023-09-22
 $l['gifts.php']['sent'] = "Sent";
 $l['gifts.php']['change_all_gifts_prices_at_once'] = "Change all gifts&#39; prices at once";
 $l['gifts.php']['set'] = "Set";
 
 $l['gifts_edit.php']['title_current'] = "Gift add";
 $l['gifts_edit.php']['edit_gift'] = "Gift edit";
+$l['gifts_edit.php']['credits'] = "Credits"; // Rade 2023-09-22
 $l['gifts_edit.php']['picture_gift_not_selected'] = "Picture of a gift is not selected!";
 $l['gifts_edit.php']['error_image_size'] = "Your image for gift is too small. [93x79] minimum";
 $l['gifts_edit.php']['error_image_upload'] = "File upload error";
@@ -2596,12 +2882,14 @@ $l['gifts_edit.php']['style_set'] = "Style Set";
 $l['gifts_edit.php']['image'] = "Image";
 
 $l['gifts_set.php']['title_current'] = "Style Set";
+$l['gifts_set.php']['active'] = "Active"; // Rade 2023-09-22
 $l['gifts_set.php']['title'] = "Title";
 
 $l['pay_features.php']['title_current'] = "Paid features";
 $l['pay_features.php']['3dcity'] = "3DCity (including Street Chat and Games)";
 
 $l['pages.php']['title_current'] = "Pages";
+$l['pages.php']['pages'] = "Pages"; // Rade 2023-09-22
 $l['pages.php']['hide_from_guests'] = "Hide from guests";
 $l['pages.php']['system'] = "System";
 
@@ -2663,6 +2951,8 @@ $l['cache.php']['clean_the_cache'] = "Clear cache";
 $l['users_reports.php']['title_current'] = "Users reports";
 $l['users_reports.php']['no_reports'] = "No reports";
 $l['users_reports.php']['delete_report'] = "Delete report";
+$l['users_reports.php']['ban_user'] = "Ban user"; // Rade 2023-09-22
+$l['users_reports.php']['unban_user'] = "Unban user"; // Rade 2023-09-22
 $l['users_reports.php']['from'] = "From";
 $l['users_reports.php']['about'] = "About";
 $l['users_reports.php']['messages'] = "Messages";
@@ -2672,6 +2962,8 @@ $l['users_reports_content.php']['title_current'] = "Content reports";
 $l['users_reports_content.php']['no_reports'] = "No reports";
 $l['users_reports_content.php']['delete_report'] = "Delete report";
 $l['users_reports_content.php']['delete_photo'] = "Delete photo";
+$l['users_reports_content.php']['ban_user'] = "Ban user"; // Rade 2023-09-22
+$l['users_reports_content.php']['unban_user'] = "Unban user"; // Rade 2023-09-22
 $l['users_reports_content.php']['from'] = "From";
 $l['users_reports_content.php']['about'] = "About";
 $l['users_reports_content.php']['photos'] = "Photos";
@@ -2696,6 +2988,7 @@ $l['alb_albums_show.php']['images'] = "images";
 $l['alb_albums_show.php']['no_images'] = "No images";
 
 $l['alb_comments.php']['title_current'] = "Comments";
+$l['alb_comments.php']['no_comments'] = "No comments"; // Rade 2023-09-22
 $l['alb_comments.php']['comments'] = "comments";
 
 $l['alb_comments_edit.php']['comment_by'] = "Comment by";
@@ -2716,8 +3009,10 @@ $l['quick_search_order.php']['title_current'] = "Quick Search Order";
 
 $l['users_fields_interests.php']['title_current'] = "Users interests";
 $l['users_fields_interests.php']['count_ineters'] = "interest to your criteria.";
+$l['users_fields_interests.php']['username'] = "Username"; // Rade 2023-09-22
 $l['users_fields_interests.php']['interests'] = "Interests";
 $l['users_fields_interests.php']['counter'] = "Counter";
+$l['users_fields_interests.php']['category'] = "Category"; // Rade 2023-09-22
 $l['users_fields_interests.php']['no_interest'] = "No interest";
 $l['users_fields_interests.php']['lang'] = "Language";
 $l['users_fields_interests.php']['add_interest'] = "Add interest";
@@ -2730,6 +3025,14 @@ $l['date_options.php']['field_adv_date'] = "Adv date posted";
 $l['date_options.php']['field_event_date'] = "Event date";
 $l['date_options.php']['field_event_time'] = "Event time";
 $l['date_options.php']['field_event_datetime'] = "Event datetime";
+ // Rade 2023-09-22 add start
+$l['date_options.php']['field_hotdate_date'] = "hotdate date";
+$l['date_options.php']['field_hotdate_time'] = "hotdate time";
+$l['date_options.php']['field_hotdate_datetime'] = "hotdate datetime";
+$l['date_options.php']['field_partyhou_date'] = "PartyHouZ date";
+$l['date_options.php']['field_partyhou_time'] = "PartyHouZ time";
+$l['date_options.php']['field_partyhou_datetime'] = "PartyHouZ datetime";
+ // Rade 2023-09-22 add end
 $l['date_options.php']['field_topic_user_register'] = "Topic user register";
 $l['date_options.php']['field_message_user_register'] = "Message user register";
 $l['date_options.php']['field_user_comment_date'] = "User comment date";
@@ -2743,12 +3046,20 @@ $l['date_options.php']['field_profile_was_online_date'] = "Profile was online da
 $l['date_options.php']['field_users_last_visit_date'] = "Users last visit date";
 $l['date_options.php']['field_users_photo_date'] = "Users photo date";
 $l['date_options.php']['field_wall_event_datetime'] = "Wall event datetime";
+$l['date_options.php']['field_wall_hotdate_datetime'] = "Wall hotdate datetime"; // Rade 2023-09-22
+$l['date_options.php']['field_wall_partyhou_datetime'] = "Wall PartyHou datetime"; // Rade 2023-09-22
 $l['date_options.php']['field_blogs_searches_readable_datetime'] = "Blogs searches readable datetime";
 $l['date_options.php']['field_calendar_datetime'] = "Calendar datetime";
 $l['date_options.php']['field_calendar_day'] = "Calendar day";
 $l['date_options.php']['field_calendar_day_value'] = "Calendar day value";
 $l['date_options.php']['field_events_event_date'] = "Events event date";
 $l['date_options.php']['field_events_event_time'] = "Events event time";
+ // Rade 2023-09-22 add start
+$l['date_options.php']['field_hotdates_hotdate_date'] = "hotdates hotdate date";
+$l['date_options.php']['field_hotdates_hotdate_time'] = "hotdates hotdate time";
+$l['date_options.php']['field_parthouz_partyhou_date'] = "PartyHouZ PartyHouZ date";
+$l['date_options.php']['field_partyhouz_partyhou_time'] = "PartyHouZ PartyHouZ time";
+ // Rade 2023-09-22 add end
 $l['date_options.php']['field_common_item_date_format'] = "Common item date format";
 $l['date_options.php']['field_common_item_date_format_year'] = "Common item date format year";
 $l['date_options.php']['field_comment_created_at'] = "Comment created at";
@@ -2756,6 +3067,12 @@ $l['date_options.php']['field_group_created_at'] = "Group created at";
 $l['date_options.php']['field_music_comment_created_at'] = "Music comment created at";
 $l['date_options.php']['field_edit_event_date'] = "Event edit date";
 $l['date_options.php']['field_edit_event_time'] = "Event edit time";
+ // Rade 2023-09-22 add start
+$l['date_options.php']['field_edit_hotdate_date'] = "hotdate edit date";
+$l['date_options.php']['field_edit_hotdate_time'] = "hotdate edit time";
+$l['date_options.php']['field_edit_partyhou_date'] = "PartyHouZ edit date";
+$l['date_options.php']['field_edit_partyhou_time'] = "PartyHouZ edit time";
+ // Rade 2023-09-22 add end
 $l['date_options.php']['field_vids_comment'] = "Video comment datetime";
 $l['date_options.php']['field_vids_dt_readable'] = "Video date readable";
 $l['date_options.php']['field_vids_dt_time'] = "Video datetime";
@@ -2773,7 +3090,7 @@ $l['date_options.php']['field_general_chat'] = "General chat";
 $l['date_options.php']['field_im_mobile_datetime_today'] = "Im mobile datetime today";
 $l['date_options.php']['field_im_mobile_datetime_this_month'] = "Im mobile datetime this month";
 $l['date_options.php']['field_im_mobile_datetime'] = "Im mobile datetime";
-$l['date_options.php']['field_edit_event_date_mixer_js'] = "Event edit date javascript";
+$l['date_options.php']['field_edit_event_date_mixer_js'] = "partyhouZ edit date javascript";
 $l['date_options.php']['field_forum_message_created_at'] = "Forum message created at";
 $l['date_options.php']['field_im_message_oryx'] = "Im message";
 $l['date_options.php']['field_im_message_oryx_today'] = "Im message today";
@@ -2787,6 +3104,7 @@ $l['date_options.php']['field_profile_birth_edge'] = "User birthday date";
 $l['date_options.php']['field_profile_birth_full_edge'] = "User birthday date full";
 $l['date_options.php']['field_photo_date'] = "Photo date";
 $l['date_options.php']['field_group_create_full'] = "Group creation date";
+$l['date_options.php']['field_task_date'] = "Task date"; // Rade 2023-09-22
 
 $l['fakes_reply_replier.php']['input_the_new_password_here'] = "Input the new password here";
 $l['fakes_reply_replier.php']['title_current'] = "Fake profiles&#39; replier";
@@ -2819,6 +3137,7 @@ $l['city_platform.php']['field_first_visit_location'] = "First visit location";
 $l['city_platform.php']['registered'] = "Show a location in the city where the user is registered";
 $l['city_platform.php']['ip'] = "Determine the user&#39;s location by IP";
 $l['city_platform.php']['random'] = "Totally random location";
+$l['city_platform.php']['active'] = "Active"; // Rade 2023-09-22
 $l['city_platform.php']['please_activate_at_least_one_platform'] = "Please activate at least one platform!";
 $l['city_platform.php']['field_google_maps_api_key'] = "Google Maps API Key";
 $l['city_platform.php']['field_google_maps_api_key_desc'] = "You can find how to get one <a target=\"_blank\" href=\"https://developers.google.com/maps/documentation/javascript/get-api-key?hl=en#key\">here</a>.";
@@ -2826,16 +3145,27 @@ $l['city_platform.php']['field_google_maps_api_key_desc'] = "You can find how to
 $l['groups_social.php']['title_current'] = "Groups";
 $l['groups_social.php']['no_items'] = "No groups";
 $l['groups_social.php']['count_places'] = "groups with your criteria.";
+ // Rade 2023-09-22 add start
+$l['groups_social.php']['ban'] = "Ban";
+$l['groups_social.php']['unban'] = "Unban";
+$l['groups_social.php']['group_title'] = "Title";
+ // Rade 2023-09-22 add end
 $l['groups_social.php']['group_owner'] = "Owner";
 $l['groups_social.php']['group_date'] = "Created by";
 
 $l['groups_social_pages.php']['title_current'] = "Pages";
 $l['groups_social_pages.php']['no_items'] = "No pages";
 $l['groups_social_pages.php']['count_places'] = "pages with your criteria.";
+ // Rade 2023-09-22 add start
+$l['groups_social_pages.php']['ban'] = "Ban";
+$l['groups_social_pages.php']['unban'] = "Unban";
+$l['groups_social_pages.php']['group_title'] = "Title";
+ // Rade 2023-09-22 add end
 $l['groups_social_pages.php']['group_owner'] = "Owner";
 $l['groups_social_pages.php']['group_date'] = "Created by";
 
 $l['groups_social_photo.php']['title_current'] = "Photo Approval";
+$l['groups_social_photo.php']['no_photo'] = "No photos yet!"; // Rade 2023-09-22
 
 $l['groups_social_video.php']['title_current'] = "Video Approval";
 $l['groups_social_video.php']['no_video'] = "No videos yet!";
@@ -2844,6 +3174,8 @@ $l['groups_social_reports.php']['title_current'] = "Groups(pages) reports";
 $l['groups_social_reports.php']['title_current_short'] = "Reports";
 $l['groups_social_reports.php']['no_reports'] = "No reports";
 $l['groups_social_reports.php']['delete_report'] = "Delete report";
+$l['groups_social_reports.php']['ban'] = "Ban group(page)"; // Rade 2023-09-22
+$l['groups_social_reports.php']['unban'] = "Unban group(page)"; // Rade 2023-09-22
 $l['groups_social_reports.php']['from'] = "From";
 $l['groups_social_reports.php']['owner'] = "Owner";
 $l['groups_social_reports.php']['title_group'] = "Title group(page)";
@@ -2858,10 +3190,14 @@ $l['groups_social_reports_content.php']['delete_photo'] = "Delete photo";
 $l['groups_social_reports_content.php']['delete_all_reports'] = "Delete reports";
 $l['groups_social_reports_content.php']['messages'] = "Messages";
 $l['groups_social_reports_content.php']['delete_content'] = "Delete content";
+$l['groups_social_reports_content.php']['ban'] = "Ban group(page)"; // Rade 2023-09-22
+$l['groups_social_reports_content.php']['unban'] = "Unban group(page)"; // Rade 2023-09-22
 $l['groups_social_reports_content.php']['no_photo'] = "No photo";
 $l['groups_social_reports_content.php']['from'] = "From";
 $l['groups_social_reports_content.php']['owner'] = "Owner";
 $l['groups_social_reports_content.php']['title_group'] = "Title group(page)";
+
+$l['wowslider.php']['only_one_user_global_banner_will_show_at_a_time'] = "Only One User Global Banner Will Show At A Time";  // Rade 2023-09-22
 
 $l['groups_social_edit.php']['title_current'] = "Edit info";
 $l['groups_social_edit.php']['group_description'] = "Description";
@@ -2962,5 +3298,18 @@ $l['massmail.php']['emails_sent'] = "Number of emails sent";
 
 $l['site_options.php']['field_image_editor_enabled'] = "Image editor enabled";
 
+ // Rade 2023-09-22 add start
+$l['wowslider.php']['only_one_banner_will_show_at_a_time'] = "Only One Banner Will Show At A Time";
+$l['wowslider.php']['insert_short_title'] = "Insert Short Title";
+$l['wowslider.php']['insert_country_you_want_banner'] = "Insert Country You Want Banner";
+$l['wowslider.php']['insert_location_of_banner'] = "Insert Location Of Banner";
+$l['wowslider.php']['insert_state_you_want_banner'] = "Insert State You Want Banner";
+$l['wowslider.php']['insert_city_you_want_banner'] = "Insert City You Want Banner";
+$l['wowslider.php']['insert_website_banner_directed_to'] = "Insert Website Banner Directed To";
+$l['wowslider.php']['insert_from_date_you_want_displayed'] = "Insert From Date You Want Displayed";
+$l['wowslider.php']['insert_to_date_you_want_displayed'] = "Insert To Date You Want Displayed";
+$l['wowslider.php']['insert_zipcode_you_want_banner'] = "Insert Zipcode You Want Banner";
+$l['wowslider.php']['insert_exact_banner_size'] = "Insert Exact Banner Size";
+ // Rade 2023-09-22 add end
 
 ?>
