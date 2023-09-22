@@ -961,8 +961,8 @@ white-space: -moz-pre-wrap; white-space: -pre-wrap; white-space: -o-pre-wrap; wo
     white-space: -pre-wrap;
     white-space: -o-pre-wrap;
     word-wrap: break-word;
-    cursor: pointer;
-}
+cursor: pointer;
+ }
 
 .bl_message_one .item .message .show_original_message{background: url(../images/icons.png) 0px -1745px no-repeat; width:20px; height:20px;z-index:5;}
 .bl_message_one .item .message .original_message {display:none;}
