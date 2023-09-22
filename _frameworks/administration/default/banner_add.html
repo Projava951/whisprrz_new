@@ -26,6 +26,7 @@ $(function() {
     <ul class="lmenu_lgreen">
         <li><a href="{url_main}administration/banner.php">{l_menu_banners}</a></li>
         <li class="active"><a href="{url_main}administration/banner_add.php">{l_menu_add_banner}</a></li>
+		<li><a href="{url_main}administration/pages_add_banner.php">{l_menu_banner_add}</a></li>
     </ul>
 </div>
 <div class="block_main">
@@ -79,11 +80,7 @@ $(function() {
 	  <input type="file" class="upload" size="45" name="banner_img"/>
 	  </div>
       <!-- end_field_file -->
-
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_add}</button>
-        </div>
-
+	<div class="btn fl_right" ><a class="submit" href="#">{l_add}</a></div>
       </form>
     </div>
 

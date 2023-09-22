@@ -8,9 +8,6 @@
         <li><a href="{url_main}administration/users_filter.php">{l_menu_filter}</a></li>
     </ul>
 </div>
-<script>
-    function showImageIm(){}
-</script>
 <div class="block_main">
     <h2>{l_title_current} - {user_name}</h2>
 
@@ -59,7 +56,7 @@
 
 <!-- begin_mail_list -->
     <!-- begin_mail_list_items -->
-    <table class="tb list_im_message">
+    <table class="tb">
     <tr>
         <th class="decor_l"></th>
         <th class="right">{l_action}</th>
@@ -98,61 +95,19 @@
         <td>{data}</td>
         <td>{u_from}</td>
         <td>{u_to}</td>
-        <td class="last" style="white-space:normal; padding: 6px;">
-
-			<!-- begin_message_audio -->
-			<span class="im_audio_message">
-				<span id="pp_messages_audio_{message_id}" class="im_audio_message_loader" data-audio-message-file="{message_audio_message_file}" >
-					<i class="fa fa-play" aria-hidden="true"></i>
-				</span>
-				<span class="im_audio_message_process"></span>
-				<span class="im_audio_message_process_play"></span>
-			</span>
-			<!-- end_message_audio -->
-            <!-- begin_message_text -->
-            <p class="pp_message_node">
-
-                <span>{message}</span>
-                <!-- begin_message_block -->
-                <span style="color:red;">{l_you_are_in_block_list}</span>
-                <!-- end_message_block -->
-
-				<!-- begin_message_original_text -->
-				<div class="pp_message_original_title">{l_the_message_was_autotranslated} ({message_original})
-				</div>
-				<!-- end_message_original_text -->
-            </p>
-            <!-- end_message_text -->
-
-            <!-- begin_message_gift -->
-            <div class="frame_gift"><a style="cursor:default;" onclick="return false;" href="#"><img src="{gift_img_url}" alt="" /></a></div>
-            <!-- begin_message_gift_text -->
-            <div class="gift_msg_decor">
-                <div class="gift_msg_decor_txt"><span>{gift_text}</span></div>
-            </div>
-            <!-- end_message_gift_text -->
-            <!-- end_message_gift -->
-
-		</td>
+        <td class="last" style="white-space:normal;">{msg}</td>
         <td class="decor{decr2}"></td>
     </tr>
 	<!-- end_mail_list_item -->
 	</table>
 	<!-- end_mail_list_items -->
 <!-- end_mail_list -->
+
+
+
+
     </div>
-    <script>
-        $('.lightbox, .lightbox_pics_im').lightBox({
-            resizeImage:    true,
-            maxWidth:       996,
-            imageLoading:   '{url_tmpl_administration}images/lightbox-ico-loading_blank.gif',
-            imageBtnPrev:   '{url_tmpl_administration}images/lightbox-btn-prev.gif',
-            imageBtnNext:   '{url_tmpl_administration}images/lightbox-btn-next.gif',
-            imageBtnClose:  '{url_tmpl_administration}images/lightbox-btn-close.gif',
-            imageBlank:     '{url_tmpl_administration}images/lightbox-blank.gif'
-        });
-    </script>
+
     <div class="empty"></div>
 </div>
-
 {footer}

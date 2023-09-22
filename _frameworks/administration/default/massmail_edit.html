@@ -80,68 +80,54 @@
 		<!-- end_mails_noitems -->
 
         <form action="{url_page}" method="GET">
-            <label>{l_domain_or_zone}:</label>
-            <input type="text" name="d" maxlength="100">
-            <div class="wrap_button fl_right">
-                <button class="button" type="submit">{l_search}</button>
-            </div>
+        <label>{l_domain_or_zone}:</label>
+        <input type="text" name="d" maxlength="100">
+        <div class="btn fl_right"><a href="#" class="submit">{l_search}</a>
+									<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
-
         <div style="height:100px"></div>
 		<!-- end_mails -->
 
         <h2>{l_title_current}</h2>
 
         <form action="{url_page}" method="POST">
-            <input type="hidden" name="cmd" value="add">
-            <label>{l_add_mail}:</label>
-            <input type="text" name="mail">
-            <div class="wrap_button fl_right">
-                <button class="button" type="submit">{l_add}</button>
-            </div>
+		<input type="hidden" name="cmd" value="add">
+        <label>{l_add_mail}:</label>
+        <input type="text" name="mail">
+        <div class="btn fl_right"><a href="#" class="submit">{l_add}</a>
+									<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
         <div style="height:50px"></div>
 
         <form action="{url_page}" method="POST">
-            <input type="hidden" name="cmd" value="delete">
-            <label>{l_delete_mail}:</label>
-            <input type="text" name="mail">
-
-            <div class="wrap_button fl_right">
-                <button class="button" type="submit">{l_delete}</button>
-            </div>
+		<input type="hidden" name="cmd" value="delete">
+        <label>{l_delete_mail}:</label>
+        <input type="text" name="mail">
+        <div class="btn fl_right"><a href="#" class="submit">{l_delete}</a>
+									<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
-
         <div style="height:50px"></div>
 
         <form action="{url_page}" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="cmd" value="add_file">
-            
-            <label>{l_add_file}:</label>
-            <div class="clearfix"></div>
-            <div class="fl_left">
-                <input class="upload" size="45" type="file" name='file'/>
-            </div>
-
-            <div class="wrap_button fl_right">
-                <button class="button" type="submit">{l_add}</button>
-            </div>
+		<input type="hidden" name="cmd" value="add_file">
+        <label>{l_add_file}:</label>
+        <div class="fl_left">
+            <input class="upload" size="45" type="file" name='file'/>
+        </div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_add}</a></div>
         </form>
-
         <div style="height:50px"></div>
 
         <form action="{url_page}" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="cmd" value="delete_file">
-            
-            <label>{l_delete_file}:</label>
-            <div class="clearfix"></div>
-            <div class="fl_left">
-                <input class="upload" size="45" type="file" name='file'/>
-            </div>
-
-            <div class="wrap_button fl_right">
-                <button class="button" type="submit">{l_delete}</button>
-            </div>
+		<input type="hidden" name="cmd" value="delete_file">
+        <label>{l_delete_file}:</label>
+        <div class="fl_left">
+            <input class="upload" size="45" type="file" name='file'/>
+        </div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_delete}</a></div>
         </form>
     </div>
 

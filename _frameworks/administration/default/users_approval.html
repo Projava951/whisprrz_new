@@ -1,12 +1,4 @@
 {header}
-<style>
-    .tb_fields th, .tb th{
-        padding: 0 3px;
-    }
-    .wrapper {
-        overflow: visible;
-    }
-</style>
 <div class="block_narrow">
     <ul class="lmenu_lgreen">
         <li><a href="{url_main}administration/users_results.php">{l_menu_users}</a></li>
@@ -16,7 +8,17 @@
         <li><a href="{url_main}administration/users_photo.php">{l_menu_photos}</a></li>
         <li><a href="{url_main}administration/users_video.php">{l_menu_videos}</a></li>
         <li><a href="{url_main}administration/users_text.php">{l_menu_texts}</a></li>
+        <li><a href="{url_main}administration/users_events.php">{l_moderator_event_title}</a></li>
+        <li><a href="{url_main}administration/users_hotdates.php">{l_moderator_hotdate_title}</a></li>
+        <li><a href="{url_main}administration/users_partyhouz.php">{l_moderator_partyhouz_title}</a></li>
+        <li><a href="{url_main}administration/users_craigs.php">{l_moderator_craigs_title}</a></li>
+        <li><a href="{url_main}administration/users_wowslider.php"
+        >{l_moderator_wowslider_title}</a></li>
         <li><a href="{url_main}administration/users_filter.php">{l_menu_filter}</a></li>
+        <li><a href="{url_main}administration/users_reports.php">{l_menu_report}</a></li>
+        
+        
+           
     </ul>
 </div>
 <script type="text/javascript">
@@ -77,12 +79,14 @@
     </div>
     <!-- end_main_pages -->
 
+
+
     <!-- begin_main_items -->
     <table class="tb">
     <tr>
-        <th class="decor_l">&nbsp;</th>
-        <th align="center">
-            <input type="checkbox" id="all">
+        <th class="decor_l"></th>
+        <th class="right">
+            <input style="margin:0px; width: 12px;" type="checkbox" id="all">
         </th>
         <th>{l_action}</th>
         <!--th-->
@@ -135,13 +139,13 @@
             <!-- begin_params_asc_register -->&uarr;<a href="{url_pregister}?{params_current}">{l_register}</a><!-- end_params_asc_register -->
             <!-- begin_params_desc_register -->&darr;<a href="{url_pregister}?{params_current}">{l_register}</a><!-- end_params_desc_register -->
         </th>
-        <th class="decor_r">&nbsp;</th>
+        <th class="decor_r"></th>
     </tr>
 
     <!-- begin_main_item -->
     <tr class="{class}">
         <td class="decor{decl}"></td>
-        <td align="center"><input type="checkbox" id="chk_{user_id}"></td>
+        <td class="right"><input style="margin:0px;" type="checkbox" id="chk_{user_id}"></td>
         <td style="padding: 0px 5px;">
             <a href="{url_main}administration/users_edit.php?id={user_id}">{l_edit}</a>
             |
@@ -173,14 +177,14 @@
     <div align="center">{l_no_users}</div>
     <!-- end_main_noitems -->
     <!-- begin_no_delete -->
-    <div class="wrap_button fl_left">
-        <button class="button submit" type="submit"  onclick="if (confirm('{l_are_you_sure}')) delete_user(); else return false; ">{l_delete}</button>
+    <div class="btn fl_left">
+        <a class="submit" onclick="if (confirm('{l_are_you_sure}')) delete_user(); else return false; " href="#">{l_delete}</a>
     </div>
-    <div class="wrap_button fl_left">
-        <button class="button submit" type="submit"  onclick="if (confirm('{l_are_you_sure}')) approval_user(); else return false; ">{action_type}</button>
+    <div class="btn fl_left">
+        <a class="submit" onclick="if (confirm('{l_are_you_sure}')) approval_user(); else return false; " href="#">{action_type}</a>
     </div>
-    <div class="wrap_button fl_left">
-        <button class="button submit" type="submit"  onclick="if (confirm('{l_are_you_sure}')) window.location.href='{url_page}?approval=all{view}'; else return false; ">{action_type_all}</button>
+    <div class="btn fl_left">
+        <a class="submit" onclick="if (confirm('{l_are_you_sure}')) window.location.href='{url_page}?approval=all{view}'; else return false; " href="#">{action_type_all}</a>
     </div>
     <!-- end_no_delete -->
     <div class="empty"></div>

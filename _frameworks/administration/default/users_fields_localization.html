@@ -80,18 +80,15 @@ function updateItem(id_item) {
     <div class="bl_form">
 
 <style>
-    .link {width: 45%; margin-top:5px; }
-    label{
-        display: block;
-    }
+input {width:44%;}
+.link {width: 45%; margin-top:5px; }
 </style>
         <p style="padding-left:28px;">{l_language_edit_instruction}</p>
 
-        <div style="margin-left:28px; width:100%; float: left; margin-bottom: 10px;">
-            <div class="wrap_button fl_left">
-                <button id="back_to_editor" class="button submit" type="submit">Back to editor</button>
-            </div>
-        </div>
+		<div class="btn fl_left" style="margin-left:18px; width:100%; margin-top: 0px;">
+			<a id="back_to_editor" class="submit" href="">Back to editor</a>
+		</div>
+
         <form action="{url_page}" method="POST">
         <!-- begin_fields -->
         <h2 style="margin-left: 28px;">{table_title}</h2>

@@ -15,24 +15,10 @@ $(function(){
                 if(el[0])el.closest('.bl_label').show();
             }
             this.hideSelectPrev = function(el){
-				if(el[0]){
-					if (el.prev('.label_desc')[0]) {
-                        el.hide().prev('.label_desc').hide()
-								 .prev('label').hide().end().end().next('a').hide();
-					} else {
-						el.hide().prev('label').hide().end().next('a').hide();
-					}
-				}
+                if(el[0])el.hide().prev('label').hide().end().next('a').hide();
             }
             this.showSelectPrev = function(el){
-				if(el[0]){
-					if (el.prev('.label_desc')[0]) {
-                        el.show().prev('.label_desc').show()
-								 .prev('label').show().end().end().next('a').show();
-					} else {
-						el.show().prev('label').show().end().next('a').show();
-					}
-				}
+                if(el[0])el.show().prev('label').show().end().next('a').show();
             }
             //Select Text
             this.hideInput = function(el){
@@ -343,13 +329,6 @@ $(function(){
     }).change();
     /* WebRtc */
 
-    var selGdprParams=$('#label_gdpr_cookie_consent_popup_width, #input_gdpr_cookie_consent_popup_width,'+
-                        '#label_gdpr_cookie_consent_popup_unit, #gdpr_cookie_consent_popup_unit,'+
-                        '#label_gdpr_cookie_consent_popup_position, #gdpr_cookie_consent_popup_position');
-    $('#gdpr_cookie_consent_popup_theme').change(function(){
-        selGdprParams[this.value=='normal'?'hide':'show']();
-    }).change();
-
 
 });
 function hideCheckbox(el){
@@ -360,31 +339,9 @@ function showCheckbox(el){
 }
 
 function hideSelectPrev(el){
-	if(el[0]){
-		if (el.prev('.label_desc')[0]) {
-			el.hide().prev('.label_desc').hide()
-					 .prev('label').hide().end().end().next('a').hide();
-		} else {
-			el.hide().prev('label').hide().end().next('a').hide();
-		}
-	}
-}
-
-function showSelectPrev(el){
-	if(el[0]){
-		if (el.prev('.label_desc')[0]) {
-			 el.show().prev('.label_desc').show()
-					  .prev('label').show().end().end().next('a').show();
-		} else {
-			el.show().prev('label').show().end().next('a').show();
-		}
-	}
-}
-
-function hideSelectPrev1(el){
     if(el[0])el.hide().prev('label').hide().end().next('a').hide();
 }
-function showSelectPrev1(el){
+function showSelectPrev(el){
     if(el[0])el.show().prev('label').show().end().next('a').show();
 }
 
@@ -425,8 +382,9 @@ function showColor(el){
 
 <!-- begin_item_section -->
 <!-- begin_yes_save -->
-<div class="wrap_button fl_right">
-    <button class="button submit" type="submit">{l_save}</button>
+<div class="btn fl_right">
+    <a href="#" class="submit">{l_save}</a>
+    <input type="submit" style="visibility:hidden;position:absolute;">
     <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
 </div>
 <div style="clear: both;"></div>
@@ -506,7 +464,6 @@ $(function(){
 <!-- end_item_checkbox -->
 
 <!-- begin_item_selectbox -->
-<div class="label_desc">{label_desc}</div>
 <select id="{option}" class="input <!-- begin_item_background_class -->input_background_config<!-- end_item_background_class -->" name="option[{option}]">{selectbox_options}</select>
 <!-- begin_info_timezone -->
 <script type="text/javascript">
@@ -599,19 +556,12 @@ $(function(){
 
 
 <!-- begin_item_background_js -->
-<a target="_blank" id="{option}_lightbox" class="{option}_lightbox_background background_img_config" title="{l_view}" href="">
-    <svg viewBox="0 0 24 24">
-        <path clip-rule="evenodd" d="M12,4C4.063,4-0.012,12-0.012,12S3.063,20,12,20    c8.093,0,12.011-7.969,12.011-7.969S20.062,4,12,4z M12.018,17c-2.902,0-5-2.188-5-5c0-2.813,2.098-5,5-5c2.902,0,5,2.187,5,5    C17.018,14.812,14.92,17,12.018,17z M12.018,9c-1.658,0.003-3,1.393-3,3c0,1.606,1.342,3,3,3c1.658,0,3-1.395,3-3    C15.018,10.392,13.676,8.997,12.018,9z" fill-rule="evenodd"/>
-    </svg>
+<a target="_blank" id="{option}_lightbox" class="{option}_lightbox_background" href="">
+    <img class="background_img_config" src="{url_tmpl_administration}images/eye.png" title="{l_view}" alt=""/>
 </a>
-
 <style>
-    #lightbox-container-image-box,
-    #lightbox-container-image {
-        background-color:#eeecec;
-    }
+    #lightbox-container-image-box, #lightbox-container-image {background-color:#eeecec;}
 </style>
-
 <script type="text/javascript">
 $(function(){
     $('.{option}_lightbox_background').lightBox({
@@ -668,18 +618,10 @@ $( document ).ready(function() {
 $("#{option}").spectrum({
     color: "{value}",
     cancelText: "{l_cancel}",
-	transparentText: "{l_transparent}",
     chooseText: "{l_ok}",
-	classTransparent: '{option}_transparent',
     showInput: true,
-    <!-- begin_item_color_allow_empty -->
-	preferredFormat: "hex",
-    allowEmpty: true,
-    <!-- end_item_color_allow_empty -->
     change: function() {
-        if('{option}' != 'push_notifications_android_icon_color') {
-            $("#color_scheme_oryx, #color_scheme_impact").val('custom');
-        }
+       $("#color_scheme_oryx, #color_scheme_impact").val('custom');
     },
 });
 });
@@ -798,9 +740,9 @@ $("#{option}").spectrum({
     </script>
     <div id="watermark_params">
         <div id="{block}_output" class="block_logo">
-            <!-- begin_watermark_image -->
+    <!-- begin_watermark_image -->
             <img src="{watermark_img}?rand={rand}" alt=""/>
-            <!-- end_watermark_image -->
+    <!-- end_watermark_image -->
         </div>
 
         <div class="block_logo_params">
@@ -821,13 +763,15 @@ $("#{option}").spectrum({
             <input class="upload" id="watermark_file" type="file" name='logo'/>
         </div>
         <!-- begin_delete -->
-        <div class="wrap_button fl_right">
-            <button id="delete" class="button" onClick="if (confirm('{l_are_you_sure}')) { deleteWatermark(); return false; } else return false;" >{l_delete}</button>
+        <div class="btn fl_right">
+
+            <a href="#" id="delete" onClick="if (confirm('{l_are_you_sure}')) { deleteWatermark(); return false; } else return false;" >{l_delete}</a>
             <input type="hidden" name="is_delete_watermark" id="is_delete_watermark" value="0">
         </div>
         <!-- end_delete -->
-        <div class="wrap_button fl_right">
-            <button id="update" class="button" onClick="sendWatermarkImage();return false;" type="submit" >{l_upload}</button>
+        <div class="btn fl_right"><a href="#" id="update" onClick="sendWatermarkImage();return false;" >{l_upload}</a>
+
+			<input type="submit" style="visibility:hidden;position:absolute;">
 		</div>
 
         <div class="cl"></div>

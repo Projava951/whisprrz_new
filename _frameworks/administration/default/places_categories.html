@@ -92,13 +92,12 @@ var fixHelperModified = function(e, tr) {
         <!-- end_main_item -->
     </table>
 
-        <div class="wrap_button fl_right">
-            <button class="button" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-        </div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
        </form>
-        <div class="wrap_button fl_left">
-            <button class="button" onclick="if (confirm('{l_are_you_sure}')) actionChecked('{url_page}'); return false;" type="submit">{l_delete}</button>
+        <div class="btn fl_left">
+            <a class="submit" onclick="if (confirm('{l_are_you_sure}')) actionChecked('{url_page}'); return false;" href="#">{l_delete}</a>
         </div>
     <!-- end_main_items -->
     <!-- begin_main_noitems -->

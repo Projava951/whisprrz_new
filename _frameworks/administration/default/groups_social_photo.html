@@ -26,16 +26,10 @@ function approvePhoto(pid){
         <div class="mod_bl_description" title="{description}">{description}&nbsp;</div>
         <div style="position:relative;">
         <a target="_blank" class="lightbox_photo" href="{url_files}{photo_b}">
-            <img id="photo_{photo_id}" data-user-id="{user_id}" data-photo-size="m" height="{photo_height}" src="{url_files}{photo_m}">
+            <img id="photo_{photo_id}" height="{photo_height}" src="{url_files}{photo_m}">
         </a>
-		<!-- begin_photo_rotate -->
         <a id="photo_rotate_{photo_id}" data-photo-id="{photo_id}" data-user-id="{user_id}"  data-photo-size="m" class="icon_rotate" title="{a_rotate}" href="" ></a>
         </div>
-		<!-- end_photo_rotate -->
-
-
-		<div class="mod_btn_image_edit <!-- begin_photo_edit_image -->vis_hidden<!-- end_photo_edit_image -->" onclick="openEditorImage('{photo_id}', '{user_id}', 'admin'); return false;">{l_edit_photo}</div>
-
 
         <div class="mod_bl_decor">
             <label class="approve_list"><input type="radio" class="check" name="do[{photo_id}]" checked value="add"> {l_add}</label>
@@ -54,10 +48,10 @@ function approvePhoto(pid){
         <!-- end_photo -->
 
         <div class="cl" style="height: 20px;"></div>
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-        </div>
+        <div class="btn fl_right">
+            <a href="#" class="submit">{l_save}</a>
+			<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </div>
 	</form>
     </div>

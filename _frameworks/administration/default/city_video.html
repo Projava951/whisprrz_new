@@ -2,11 +2,6 @@
 <style>
     .btn.fl_right{position:relative};
 </style>
-<!-- begin_no_live_stream -->
-<style>
-    #bl_label_loc_{cur_location}_live{display: none;};
-</style>
-<!-- end_no_live_stream -->
 <script>
 $(function(){
     var isSubmit=0,
@@ -31,18 +26,12 @@ $(function(){
         $cinemaCodes.each(function(){
             var $el=$(this),val=trim($el.val());
             if(val){
-				var yCodeSite='', yCode='';
-				if (val.indexOf('city_livestream')===-1) {
-					yCode=(val.match(/(?:^|\/|v=)([\w\-]{11,11})(?:\?|&|#|$)/) || [])[1];
-					yCodeSite=(val.split('#site_video:')||[])[1];
-					if (yCodeSite) {
-						yCodeSite='site_video:'+yCodeSite;
-					}
-				} else {
-					yCode=val;
-				}
-
-                yCode=yCodeSite||yCode;
+                var yCode=(val.match(/(?:^|\/|v=)([\w\-]{11,11})(?:\?|&|#|$)/) || [])[1];
+                var yCodeSite=(val.split('#site_video:')||[])[1];
+                if (yCodeSite) {
+                    yCodeSite='site_video:'+yCodeSite;
+                }
+                yCode=yCode||yCodeSite;
                 if (!yCode) {
                     isError=1;
                     $el.focus();
@@ -123,13 +112,12 @@ $(function(){
     </p>
     <div class="bl_form">
         <form action="{url_page}" method="POST">
-            <input type="hidden" name="cmd" value="update">
-            <input type="hidden" name="location" value="{cur_location}">
-            {config_fields}
-            <div class="wrap_button fl_right" style="position: relative;">
-                <button class="button submit" type="submit">{l_save}</button>
-                <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-            </div>
+        <input type="hidden" name="cmd" value="update">
+        <input type="hidden" name="location" value="{cur_location}">
+		{config_fields}
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+			<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
     </div>
     <!-- end_video -->
@@ -138,4 +126,5 @@ $(function(){
     <!-- end_no_video -->
     <div class="empty"></div>
 </div>
+
 {footer}

@@ -7,21 +7,23 @@ function approvePhoto(pid){
     }
     redirectUrl('{url_main}administration/users_photo.php?do%5B'+pid+'%5D='+cmd);
 }
-
-function declineOnePhoto(pid){
-	var params='do['+pid+']=del&comment['+pid+']=' + trim($('#comment_'+pid).val());
-	goLink('{url_main}administration/users_photo.php',params);
-}
 </script>
 <div class="block_narrow">
     <ul class="lmenu_lgreen">
-        <li><a href="{url_main}administration/users_results.php">{l_menu_users}</a></li>
+                     <li><a href="{url_main}administration/users_results.php">{l_menu_users}</a></li>
         <li><a href="{url_main}administration/users_approval.php?view=activate">{l_menu_users_activate}</a></li>
         <li><a href="{url_main}administration/users_approval.php">{l_menu_users_approval}</a></li>
         <li><a href="{url_main}administration/users_search.php">{l_menu_search}</a></li>
         <li class="active"><a href="{url_main}administration/users_photo.php">{l_menu_photos}</a></li>
         <li><a href="{url_main}administration/users_video.php">{l_menu_videos}</a></li>
         <li><a href="{url_main}administration/users_text.php">{l_menu_texts}</a></li>
+        <li><a href="{url_main}administration/users_events.php">{l_moderator_event_title}</a></li>
+        <li><a href="{url_main}administration/users_hotdates.php">{l_moderator_hotdate_title}</a></li>
+        <li><a href="{url_main}administration/users_partyhouz.php">{l_moderator_partyhouz_title}</a></li>
+        <li><a href="{url_main}administration/users_craigs.php">{l_moderator_craigs_title}</a></li>
+        <li><a href="{url_main}administration/users_wowslider.php"
+        >{l_moderator_wowslider_title}</a></li>
+
         <li><a href="{url_main}administration/users_filter.php">{l_menu_filter}</a></li>
     </ul>
 </div>
@@ -40,19 +42,12 @@ function declineOnePhoto(pid){
         <div class="mod_bl_description" title="{description}">{description}&nbsp;</div>
         <div style="position:relative;">
         <a target="_blank" class="lightbox_photo" href="{url_files}{photo_b}">
-            <img id="photo_{photo_id}" data-user-id="{user_id}" data-photo-size="m" height="{photo_height}" src="{url_files}{photo_m}">
+            <img id="photo_{photo_id}" height="{photo_height}" src="{url_files}{photo_m}">
         </a>
-		<!-- begin_photo_rotate -->
         <a id="photo_rotate_{photo_id}" data-photo-id="{photo_id}" data-user-id="{user_id}"  data-photo-size="m" class="icon_rotate" title="{a_rotate}" href="" ></a>
-		<!-- end_photo_rotate -->
         </div>
 
-		<!-- begin_photo_edit_image --><div class="mod_btn_image_edit" onclick="openEditorImage('{photo_id}', '{user_id}', 'admin'); return false;">{l_edit_photo}</div><!-- end_photo_edit_image -->
-
-		<div class="mod_comment_approve photo_approve">
-			<textarea id="comment_{photo_id}" placeholder="{a_comment_approve}" name="comment[{photo_id}]"></textarea>
-		</div>
-        <div class="mod_bl_decor" style="margin-bottom: 10px; padding-top: 8px;">
+        <div class="mod_bl_decor">
             <label class="approve_list"><input type="radio" class="check" name="do[{photo_id}]" checked value="add"> {l_add}</label>
             <label class="approve_list"><input type="radio" class="check" name="do[{photo_id}]" value="del"> {l_delete}</label>
             <!-- begin_photo_access -->
@@ -62,19 +57,17 @@ function declineOnePhoto(pid){
         </div>
         <div>
             <div class="mod_btn_submit_custom" onclick="approvePhoto('{photo_id}')">{l_photo_approve}</div>
-            <div class="mod_btn_submit_custom last" onclick="if(confirm('{l_are_you_sure}')){declineOnePhoto('{photo_id}')}">{l_delete}</div>
+            <div class="mod_btn_submit_custom last" onclick="if(confirm('{l_are_you_sure}')){redirectUrl('{url_main}administration/users_photo.php?do%5B{photo_id}%5D=del')}">{l_delete}</div>
         </div>
 
         </div>
         <!-- end_photo -->
 
         <div class="cl" style="height: 20px;"></div>
-
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-        </div>
-
+        <div class="btn fl_right">
+            <a href="#" class="submit">{l_save}</a>
+			<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </div>
 	</form>
     </div>

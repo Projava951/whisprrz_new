@@ -1,8 +1,6 @@
 {header}
 <style>
-    .wrapper{
-        margin-bottom: 0;
-    }
+    .wrapper{margin-bottom:0px;}
     .field_banner_btn_remove_color,
     .field_banner_btn_remove_color_hover,
     .field_footer_background_color_decor,
@@ -10,27 +8,7 @@
     .field_info_block_header_show_decor{
         display: none;
     }
-    .menu_pages a.m_group{
-        background-color: #98b2d2;
-    }
-    .menu_pages a.m_blogs{
-        background-color: #a2bdaf;
-    }
-    .menu_pages a.m_live{
-        background-color: #cbb054;
-    }
-    .menu_pages a.m_events{
-        background-color: #bebd99;
-    }
-    .menu_pages a.m_wall{
-        background-color: #99cccc;
-    }
-    .menu_pages a.m_gallery{
-        background-color: #99cc99;
-    }
-    .menu_pages a.m_general{
-        background-color: #caa6b9;
-    }
+    .menu_pages a.m_group{background-color: #98b2d2;}
 </style>
 <div class="block_narrow">
     {template_edit_menu}
@@ -59,16 +37,14 @@
         <form action="{url_page}?part={part}&tmpl={tmpl_this}&area={area}" enctype="multipart/form-data"  method="POST">
         <input type="hidden" name="cmd" value="update">
         {page_content}
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
 		</div>
         </form>
     </div>
     <script>
         var sectionTitle = {
-            field_member_navbar_background_color : '{j_field_member_navbar_menu_short_color_section}',
-
+            field_member_navbar_menu_short_color : '{j_field_member_navbar_menu_short_color_section}',
             field_member_circular_menu_background_color : '{j_field_member_circular_menu_background_color_section}',
             field_member_videochat_btn_background_color : '{j_field_member_videochat_btn_background_color_section}',
             field_main_page_info_block_background_color : '{j_field_main_page_info_block_section}',
@@ -85,31 +61,24 @@
             field_member_content_background_color : '{j_field_member_content_section}',
             field_member_message_text_color : '{j_field_member_message_section}',
             field_info_block_header_show : '{j_field_info_block_section}',
-            field_show_your_photo_browse_photos : '{j_field_show_your_content_section}',
-            field_bl_wall_post_color : '{j_field_bl_wall_post_color_section}',
-			field_audio_player_background_color : '{j_field_audio_player_color_section}',
+            field_show_your_photo_browse_photos : '{j_field_show_your_content_section}'
         }
         $('.general_settings #label_list_blog_posts_type_order, #label_list_videos_type_order,'+
           '.main_page_settings #label_list_blog_posts_type_order, #label_list_videos_type_search, #label_list_people_type_order,'+
           '.field_modal_dialog_background_color, .field_pagination_background_color,'+
           '.field_btn_success_background_color, .field_banner_background_color, #bl_label_show_columns_inner_pages,'+
-          '.field_main_page_info_block_background_color, .field_btn_secondary_background_color, .field_btn_secondary_2_background_color, .field_btn_primary_background_color, .field_btn_primary_2_background_color,'+
+          '.field_main_page_info_block_background_color, .field_btn_secondary_background_color, .field_btn_primary_background_color,'+
           '.field_main_page_download_apps_block_background_color,'+
-          '#label_list_photos_type_order, .field_member_navbar_background_color, .field_member_navbar_menu_color,'+
+          '#label_list_photos_type_order, .field_member_navbar_menu_short_color, .field_member_navbar_menu_color,'+
           '.field_member_navbar_menu_text_color,.field_member_navbar_menu_mobile_background_color,.field_member_navbar_menu_counter_background_color'+
           '.field_member_navbar_menu_more_background_color, .field_member_circular_menu_background_color,'+
           '#label_number_photos_left_column, #bl_label_show_your_photo_browse_photos, .field_color_1,'+
           '.field_3dcity_background_color, #bl_label_mobile_3dcity_on_tablet, #label_number_friends_right_column,'+
-          '.field_bl_wall_post_color, .field_member_videochat_btn_background_color, #label_wall_play_video_wall,'+
+          '.field_member_bl_wall_post_color, .field_member_videochat_btn_background_color, #label_wall_play_video_wall,'+
           '#label_number_show_notif_events, .field_cookie_popup_background_color, #bl_label_gallery_show_download_original,'+
           '.field_footer_background_color, .field_banner_background_color, .field_main_page_content_background_color, '+
           '.field_visitor_content_background_color, .field_main_page_header_login_frm_icon_color, .field_member_content_background_color,'+
-          '.field_member_message_text_color, #label_list_groups_type_order, #label_list_pages_type_order, #bl_label_info_block_header_show,'+
-          '#label_videos_list_1_type_order, #label_photos_list_1_type_order, #label_blogs_list_1_type_order,'+
-          '.blogs_settings #label_number_comments_show_bottom_frm, .blogs_settings #label_list_blog_someones_posts_type_order,'+
-          '#label_list_live_type_order, #label_list_songs_type_order, #label_songs_list_1_type_order, .field_calendar_item_color_1,'+
-          '.field_live_marker_color, .field_audio_player_background_color, #bl_label_wall_post_report_menu, #label_min_width_profile_cover_img,'+
-		  '.field_loader_color').each(function(){
+          '.field_member_message_text_color, #label_list_groups_type_order, #label_list_pages_type_order, #bl_label_info_block_header_show').each(function(){
             var $el=$(this),
                 $bl=$el.before('<div class="decor_empty">'),
                 cl=$el.attr('class');

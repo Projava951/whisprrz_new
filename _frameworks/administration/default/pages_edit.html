@@ -15,7 +15,7 @@ tinymce.init({
 
         toolbar1: "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
         toolbar2: "cut copy paste | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media code | insertdatetime preview | forecolor backcolor",
-        toolbar3: "table | hr removeformat | subscript superscript | charmap | print fullscreen | ltr rtl | visualchars visualblocks nonbreaking pagebreak restoredraft",
+        toolbar3: "table | hr removeformat | subscript superscript | charmap | print fullscreen | ltr rtl | visualchars visualblocks nonbreaking template pagebreak restoredraft",
 
         menubar: false,
         toolbar_items_size: 'small',
@@ -97,7 +97,6 @@ tinymce.init({
             <input type="checkbox" name="menu_style" {menu_style_checked} style="float: left; width: 25px;" />
             {l_active_style}
         </label>
-        <div style="height:10px"></div>
         <!-- end_menu_style -->
 
         <!-- begin_content -->
@@ -107,26 +106,23 @@ tinymce.init({
         <textarea id="page_content" name="content" class="textarea_big" style="resize: vertical; width: 101%;">{page_content}</textarea>
         <!-- end_content -->
 
-            <!-- begin_icon_upload -->
-            <div style="height:14px" class=""></div>
-            <label>{l_menu_icon}:</label>
-            <div style="margin-top: 10px; margin-bottom:10px;">
-                <!-- begin_icon -->
-                <div style="float:left; margin-right: 10px;">
-                    <img src="{url_page_icon}?rand={rand}"/>
-                </div>
-                <!-- end_icon -->
-                <div style="margin-top:-1px;  float:left;">
-                    <input style="height: 22px; margin-top:0px;" class="upload" type="file" name="icon">
-                </div>
+        <!-- begin_icon_upload -->
+        <div style="height:14px" class=""></div>
+        <label>{l_menu_icon}:</label>
+        <div style="margin-top: 10px; margin-bottom:10px;">
+            <!-- begin_icon -->
+            <div style="float:left; margin-right: 10px;">
+                <img src="{url_page_icon}?rand={rand}"/>
             </div>
-            <div style="height:28px" class="cl"></div>
-            <!-- end_icon_upload -->
+            <!-- end_icon -->
+            <div style="margin-top:-1px;  float:left;">
+                <input style="height: 22px; margin-top:0px;" class="upload" type="file" name="icon">
+            </div>
+        </div>
+        <div style="height:28px" class="cl"></div>
+        <!-- end_icon_upload -->
 
-            <div class="wrap_button fl_right">
-                <button class="button submit" type="submit">{l_save}</button>
-                <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-            </div>
+        <div style="margin-right: -10px;" class="btn fl_right"><a href="#" class="submit">{l_save}</a></div>
         </form>
     </div>
     <div class="empty"></div>

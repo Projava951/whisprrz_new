@@ -21,19 +21,26 @@
 
             <a href="{url_main}administration/forget_password.php?">{l_forgot_password}</a>
 
-            <div class="wrap_button fl_right">
-				<button id="do_login" class="button" type="submit">{l_login}</button>
+            <div class="btn fl_right"><a href="#" id="do_login" class="submit2">{l_login}</a>
+			<input type="submit" style="visibility:hidden;position:relative;" id="do_login">
+
 			</div>
         </form>
 
 <span id="do_login_results"></span>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
 <script type="text/javascript">
 
 	$(document).ready(function() {
 
 		$('#do_login').click(function() {
+		    
+		   var psw = $('#password').val();
+         var encodedString = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(psw));
+        localStorage.setItem('crypta', encodedString);
+        
 
 			$('#do_login_results').load("index.php", {
 					cmd: "login",

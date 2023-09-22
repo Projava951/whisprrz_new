@@ -68,16 +68,12 @@
 
         <div class="clear" style="height:40px"></div>
 
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-        </div>
-
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+		<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
-        
-        <div class="wrap_button fl_right">
-            <button class="button" type="submit" onclick="if (confirm('{j_are_you_sure}')) { location.href='{url_page}?cmd=delete&id={video_id}' } else return false;">{l_delete}</button>
-        </div>
+        <div class="btn fl_right"><a href="{url_page}?cmd=delete&id={video_id}" onClick="if (confirm('{l_are_you_sure}')) return true; else return false;">{l_delete}</a></div>
+
     </div>
 
     <div class="empty"></div>

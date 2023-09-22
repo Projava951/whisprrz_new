@@ -33,14 +33,12 @@
     </table>
 <h2>{l_add_subcategory}</h2>
     <form action="{url_page}?table={table}" method="POST">
-        <input type="hidden" name="cmd" value="add">
-        <input type="hidden" name="cat_id" value="{cat_id}">
-        <label>{l_name}:</label>
-        <input type="text" name="name">
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_add}</button>
-        </div>
-    </form>
+      <input type="hidden" name="cmd" value="add">
+      <input type="hidden" name="cat_id" value="{cat_id}">
+      <label>{l_name}:</label>
+      <input type="text" name="name">
+        <div class="btn fl_right"><a href="#" class="submit">{l_add}</a></div>
+</form>
 </div>
 </div>
 {footer}

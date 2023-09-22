@@ -20,14 +20,14 @@
 
             <div class="clear" style="height:40px"></div>
 
-            <div class="wrap_button fl_left">
-                <button class="button" type="submit">{l_save}</button>
+            <div class="btn fl_right">
+                <a href="#" class="submit">{l_save}</a>
+                <input type="submit" style="visibility:hidden;position:absolute;">
             </div>
 
-            <div class="wrap_button fl_right">
-                <button class="button" type="submit" onclick="if (confirm('{j_are_you_sure}')) { location.href='{url_page}?cmd=delete&id={comment_id}' } else return false;">{l_delete}</button>
+            <div class="btn fl_right">
+                <a href="{url_page}?cmd=delete&id={comment_id}" onClick="if (confirm('{l_are_you_sure}')) return true; else return false;">{l_delete}</a>
             </div>
-
         </form>
     </div>
 

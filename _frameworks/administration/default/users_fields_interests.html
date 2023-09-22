@@ -144,11 +144,9 @@
     <div align="center">{l_no_interest}</div>
     <!-- end_main_noitems -->
     <!-- begin_no_delete -->
-
-    <div class="wrap_button fl_left">
-        <button class="button" onclick="if (confirm('{l_are_you_sure}')) delete_interests(); else return false; " type="submit">{l_delete}</button>
+    <div class="btn fl_left">
+        <a class="submit" onclick="if (confirm('{l_are_you_sure}')) delete_interests(); else return false; " href="#">{l_delete}</a>
     </div>
-
     <!-- end_no_delete -->
     <div class="empty"></div>
 
@@ -166,9 +164,7 @@
         </select>
         <label>{l_interests}:</label>
         <input type="text" name="interests" value="">
-        <div class="wrap_button fl_right">
-            <button class="button" type="submit">{l_save}</button>
-        </div>
+        <div class="btn fl_right"><a href="" class="submit">{l_save}</a></div>
         <div class="empty"></div>
     </form>
 </div>

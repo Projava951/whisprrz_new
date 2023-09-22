@@ -1,25 +1,11 @@
 {header}
 <!-- begin_custom_style -->
 <style>
-    .home_page_menu, 
-    #status_header_menu_moderator,
-    #status_header_menu_sign_out,
-    #status_header_menu_credits_balans{
-        display: none;
-    }
-     
-    .status_menu{
-        border-right: none !important;
-    }
+    .home_page_menu, #status_header_menu_moderator,
+    #status_header_menu_sign_out, #status_header_menu_credits_balans{display:none;}
+    .status_menu{border-right:none!important;}
 </style>
 <!-- end_custom_style -->
-
-<style>
-    .tb_fields{
-        width: 200px;
-    }
-</style>
-
 <div class="block_narrow">
 {menu_page}
 </div>
@@ -28,35 +14,35 @@
     <div class="bl_form">
         <form action="{url_page}?action=saved" method="POST">
         <input type="hidden" name="cmd" value="update">
-        <table class="tb_fields" id="sortable">
+        <table class="tb_fields" id="sortable" style="width: 200px;">
         <thead>
-            <tr id="no_sortable" >
-                <th></th>
-                <th align="right">{l_table_name}</th>
-                <th class="status_menu">{l_table_active}</th>
-                <th class="left last home_page_menu">{l_home_page}</th>
-                <th></th>
-            </tr>
+                <tr id="no_sortable" >
+                    <th class="decor_l">&nbsp;</th>
+                    <th class="right" >{l_table_name}</th>
+                    <th class="status_menu" style="text-align: center; width:40px; padding-left: 10px;">{l_table_active}</th>
+                    <th class="left last home_page_menu">{l_home_page}</th>
+                    <th class="decor_r">&nbsp;</th>
+                </tr>
         </thead>
         <!-- begin_order_item -->
-        <tr class="color cursor_move">
-            <td id ="decor_l" class="decor_l">&nbsp;</td>
-            <td align="right">
-                <input type="hidden" name="order[]" value="{menu_key}">{menu_title}
-            </td>
-            <td align="center" class="status_menu">
-                <input id="status_{menu_key}" type="checkbox" name="status[{menu_key}]" {checked}>
-            </td>
-            <td align="center" class="left last home_page_menu">
-                <input type="radio" name="set_home_page_urban" value="{menu_key}">
-            </td>
-            <td id ="decor_r" class="decor_r">&nbsp;</td>
+        <tr class="color" style="cursor:move;">
+                <td id ="decor_l" class="decor_l">&nbsp;</td>
+                <td class="right">
+                    <input type="hidden" name="order[]" value="{menu_key}">{menu_title}
+                </td>
+                <td  class="status_menu" style="text-align: center; width:40px; padding-left: 10px;">
+                    <input id="status_{menu_key}" type="checkbox" name="status[{menu_key}]" {checked} style="margin:0px; padding:0px; width: 20px;">
+
+                </td>
+                <td class="left last home_page_menu">
+                    <input style="text-align: center; width:40px; padding-left: 3px; margin:0;" type="radio" name="set_home_page_urban" value="{menu_key}">
+                </td>
+                <td id ="decor_r" class="decor_r">&nbsp;</td>
         </tr>
         <!-- end_order_item -->
 		</table>
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
 		</div>
         </form>
     </div>

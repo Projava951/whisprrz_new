@@ -1,80 +1,66 @@
 {header}
-
 <div class="block_narrow">
 {menu_page}
 </div>
-
-<style>
-    #additional_menu_profile_view,
-    #additional_menu_verify_account{
-        display: none;
-    }
-
-    .tb_fields{
-        width: 410px;
-    }
-</style>
-
+<style>#additional_menu_profile_view{display:none;}</style>
 <div class="block_main">
     <h2>{l_title_current}</h2>
     <div class="bl_form">
         <form action="{url_page}" method="POST">
-            <input type="hidden" name="cmd" value="update">
-            <table class="tb_fields" id="sortable">
-            <thead>
+        <input type="hidden" name="cmd" value="update">
+        <table class="tb_fields" id="sortable" style="width: 410px;">
+        <thead>
                 <tr id="no_sortable" >
-                    <th></th>
-                    <th align="right">{l_table_name}</th>
-                    <th>{l_table_status}</th>
+                    <th class="decor_l">&nbsp;</th>
+                    <th class="right" style="">{l_table_name}</th>
+                    <th style="text-align: center; width:30px;">{l_table_status}</th>
                     <!-- begin_additional_menu -->
-                    <th>{l_profile_page_menu}</th>
+                    <th style="text-align: center; width:40px; ">{l_profile_page_menu}</th>
                     <!-- end_additional_menu -->
-                    <th align="left" class="last">{l_mobile_home_page}</th>
-                    <th></th>
+                    <th class="left last" style="width:40px; ">{l_mobile_home_page}</th>
+                    <th class="decor_r">&nbsp;</th>
                 </tr>
-            </thead>
-            <!-- begin_order_profile -->
-            <tr class="color cursor_pointer" id="no_sortable">
-                <td id="decor_l" class="decor_l"></td>
-                <td align="right">
+        </thead>
+        <!-- begin_order_profile -->
+        <tr class="color" id="no_sortable" style="cursor:pointer;">
+            <td id ="decor_l" class="decor_l">&nbsp;</td>
+                <td class="right" style="">
                     <input type="hidden" name="order[]" value="profile">{l_profile}
                 </td>
-                <td align="center">
+                <td  class="" style="text-align: center; width:30px; padding-left: 3px;">
                 </td>
-                <td align="center">
-                    <input type="radio" name="set_home_page_mobile" value="profile">
+                <td class="last" style="text-align: center; width:40px; padding-left: 3px;">
+                    <input style="text-align: center; width:40px; padding-left: 3px; margin:0;" type="radio" name="set_home_page_mobile" value="profile">
                 </td>
-                <td id="decor_r" class="decor_r"></td>
-            </tr>
-            <!-- end_order_profile -->
-            <!-- begin_order_item -->
-            <tr class="color cursor_move">
-                <td id="decor_l" class="decor_l"></td>
-                <td align="right" width="100px">
+            <td id ="decor_r" class="decor_r">&nbsp;</td>
+        </tr>
+        <!-- end_order_profile -->
+        <!-- begin_order_item -->
+        <tr class="color" style="cursor:move;">
+            <td id ="decor_l" class="decor_l">&nbsp;</td>
+                <td class="right" style="width:100px;">
                     <input type="hidden" name="order[]" value="{name_block_field}">{name_block}
                 </td>
-                <td align="center">
-                    <input class="order_check" data-name="{name_block_field}" type="checkbox" name="order_status[{name_block_field}]" {checked}>
+                <td  class="" style="text-align: center; width:30px; padding-left: 3px;">
+                    <input class="order_check" data-name="{name_block_field}" type="checkbox" name="order_status[{name_block_field}]" {checked} style="margin:0px; padding:0px; width: 20px;">
                 </td>
                 <!-- begin_additional_menu_item -->
-                <td align="center">
-                    <input id="additional_menu_{name_block_field}" class="additional_check" data-name="{name_block_field}" type="checkbox" name="additional[{name_block_field}]" {additional_checked} >
+                <td  class="" style="text-align: center; width:40px; padding-left: 3px;">
+                    <input id="additional_menu_{name_block_field}" class="additional_check" data-name="{name_block_field}" type="checkbox" name="additional[{name_block_field}]" {additional_checked} style="margin:0px; padding:0px; width: 20px;">
                 </td>
                 <!-- end_additional_menu_item -->
-                <td align="center">
+                <td  class="last" style="text-align: center; width:40px; padding-left: 3px;">
                     <!-- begin_order_item_set_home_page -->
-                    <input type="radio" name="set_home_page_mobile" value="{name_block_field}">
+                    <input style="text-align: center; width:40px; padding-left: 3px; margin:0;" type="radio" name="set_home_page_mobile" value="{name_block_field}">
                     <!-- end_order_item_set_home_page -->
-                </td b>
-                <td id="decor_r" class="decor_r"></td>
-            </tr>
-            <!-- end_order_item -->
-            </table>
-
-            <div class="wrap_button fl_right">
-                <button class="button submit" type="submit">{l_save}</button>
-                <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-            </div>
+                </td>
+            <td id ="decor_r" class="decor_r">&nbsp;</td>
+        </tr>
+        <!-- end_order_item -->
+		</table>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
     </div>
 </div>

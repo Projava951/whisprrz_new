@@ -2,11 +2,14 @@
 <script type="text/javascript">
 $(function(){
     $('.replay').click(function(){
-        var block = $(this).closest('.text_reply_bl').find('.text_reply'),
+        var btn = $(this).parent('.btn'),
+            block = btn.prev('.text_reply'),
             block_show = (block.css('display') == 'none');
-			console.log(block[0]);
-        block[block_show?'slideDown':'slideUp'](350);
-		$(this).text((block_show?'{j_hide}':'{j_reply}'));
+        block.animate({'height': 'toggle'}, 350);
+        btn.animate({'margin-top':(block_show?-49:-10)+'px'}, 400, function(){
+            btn.children('.replay').text((block_show?'{l_hide}':'{l_replay}'));
+        });
+
         return false;
     })
 })
@@ -54,7 +57,7 @@ textarea {width:98%; height:150px; resize: vertical;}
         </div>
 
         <!-- begin_reply_subject -->
-        <div class="text_reply_bl" style="padding-top:10px;">
+        <div style="padding-top:10px;">
         <form class="text_reply" style="display:none; width: 100%;"  method="post">
             <input type="hidden" name="cmd" value="reply">
             <input type="hidden" name="save" value="1">
@@ -62,18 +65,13 @@ textarea {width:98%; height:150px; resize: vertical;}
             <input type="hidden" name="user_from" value="{u_to_id}">
             <input style="width: 99%;" type="text" name="subject" class="w2010px" value="{subject}"><br>
 			<textarea name="text">{text_reply}</textarea>
-
-            <div class="wrap_button fl_right">
-                <button class="button" type="submit">{l_send}</button>
+            <div class="btn fl_right" style="padding-right:0px; margin-top: 0px; margin-right: 2px;"><a href="#" class="submit">{l_send}</a>
+                <input type="submit" style="visibility:hidden;position:absolute;">
             </div>
-
             <div class="cl"></div>
         </form>
-
-		<div class="wrap_button fl_left" style="margin-bottom: 25px;">
-            <button class="button replay" type="submit">{l_reply}</button>
+        <div class="btn fl_left" style="padding-right:0px; margin-top: -10px; margin-left: -8px;"><a href="#" class="submit replay">{l_reply}</a>
         </div>
-
         <div class="cl"></div>
         </div>
         <!-- end_reply_subject -->
