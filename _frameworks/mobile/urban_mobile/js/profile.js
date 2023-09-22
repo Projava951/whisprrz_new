@@ -415,7 +415,7 @@ var CProfile = function(guid, is_free_site, is_credits_enabled) {
 						}
 
 						if(!blockUserFromMessages) {
-							$this.showTipReport();
+                        $this.showTipReport();
 						}
                         $this.isBlockedUser=1;
                         photos.isBlockedUser=1;
@@ -427,14 +427,14 @@ var CProfile = function(guid, is_free_site, is_credits_enabled) {
 							if(blockUserFromMessages) {
 								location.href = 'messages.php';
 							} else {
-								$this.$blockedPhoto.fadeIn(200);
-								$this.profileViewMenu.fadeOut(200);
-								setTimeout(function(){
-									$this.tipReportFriendAction.hide();
-									$this.setParamAddFriend('request',$this.langParts['add_to_friends']);
-									$this.tipReportBlock.text($this.langParts['tip_report_unblock']);
-								},450);
-							}
+                            $this.$blockedPhoto.fadeIn(200);
+                            $this.profileViewMenu.fadeOut(200);
+                            setTimeout(function(){
+								$this.tipReportFriendAction.hide();
+								$this.setParamAddFriend('request',$this.langParts['add_to_friends']);
+								$this.tipReportBlock.text($this.langParts['tip_report_unblock']);
+							},450);
+                        }
                         }
                     }else{showAlert($this.langParts.server_error,'.main')}
                     hideLoaderCl(ind);
