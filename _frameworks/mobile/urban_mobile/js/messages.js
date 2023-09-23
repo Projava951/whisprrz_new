@@ -409,7 +409,7 @@ var CMessages = function(guid, imHistoryMessages) {
         var $html=$(data), $listMsg=$html.filter('div.im_msg_one');
         $html.filter('script').appendTo('#update_server');
         $listMsg.imagesLoaded(function(){
-            $this.showMsg($listMsg);
+        $this.showMsg($listMsg);
         })
 
     }
@@ -500,7 +500,7 @@ var CMessages = function(guid, imHistoryMessages) {
                             data=$($.trim(data));
                             data.filter('script').appendTo('#update_server');
                             data.imagesLoaded(function(){
-                                $this.showMsg(data, true);
+                            $this.showMsg(data, true);
                             })
                         }
                     }

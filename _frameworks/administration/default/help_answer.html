@@ -16,15 +16,8 @@
         <input type="text" name="name" value="{name}">
         <label>{l_content}:</label>
         <textarea name="text" class="textarea_small">{text}</textarea>
-
-        <div class="wrap_button fl_right">
-            <button class="button" type="submit">{l_save}</button>
-        </div>
-        
-        <div class="wrap_button fl_right">
-            <button class="button" type="submit" onclick="if (confirm('{j_are_you_sure}')) { location.href='{url_page}?cmd=delete&t={topic_id}&id={id}&lang={lang}' } else return false;">{l_delete}</button>
-        </div>
-
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a></div>
+        <div class="btn fl_right"><a href="{url_page}?cmd=delete&t={topic_id}&id={id}&lang={lang}" onClick="if (confirm('{l_are_you_sure}')) return true; else return false;">{l_delete}</a></div>
         </form>
         <div style="height:50px"></div>
         <!-- end_question -->
@@ -36,11 +29,7 @@
         <input type="text" name="name" value="">
         <label>{l_content}:</label>
         <textarea name="text" class="textarea_small"></textarea>
-        
-        <div class="wrap_button fl_right">
-            <button class="button" type="submit">{l_add}</button>
-        </div>
-        
+        <div class="btn fl_right"><a href="#" class="submit">{l_add}</a></div>
         </form>
     </div>
 

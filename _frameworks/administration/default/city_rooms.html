@@ -20,12 +20,12 @@ $(function(){
         <input type="hidden" name="cmd" value="update">
         <table class="tb_fields" id="sortable" style="width: 250px;">
         <thead>
-            <tr id="no_sortable" >
-                <th class="decor_l">&nbsp;</th>
-                <th class="left" style="border:none;">{l_table_name}</th>
-                <th class="last" style="text-align: center; width:30px; padding-left: 10px;">{l_table_status}</th>
-                <th class="decor_r">&nbsp;</th>
-            </tr>
+                <tr id="no_sortable" >
+                    <th class="decor_l">&nbsp;</th>
+                    <th class="left" style="border:none;">{l_table_name}</th>
+                    <th class="last" style="text-align: center; width:30px; padding-left: 10px;">{l_table_status}</th>
+                    <th class="decor_r">&nbsp;</th>
+                </tr>
         </thead>
         <!-- begin_order_item -->
         <tr class="color" style="cursor:move;">
@@ -40,10 +40,9 @@ $(function(){
         </tr>
         <!-- end_order_item -->
 		</table>
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-        </div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
     </div>
 </div>

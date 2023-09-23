@@ -54,12 +54,11 @@
 
 
     <!-- begin_main_items -->
-    <table class="tb" style="width: 100%;">
-    <thead>
+    <table class="tb" style="max-width: 864px;">
     <tr>
-        <th class="decor_l">&nbsp;</th>
-        <th class="right" style="width: 12px;">
-            <input style="margin:0px; position: relative; top:2px; left: 4px;" type="checkbox" id="all">
+        <th class="decor_l"></th>
+        <th class="right">
+            <input style="margin:0px; width: 12px;" type="checkbox" id="all">
         </th>
         <th>{l_action}</th>
         <th>
@@ -77,28 +76,24 @@
             <!-- begin_params_asc_name_to -->&uarr;<a href="{url_page}?{params_current}">{l_about}</a><!-- end_params_asc_name_to -->
             <!-- begin_params_desc_name_to -->&darr;<a href="{url_page}?{params_current}">{l_about}</a><!-- end_params_desc_name_to -->
         </th>
-        <th>
+        <th class="last">
             {l_content}
-        </th>
-		<th>
-            {l_type}
         </th>
         <th class="last">
             {l_message}
         </th>
-        <th class="decor_r">&nbsp;</th>
+        <th class="decor_r"></th>
     </tr>
-    </thead>
 
     <!-- begin_main_item -->
     <tr class="{class}">
         <td class="decor{decl}"></td>
-        <td class="right" style="width: 12px;"><input style="margin:0px; position: relative; top:2px; left: 4px;" type="checkbox" id="chk_{id}"></td>
+        <td class="right" style="width: 12px;"><input style="margin:0px;" type="checkbox" id="chk_{id}"></td>
         <td>
             <a href="{url_page}?cmd=delete_report&report_id={id}" onclick="if (confirm('{l_are_you_sure}')) return true; else return false;">{l_delete_report}</a>
-            <br>
-            <a href="{url_page}?cmd={cmd}&photo_id={photo_id}&user_id={user_to}" onclick="if (confirm('{l_are_you_sure}')) return true; else return false;">{delete_content}</a>
-            <br>
+            |
+            <a href="{url_page}?cmd={cmd}&photo_id={photo_id}&user_id={user_to}" onclick="if (confirm('{l_are_you_sure}')) return true; else return false;">{l_delete_content}</a>
+            |
 			<a href="{url_page}?cmd=ban&user_id={user_to}" onclick="if (confirm('{l_are_you_sure}')) return true; else return false;">{ban_to}</a>
         </td>
         <td>{date}</td>
@@ -106,22 +101,16 @@
         <td><a href="users_edit.php?id={user_to}">{name_to}</a></td>
         <td style="padding-top: 4px; padding-bottom: 4px;">
             <!-- begin_photo_url -->
-            <img class="report_image" src="{url_files}{photo_url}">
+            <img src="{url_files}{photo_url}">
             <!-- end_photo_url -->
             <!-- begin_no_photo_url -->
             <div style="margin-top: -4px;">{l_no_photo}</div>
             <!-- end_no_photo_url -->
             <!-- begin_video_url -->
-            <a href="{video_link}" target="_blank"><img class="report_image" src="{url_files}{video_url}"></a>
+            <a href="vids_video_edit.php?id={video_id}" target="_blank"><img src="{url_files}{video_url}"></a>
             <!-- end_video_url -->
         </td>
-		<td>
-			{type}
-			<!-- begin_processing -->
-			<br><b>{l_processing}</b>
-			<!-- end_processing -->
-		</td>
-        <td style="width:100%; white-space:normal; line-height: 17px; padding-top: 3px;" class="last break_all">{msg}</td>
+        <td style="width:100%; white-space:normal; line-height: 17px; padding-top: 3px;" class="last">{msg}</td>
         <td class="decor{decr}"></td>
     </tr>
     <!-- end_main_item -->

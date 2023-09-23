@@ -64,8 +64,8 @@ var fixHelperModified = function(e, tr) {
         <input type="hidden" name="set" value="{set}">
         <label style="float:left;">{l_change_all_gifts_prices_at_once}:</label>
         <input id="set_credits" type="text" name="credits" value="{price_credits}" style="width:100px; margin-left: 8px; margin-top:-4px; display: inline-block;">
-        <div class="wrap_button" style="text-align: left; margin-left: 0;" >
-            <button class="button" type="submit">{l_save}</button>
+        <div class="btn" style="margin:-4px 0px -4px -8px;"><a href="#" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
         </div>
     </form>
     <div style="padding-bottom: 15px; width: 100%;"></div>
@@ -114,12 +114,12 @@ var fixHelperModified = function(e, tr) {
         </tr>
         <!-- end_gifts_item -->
         </table>
-        <div class="wrap_button fl_right">
-            <button class="button" type="submit">{l_save}</button>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
         </div>
         </form>
-        <div class="wrap_button fl_left">
-            <button class="button" onclick="if (confirm('{l_are_you_sure}')) actionChecked('{url_page}', 'delete', '&set={set}'); return false;" type="submit">{l_delete}</button>
+        <div class="btn fl_left" style="margin-left: -7px;">
+            <a class="submit" onclick="if (confirm('{l_are_you_sure}')) actionChecked('{url_page}', 'delete', '&set={set}'); return false;" href="#">{l_delete}</a>
         </div>
         <!-- end_gifts -->
         <!-- begin_no_gifts -->

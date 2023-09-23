@@ -1,8 +1,8 @@
 {header}
 <div class="block_narrow">
     <ul class="lmenu_lgreen">
-        <li class="active"><a href="{url_main}administration/matchmail.php">{l_menu_match_mail}</a></li>
-        <li><a href="{url_main}administration/home.php">{l_menu_home}</a></li>
+        <li class="active"><a href="{url_main}administration/matchmail.php">{l_menu_match_mail}</a></li>        
+        <li><a href="{url_main}administration/home.php">{l_menu_home}</a></li>        
     </ul>
 </div>
 <div class="block_main">
@@ -11,17 +11,16 @@
     <div class="bl_form">
         <form action="{url_page}" method="POST">
         <input type="hidden" name="cmd" value="update">
-
+        
 		{config_fields}
 
         <!-- begin_field -->
         <label>{l_field}:</label>
         <input type="text" name="{key}" value="{value}"/>
         <!-- end_field -->
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-        </div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+					<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
     </div>
 

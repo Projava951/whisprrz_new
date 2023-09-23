@@ -13,7 +13,7 @@
 
     <table class="tb" id="sortable">
     <tr  id="no_sortable">
-        <th></th>
+        <th class="decor_l">&nbsp;</th>
         <th class="right" >{l_name}</th>
         <th></th>
         <th></th>
@@ -23,13 +23,14 @@
         <th></th>
         <!-- end_lang_rtl_title -->
         <th class="last"></th>
-        <th></th>
+
+        <th class="decor_r">&nbsp;</th>
     </tr>
     <!-- begin_lang -->
-    <tr class="{class}" style="cursor: move;">
+    <tr class="{class}" style="cursor:move;">
         <td class="decor{decl}">&nbsp;</td>
         <td class="right">{title}
-            <input type="hidden" name="order_lang[]" value="{language}">{name_block}
+		<input type="hidden" name="order_lang[]" value="{language}">{name_block}
 		</td>
 
         <!-- begin_lang_off -->
@@ -75,6 +76,8 @@
             <a onclick="if(!confirm('{l_are_you_sure}')) return false;" href="{url_page}?part={part}&cmd=restore&lang={language}">{l_restore}</a>
             <!-- end_lang_restore -->
         </td>
+
+
         <td class="decor{decr}">&nbsp;</td>
     </tr>
     <!-- end_lang -->
@@ -88,8 +91,8 @@
         <p>{message_lang}</p>
         <label>{l_new_title}:</label>
         <input type="text" name="add_title" value="{add_title}">
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_create}</button>
+        <div class="btn fl_right"><a href="#" class="submit">{l_create}</a>
+					<input type="submit" style="visibility:hidden;position:absolute;">
 		</div>
         </form>
     </div>

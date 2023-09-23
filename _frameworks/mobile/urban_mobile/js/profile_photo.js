@@ -449,29 +449,29 @@ var CProfilePhoto = function() {
 		}
 
 		var fnStart=function(){
-			var vid=(pid+'').replace('v_','')
-			var url_video=url_files+'video/'+vid+'.mp4';
-			$this.$videoPlayer.src=url_video;
-			if(typeof $this.$tipPhotoInfoEdit != 'undefined'){
-					$this.$tipPhotoInfoEdit.stop().fadeOut(200);
-			}
-			$this.$tipVideoPlayer.stop().fadeIn(220,function(){
-				$this.$shadowEmpty.show();
-				$this.$shadowEmpty.css('opacity','1.0');
-				$this.$videoPlayer.volume = getVolumeVideoPlayer();
-				if ($this.$videoPlayer.paused) {
-					$this.$videoPlayer.play();
-				}
-				$this.$tipVideoPlayer.center();
-			});
+            var vid=(pid+'').replace('v_','')
+            var url_video=url_files+'video/'+vid+'.mp4';
+            $this.$videoPlayer.src=url_video;
+            if(typeof $this.$tipPhotoInfoEdit != 'undefined'){
+                $this.$tipPhotoInfoEdit.stop().fadeOut(200);
+            }
+            $this.$tipVideoPlayer.stop().fadeIn(220,function(){
+                $this.$shadowEmpty.show();
+                $this.$shadowEmpty.css('opacity','1.0');
+                $this.$videoPlayer.volume = getVolumeVideoPlayer();
+                if ($this.$videoPlayer.paused) {
+                    $this.$videoPlayer.play();
+                }
+                $this.$tipVideoPlayer.center();
+            });
 			$.post(url_ajax,{cmd:'set_media_views',type:'video',photo_id:pid},
 			function(res){})
 
-			/*
+            /*
             $this.$tipVideoPlayer.stop().fadeIn(220,function(){
                 $this.$shadowEmpty.show();
             });
-			*/
+        */
 		}
 
 		$this.checkNeedLiveCredit(pid, live_id, my_video, fnStart);

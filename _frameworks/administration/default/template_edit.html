@@ -105,18 +105,12 @@
             <input type="hidden" name="tmpl_type" value="{tmpl_type_this}">
             <input type="hidden" name="tmpl_page" value="{tmpl_page_this}">
             <textarea name="html">{html}</textarea>
-            <div class="wrap_button fl_right">
-                <button class="button submit" type="submit">{l_save}</button>
-                <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-            </div>
-            <div class="wrap_button fl_right">
-                <button onclick="{url_page}" class="button submit" type="">{l_cancel}</button>
-            </div>
-
+            <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+						<input type="submit" style="visibility:hidden;position:absolute;">
+			</div>
+            <div class="btn fl_right"><a href="{url_page}">{l_cancel}</a></div>
             <!-- begin_button_restore -->
-            <div class="wrap_button fl_right">
-                <button onclick="if(!confirm('{l_are_you_sure}')) return false; document.forms.template_edit.cmd.value = 'restore'; document.forms.template_edit.submit();" class="button submit" type="">{l_restore}</button>
-            </div>
+            <div class="btn fl_right"><a href="#" onclick="if(!confirm('{l_are_you_sure}')) return false; document.forms.template_edit.cmd.value = 'restore'; document.forms.template_edit.submit();">{l_restore}</a></div>
             <!-- end_button_restore -->
         </form>
         <!-- end_html -->

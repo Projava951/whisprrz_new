@@ -144,18 +144,16 @@ input.coords {width:15%;}
         <!-- end_main_pages -->
 
         <!-- begin_delete_btn -->
-        <div style="margin: 0 0 20px 22px; display: flex;">
-            <div class="wrap_button fl_left">
-                <button class="button submit" type="submit" onclick="if (confirm('{l_are_you_sure}')) geoHideItem(0,1); else return false; ">{l_hide}</button>
-            </div>
+        <div class="btn fl_left" style="margin-left:40px; margin-top: 0px;">
+            <a class="submit" onclick="if (confirm('{l_are_you_sure}')) geoHideItem(0,1); else return false; " href="#">{l_hide}</a>
+        </div>
 
-            <div class="wrap_button fl_left">
-                <button class="button submit" type="submit" onclick="if (confirm('{l_are_you_sure}')) geoShowItem(0,1); else return false; ">{l_show}</button>
-            </div>
+        <div class="btn fl_left" style="margin-left:0px; margin-top: 0px;">
+            <a class="submit" onclick="if (confirm('{l_are_you_sure}')) geoShowItem(0,1); else return false; " href="#">{l_show}</a>
+        </div>
 
-            <div class="wrap_button fl_left">
-                <button class="button submit" type="submit" onclick="if (confirm('{l_are_you_sure}')) geoDeleteItem(0,1); else return false;">{l_delete}</button>
-            </div>
+        <div class="btn fl_left" style="margin-left:0px; margin-top: 0px;">
+            <a class="submit" onclick="if (confirm('{l_are_you_sure}')) geoDeleteItem(0,1); else return false; " href="#">{l_delete}</a>
         </div>
         <div class="cl"></div>
         <!-- end_delete_btn -->
@@ -165,18 +163,12 @@ input.coords {width:15%;}
         <input name="state_id" value="{state_id}" type="hidden">
         <input name="country_id" value="{country_id_real}" type="hidden">
 
-        <div class="wrap_input_add fl_left">
-            <input type="text" name="name" value="">
-        </div>
-        <div style="width:8%;" class="wrap_input_add fl_left">
-            <input type="text" class="coords" type="text" name="lat" value="">
-        </div>
-        <div style="width:8%;" class="wrap_input_add fl_left">
-            <input type="text" class="coords" type="text" name="long" value="">
-        </div>
+        <input style="margin-top:5px; width:30%;" type="text" name="name" value="">
+		<input style="margin-top:5px; width:8%;" class="coords" type="text" name="lat" value="">
+        <input style="margin-top:5px; width:8%;" class="coords" type="text" name="long" value="">
 
-        <div class="wrap_button fl_left">
-            <button class="button submit" type="submit">{l_add}</button>
+        <div class="btn fl_right" style="margin:0; margin-top: -1px;"><a href="#" class="submit">{l_add}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
 		</div>
         </form>
     </div>

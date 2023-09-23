@@ -355,13 +355,7 @@ function setWidthFields(){
                     <td id ="decor_r" class="decor_r">&nbsp;</td>
                 </tr>
                 <!-- end_table_4 -->
-                <tr id="no_sortable" style="height: 14px;">
-                    <td style="border: none; background-color: transparent;"></td>
-                    <!-- <td style="border: none;"></td> -->
-                    <td colspan="3" style="border: none;"></td>
-                    <!-- <td style="border: none;"></td> -->
-                    <td style="border: none; background-color: transparent;"></td>
-                <tr>
+                <tr id="no_sortable" style="height: 14px;"><td style="border: none;"></td><td style="border: none;"></td><td style="border: none;"></td><td style="border: none;"></td><tr>
                 <!-- begin_table_0 -->
                 <tr id="{table_fields_position}" data-type="{type_fields_0}" class="color">
                     <td id ="decor_l" class="decor_l">&nbsp;</td>
@@ -519,10 +513,10 @@ function setWidthFields(){
             setWidthFields();
         </script>
 
-        <div class="wrap_button fl_right fileds_no_social">
-            <button class="button" type="submit" onclick="getPosition(); return false;">{l_save}</button>
-        </div>
-        <div class="clearfix"></div>
+            <div class="btn fl_right fileds_no_social">
+                <a href="" onclick="getPosition(); return false;">{l_save}</a>
+            </div>
+            <div style="clear: both;"></div>
 
 		<form name="users_fields" enctype="multipart/form-data" action="{url_page}?table={table}&fields={table_fields}" method="POST">
 		<input type="hidden" name="cmd" value="update">
@@ -546,7 +540,7 @@ function setWidthFields(){
         <!-- end_chart -->
         <!-- begin_question_title -->
         <label style="margin-bottom: 5px;">{l_question_title}:</label>
-        <div style="border:1px solid #b7b4b4; padding: 14px 14px 0 12px; border-radius:4px;">
+        <div style="border:1px solid #b7b4b4; padding: 14px 0px 0px 12px; border-radius:4px;">
             <p style="font-size: 11px; padding-bottom: 0px;"><strong style="font-weight: normal;">{l_translation}:</strong>
                 <select id="translit_question" style="margin:0px 0px 14px 6px;" <!-- begin_question_title_translit_disabled -->disabled<!-- end_question_title_translit_disabled -->  name="translit_language">
                     <option value="edit_mode">{l_please_choose}</option>
@@ -569,16 +563,15 @@ function setWidthFields(){
         <div style="border:1px solid #b7b4b4; padding: 14px 0px 0px 12px; border-radius:4px;">
         <!-- begin_field_answer_checks_item -->
         <label style="margin-top: -5px; margin-bottom: 5px;">{answer_orientation}</label>
-        <div class="clearfix"></div>
         <div style="float:left;">
             <label style="margin-top: -5px; margin-bottom: 5px; display:inline-block;">{l_yes}: </label>
             <div style="display:inline-block; padding:0px 4px;">{l_from}</div>
-            <select name="answer_yes_from[{answer_orientation_id}]" style="display:inline; width: 159px;">
+            <select name="answer_yes_from[{answer_orientation_id}]" style="display:inline; width: 161px;">
                 <option selected value="">&nbsp;</option>
                 {answer_yes_options_from}
             </select>
             <div style="display:inline-block; padding:0px 4px;">{l_to}</div>
-            <select name="answer_yes_to[{answer_orientation_id}]" style="display:inline; width: 159px;">
+            <select name="answer_yes_to[{answer_orientation_id}]" style="display:inline; width: 161px;">
                 <option selected value="">&nbsp;</option>
                 {answer_yes_options_to}
             </select>
@@ -586,12 +579,12 @@ function setWidthFields(){
         <div style="float:left; margin-left: 20px;">
             <label style="margin-top: -5px; margin-bottom: 5px; display:inline-block;">{l_no}: </label>
             <div style="display:inline-block; padding:0px 4px;">{l_from}</div>
-            <select name="answer_no_from[{answer_orientation_id}]" style="display:inline; width: 159px;">
+            <select name="answer_no_from[{answer_orientation_id}]" style="display:inline; width: 161px;">
                 <option selected value="">&nbsp;</option>
                 {answer_no_options_from}
             </select>
             <div style="display:inline-block; padding:0px 4px;">{l_to}</div>
-            <select name="answer_no_to[{answer_orientation_id}]" style="display:inline; width: 159px;">
+            <select name="answer_no_to[{answer_orientation_id}]" style="display:inline; width: 161px;">
                 <option selected value="">&nbsp;</option>
                 {answer_no_options_to}
             </select>
@@ -648,8 +641,8 @@ function setWidthFields(){
         <!-- end_field_upload_ico -->
 
 		<!-- begin_default_value -->
-		<div class=""> 
-            <label style="vertical-align: super;">{l_default}:</label>           
+		<label style="margin-top: -23px; margin-bottom:3px;">{l_default}:</label>
+        <div class="radio_block">
             <input type="radio" class = "radio" onMouseDown="this.isChecked=this.checked;" onClick="this.checked=!this.isChecked;" name="default" value="{id}" {default_checked}>
         </div>
         <div style="height:7px;" class="cl"></div>
@@ -666,25 +659,19 @@ function setWidthFields(){
             {search_options}
         </select>-->
 
-        <ul class="checkbox_pay_list">
-            <!-- begin_field_o_search_item -->
-            <li>
-                <label>
-                    <input type="checkbox" class="radio" name="search_o[{id}][{search_id}]" {search_checked} value="{search_id}"> {search_title}
-                </label>
-            </li>
-            <!-- end_field_o_search_item -->
-        </ul>
+        <!-- begin_field_o_search_item -->
+        <label style="margin-bottom: 3px; font-weight: normal; cursor:pointer;">
+            <input type="checkbox" class="radio" name="search_o[{id}][{search_id}]" {search_checked} value="{search_id}"> {search_title}
+        </label>
+        <!-- end_field_o_search_item -->
 
-        <div style="padding-bottom:3px;">
-            <label>{l_gender}:</label>
-        </div>
-    
+        <label style="padding-bottom:3px;">{l_gender}:</label>
+
         <div class="radio_block">
             <input type="radio" class = "radio" name="gender[{id}]" value="M" {gender_m}> {l_male}
             <input type="radio" class = "radio" name="gender[{id}]" value="F" {gender_f}> {l_female}
+			<input type="radio" class = "radio" name="gender[{id}]" value="C" {gender_c}> {l_couples}
         </div>
-
         <div style="height:7px;" class="cl"></div>
 
         <label>{l_free_access}:</label>
@@ -724,20 +711,14 @@ function setWidthFields(){
         <div style="height:10px" class="cl"></div>
         <!-- end_block_add_upload_ico -->
 
-        <div class="wrap_button fl_right">
-            <button class="button" type="submit">{l_save}</button>
-        </div>
+        <div class="btn fl_right"><a href="" class="submit">{l_save}</a></div>
         <!-- end_block_add -->
         <!-- begin_block_btn_add -->
-        <div class="wrap_button fl_right">
-            <button class="button" type="submit">{l_save}</button>
-        </div>
+        <div class="btn fl_right"><a href="" class="submit">{l_save}</a></div>
         <!-- end_block_btn_add -->
         <!-- end_fields -->
         <!-- begin_button_delete -->
-		<div class="wrap_button fl_right">
-            <button class="button" onclick="if (confirm('{l_are_you_sure}')) { document.forms.users_fields.cmd.value='delete'; document.forms.users_fields.submit(); return true;} else return false;">{l_delete_this}</button>
-        </div>
+		<div class="btn fl_right"><a href="#" onclick="if (confirm('{l_are_you_sure}')) { document.forms.users_fields.cmd.value='delete'; document.forms.users_fields.submit(); return true;} else return false;">{l_delete_this}</a></div>
 		<!-- end_button_delete -->
 
     </div>

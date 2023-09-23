@@ -1,19 +1,8 @@
 {header}
 <script type="text/javascript" src="{url_main}_server/jquery/jquery.autosize.js{cache_version_param}"></script>
-<!-- <style>
-    textarea{
-        font-family: Tahoma;
-        margin: 0 0 15px;
-        padding: 0;
-        font-size: 12px;
-        line-height: 20px;
-        border: 1px solid #c9c9c9;
-        height: 418px;
-        width: 850px;
-        color: #0b0b0b;
-        text-align: left;
-    }
-</style> -->
+<style>
+    textarea{ font-family: Tahoma;  margin: 0 0 15px; padding: 0px; font-size: 12px; line-height: 20px; border: 1px solid #c9c9c9; height: 418px; width: 850px; color: #0b0b0b;text-align: left; }
+</style>
 <div class="block_narrow">
     <ul class="lmenu_lgreen" >
         <li><a href="{url_main}administration/language.php?part={part}">{l_langs_list}</a></li>
@@ -66,6 +55,7 @@
 	</form>
 
 	<div class="language_search_results"></div>
+
     <ul class="alphabet" id="alphabet">
         <!-- begin_alphabet -->
         <!-- begin_yes_value -->
@@ -84,7 +74,7 @@
             <td width="10%" valign="top">{field_title}:</td>
 			<td valign="top" style="width: 30px;"><img style="display: none;" id="preloader_{lang_page_this_id}_{field}" src="{url_tmpl_administration}images/loader.gif"></td>
             <td style="padding-bottom: 14px;">
-                <textarea data-language-section="{lang_page_this}" data-language-item-key="{field}" onclick="selectField('{field}');" onfocus="addItemValueCache('{field}', '{lang_page_this}');" onblur="updateItem('{field}', '{lang_page_this}');" class="lang {class_field} {not_translated_class}" type="text" id="{lang_page_this_id}_{field}" name="{field}">{value}</textarea>
+                <textarea data-language-section="{lang_page_this}" data-language-item-key="{field}" onclick="selectField('{field}');" onfocus="addItemValueCache('{field}', '{lang_page_this}');" onblur="updateItem('{field}', '{lang_page_this}');" class="lang {class_field} {not_translated_class}" type="text" id="{lang_page_this_id}_{field}" name="{field}" style="height:20px; width:98.2%; overflow:hidden; resize:none; padding: 0px 4px;">{value}</textarea>
             </td>
             <td class="language_action_buttons" valign="top">
                 <a class="{autotranslator_hide_item_class}" onclick="adminLanguageTranslator.translateItem('{field}', '{lang_page_this}'); return false;" href="#">{l_translate_with_google}</a><span class="{autotranslator_hide_item_class}" id="delete_delimiter_{lang_page_this_id}_{field}" style="{delete_style}"> | </span><a style="{delete_style};" id="delete_{lang_page_this_id}_{field}" onclick="deleteWord('{field}', '{lang_page_this}'); return false;" href="#">{l_delete}</a>
@@ -109,8 +99,10 @@
                     <div style="clear:both; height:1px;"></div>
                     <!-- end_add -->
 
-                    <div class="wrap_button fl_left">
-                        <button class="button submit" onclick="document.forms.editLanguage.submit(); return false;" type="submit">{l_add}</button>
+
+                    <div class="btn" style="margin-left: -8px;">
+                        <a href="#" onclick="document.forms.editLanguage.submit(); return false;" class="submit2">{l_add}</a>
+                        <input type="submit" style="visibility:hidden;position:absolute;">
                     </div>
                </form>
             </td>
@@ -437,9 +429,8 @@ function langSearch()
 	}
 	$.post(url, request, function(data){
 		$('.language_search_results').html(data);
-        setTimeout(initAutosize,100);
 	});
-    p = true;
+        p = true;
 //}
 }
 function langSearchFocus() {
@@ -457,19 +448,9 @@ function loaderHide(loader)
 	$(loader).hide();
 }
 
-
-function initAutosize(){
-    //Number textarea: 3072 0
-    var $ta=$('textarea.lang').add($('.textarea:not(.lang)')),
-        lT=$ta.length;
-    if(lT<200){
-        $ta.autosize();
-    }
-    //console.log('Number textarea:', $('textarea.lang').length, $('.textarea:not(.lang)').length, lT);
-}
-
 $(function(){
-    initAutosize();
+    $('.textarea').autosize({callback:function(){
+    }})
 
     $("body").on('keypress', '.lang',function(e){
        var el = $(this);
@@ -492,6 +473,8 @@ $(function(){
                     updateItem(el.attr('id'));
                     addItemValueCache(el.attr('id'));
                 }
+
+
               }
               return false;
        }

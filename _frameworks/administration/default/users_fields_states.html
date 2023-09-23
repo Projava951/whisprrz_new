@@ -20,6 +20,7 @@ $(function() {
             window.location.href='users_fields_localization.php?mode=state&country_id='+$('#select_country').val()+'&lang='+lang;
         }
     });
+
 });
 </script>
 <div class="block_narrow">
@@ -31,14 +32,8 @@ $(function() {
     <div class="bl_form">
 
 <style>
-    input {
-        width: 44%;
-    }
-
-    .link {
-        width: 45%; 
-        margin-top: 5px; 
-    }
+input {width:44%;}
+.link {width:45%; margin-top:5px; }
 </style>
         <p style="padding-left:28px;">{l_language_edit_instruction}</p>
         <p style="padding-left: 28px; font-size: 11px; padding-bottom: 0px;"><b>{l_translation}:</b> <select id="language" style="margin:0px 0px 14px 6px;" name="language">
@@ -76,18 +71,16 @@ $(function() {
         <!-- end_state -->
         </form>
         <!-- begin_delete_btn -->
-        <div style="margin: 0 0 20px 22px; display: flex;">
-            <div class="wrap_button fl_left">
-                <button class="button submit" type="submit" onclick="if (confirm('{l_are_you_sure}')) geoHideItem(0,1); else return false; ">{l_hide}</button>
-            </div>
+        <div class="btn fl_left" style="margin-left:40px; margin-top: 0px;">
+            <a class="submit" onclick="if (confirm('{l_are_you_sure}')) geoHideItem(0,1); else return false; " href="#">{l_hide}</a>
+        </div>
 
-            <div class="wrap_button fl_left">
-                <button class="button submit" type="submit" onclick="if (confirm('{l_are_you_sure}')) geoShowItem(0,1); else return false; ">{l_show}</button>
-            </div>
+        <div class="btn fl_left" style="margin-left:0px; margin-top: 0px;">
+            <a class="submit" onclick="if (confirm('{l_are_you_sure}')) geoShowItem(0,1); else return false; " href="#">{l_show}</a>
+        </div>
 
-            <div class="wrap_button fl_left">
-                <button class="button submit" type="submit" onclick="if (confirm('{l_are_you_sure}')) geoDeleteItem(0,1); else return false;">{l_delete}</button>
-            </div>
+        <div class="btn fl_left" style="margin-left:0px; margin-top: 0px;">
+            <a class="submit" onclick="if (confirm('{l_are_you_sure}')) geoDeleteItem(0,1); else return false; " href="#">{l_delete}</a>
         </div>
         <div class="cl"></div>
         <!-- end_delete_btn -->
@@ -96,11 +89,11 @@ $(function() {
         <input name="country_id" value="{country_id}" type="hidden">
         <input name="cmd" value="add" type="hidden">
 
-        <div class="wrap_input_add fl_left">
-            <input type="text" name="name" value="">
-        </div>
-        <div class="wrap_button fl_left">
-            <button class="button submit" type="submit">{l_add}</button>
+        <input style="width:50%; margin-top:5px;" type="text" name="name" value="">
+
+
+        <div class="btn fl_right" style="margin:0px; margin-top: -1px; width: 46%;"><a href="#" class="submit">{l_add}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
 		</div>
         </form>
     </div>

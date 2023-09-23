@@ -363,22 +363,64 @@ class CAdminHeader extends CHtmlBlock
                     $menu = "sgroupssocialmusic";
                 }
             }
-        } else {
+        }
+        // Rade 2023-09-22 add start 
+        elseif(in_array($filename, array('partner.php','partner_baners.php','contact_partner.php','partner_main.php','partner_tips.php','partner_faq.php','partner_terms.php')))//nnsscc-diamond-20200508
+        {
+            $menu = 'saffiliates';
+        }elseif($filename == 'banner.php') {
+            $menu = "saddmainbanner";
+        }elseif($filename == 'pages_add_banner.php') {
+            $menu = "saddbanner";
+        }elseif($filename == 'pages_add_wevents.php') {
+            $menu = "saddwevent";
+        }elseif($filename == 'donation_admin_cobra.php') {
+            $menu = "sdonation";
+        }elseif($filename == 'pages_add_club.php') {
+            $menu = "saddclub";
+        }elseif($filename == 'music_musicians.php') {//eric-cuigao-nsc-20201210-start
+            $menu = "smediamusic";
+        }elseif($filename == 'alb_albums.php') {
+            $menu = "smediaalb";
+        }elseif($filename == 'vids_videos.php') {
+            $menu = "smediavids";
+        }elseif($filename == 'media_radio.php') {
+            $menu = "smediaradio";
+        }elseif($filename == 'media_podcast.php') {//eric-cuigao-nsc-20201210-end
+            $menu = "smediapodcast";
+        }elseif($filename == 'partyhouz_partyhouz.php') {//eric-ECA-73023-830PM-Start
+        $menu = "spartyhouz";
+        }elseif($filename == 'partyhouz_partyhou_comments.php') {
+        $menu = "spartyhouzcomments";
+        }elseif($filename == 'partyhouzcategories.php') {
+            $menu = "spartyhouz_categories";
+        }elseif($filename == 'partyhouz_category_add.php') {//eric-ECA-73023-830PM--end
+            $menu = "spartyhouzcategory";    
+        }elseif($filename == 'users_reports.php') {// Divyesh - 31072023 - Start
+            $menu = "smoderator";    
+        }elseif($filename == 'sms_carriers.php') {
+            $menu = "scarrier";
+        }elseif($filename == 'masssms.php') {
+            $menu = "ssms_mass_text";
+        }elseif($filename == 'autosms.php') {
+            $menu = "ssms_auto_mailer";
+        }else { // Divyesh - 31072023 - Start
+            // Rade 2023-09-22 add end
             $menu = $this->getActiveMenuItem();
             if (!$menu) {
-			$arr = explode('?', $request);
-			$arr = explode('.', $arr[0]);
+            $arr = explode('?', $request);
+            $arr = explode('.', $arr[0]);
             $arrPage = $arr[0];
-			$arr = explode('_', $arr[0]);
- 			$request = $arr[0];
-			$menu = 's' . $request;
+            $arr = explode('_', $arr[0]);
+            $request = $arr[0];
+            $menu = 's' . $request;
             if($menu == 'sbaner') {
                 $menu = 'sbanner';
             }
             if($arrPage == 'contact_partner') {
                 $menu = 'spartner';
             }
-		}
+        }
 		}
 
 //        look_message_im.php look_message_chat.php look_message_mail.php
@@ -3668,8 +3710,7 @@ class CAdminPageMenuPay extends CAdminPageMenu {
     );
 
     protected $notAvailableItems = array('old' => array('pay_price.php', 'pay_features.php'),
-                                        //  'urban' => array('pay_cat.php', 'pay_type.php') // rade 2023-09-20 delete
-                                        'urban' => array('pay_price.php', 'pay_features.php')
+                                        'urban' => array()// rade 2023-09-20 delete
                                         );
     protected $notAvailableItemsTemplate = array();/*'edge' => array('pay_price.php')*/
 }
@@ -3764,9 +3805,6 @@ class CAdminPageMenuBlock extends CAdminPageMenu {
     );
     protected $notAvailableItems = array(
         'old' => array('users_reports.php', 'users_reports_content.php', 'users_reports_wall_post.php'),
-        // rade 2023-09-20 add start
-        'urban' => array('users_reports.php', 'users_reports_content.php', 'users_reports_wall_post.php'),
-        // rade 2023-09-20 add end
     );
 	protected $notAvailableItemsTemplate = array(
 		'impact' => array('users_reports_wall_post.php'),

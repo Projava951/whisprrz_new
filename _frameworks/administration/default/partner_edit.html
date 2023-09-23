@@ -153,34 +153,31 @@
             return false;
         }
 
-        if(!isEmpty(form['join_password'])) {
-            // "join_password" field validation.
-            if (!validateRequiredField(form['join_password'], '{l_password}')) {
-              removeSubmissionBlock();
-              return false;
-            }
-            // "join_password" field validation.
-            if (!validateMinLength(form['join_password'], '{l_password}','4')) {
-              removeSubmissionBlock();
-              return false;
-            }
-            // "join_password" field validation.
-            if (!validateMaxLength(form['join_password'], '{l_password}','30')) {
-              removeSubmissionBlock();
-              return false;
-            }
-            // "join_password" field validation.
-            if (!validateAlphaNumeric(form['join_password'], '{l_password}')) {
-              removeSubmissionBlock();
-              return false;
-            }
-            // "join_password" field validation.
-            if (!validateTwoFields(form['join_password'],'{l_password}',form['verify_password'],'{l_verify_password}')) {
-              removeSubmissionBlock();
-              return false;
-            }
+        // "join_password" field validation.
+        if (!validateRequiredField(form['join_password'], '{l_password}')) {
+          removeSubmissionBlock();
+          return false;
         }
-
+        // "join_password" field validation.
+        if (!validateMinLength(form['join_password'], '{l_password}','4')) {
+          removeSubmissionBlock();
+          return false;
+        }
+        // "join_password" field validation.
+        if (!validateMaxLength(form['join_password'], '{l_password}','30')) {
+          removeSubmissionBlock();
+          return false;
+        }
+        // "join_password" field validation.
+        if (!validateAlphaNumeric(form['join_password'], '{l_password}')) {
+          removeSubmissionBlock();
+          return false;
+        }
+        // "join_password" field validation.
+        if (!validateTwoFields(form['join_password'],'{l_password}',form['verify_password'],'{l_verify_password}')) {
+          removeSubmissionBlock();
+          return false;
+        }
         return true;
       }
 
@@ -255,15 +252,14 @@
         <input type="text" name="tax" value="{tax}"/>
 
         <label>{l_password}:</label>
-        <input type="password" name="join_password" value=""/>
+        <input type="password" name="join_password" value="{password}"/>
 
         <label>{l_confirm_password}:</label>
-        <input type="password" name="verify_password" value=""/>
+        <input type="password" name="verify_password" value="{password}"/>
 
-        <div class="wrap_button fl_right">
-          <button class="button submit" type="submit">{l_save}</button>
-          <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-        </div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+									<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
     </div>
 

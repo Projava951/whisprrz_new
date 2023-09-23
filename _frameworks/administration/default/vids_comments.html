@@ -6,12 +6,7 @@
     <h2>{l_title_current}</h2>
 
     <!-- begin_noitems --><div align="center">{l_no_video_comments_yet}</div><!-- end_noitems -->
-    <!-- begin_pages -->
-    <div class="wrap_bl_pagin">
-        <div class="wrap_bl_total">{itemsTotal} {l_comments}</div>
-        <div class="wrap_bl_pager">{pager}</div>
-    </div>
-    <!-- end_pages -->
+    <!-- begin_pages --><div>{itemsTotal} {l_videos}</div><div>{pager}</div><!-- end_pages -->
     <!-- begin_items -->
     <table class="tb">
         <tr>
@@ -31,10 +26,8 @@
                 $(document).ready(function() {
                     $("#delete_{item_id}").click(function() {
                         if (confirm('{l_are_you_sure}')) {
-                            $.get('{url_main}administration/vids_comment_delete_ajax.php?id={item_id}',function(){
-                                redirectUrl('{url_page}{pages_param}');
-                            });
-                            //$('#item_{item_id}').remove();
+                            $.get('{url_main}administration/vids_comment_delete_ajax.php?id={item_id}');
+                            $('#item_{item_id}').remove();
                         }
                         return false
                     });
@@ -43,7 +36,7 @@
                 <a href="#" id="delete_{item_id}">{l_delete}</a>
             </td>
             <td>{item_id}</td>
-            <td class="wrap_text_td">{item_text}</td>
+            <td>{item_text}</td>
             <td>
                 {item_user_name}:
                 <a href="{url_main}administration/vids_user_videos.php?id={item_user_id}">{l_videos}</a>

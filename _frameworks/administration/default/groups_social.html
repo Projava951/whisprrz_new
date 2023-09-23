@@ -92,12 +92,10 @@
     <tr class="{class}">
         <td class="decor{decl}"></td>
         <td class="right"><input style="margin:0px; width: 12px;" type="checkbox" id="chk_{group_id}"></td>
-        <td style="width: 100px;">
+        <td>
             <a href="" onclick="if (confirm('{l_are_you_sure}')) {one_delete('{group_id}'); return false;} else return false;">{l_delete}</a>
             |
             <a href="" onclick="if (confirm('{l_are_you_sure}')) {ban('{group_id}'); return false;} else return false;">{ban_global}</a>
-            |
-            <a href="groups_social_edit.php?group_id={group_id}">{l_edit}</a>
         </td>
         <td><a href="../{group_url}" target="_blank">{title}</a></td>
         <td><a href="../{user_url}" target="_blank">{user_name}</a></td>

@@ -1,12 +1,13 @@
 {header}
 
 <script type="text/javascript" src="{url_tmpl_administration}js/language_translator.js{cache_version_param}"></script>
+
 <script type="text/javascript" src="{url_tmpl_administration}js/tinymce/tinymce.min.js{cache_version_param}"></script>
 <script type="text/javascript">
 tinymce.init({
         selector: "#mail_content",
         language : '{lang_vw}',
-        width : 'auto',//width : '98%',
+        width : '98%',
 
         fontsize_formats: "8px 10px 12px 14px 18px 24px 36px",
         plugins: [
@@ -17,7 +18,7 @@ tinymce.init({
 
         toolbar1: "bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect",
         toolbar2: "cut copy paste | searchreplace | bullist numlist | outdent indent blockquote | undo redo | link unlink anchor image media code | insertdatetime preview | forecolor backcolor",
-        toolbar3: "table | hr removeformat | subscript superscript | charmap | print fullscreen | ltr rtl | visualchars visualblocks nonbreaking pagebreak restoredraft",
+        toolbar3: "table | hr removeformat | subscript superscript | charmap | print fullscreen | ltr rtl | visualchars visualblocks nonbreaking template pagebreak restoredraft",
 
         menubar: false,
         toolbar_items_size: 'small',
@@ -57,6 +58,7 @@ tinymce.init({
 
 <div class="block_narrow">
     <ul class="lmenu_lgreen">
+
 	<!-- begin_language -->
 		<!-- begin_language_link -->
 		<li><a href="{url_page}?note={note_current}&lang={language_value}">{language_title}</a></li>
@@ -66,7 +68,8 @@ tinymce.init({
 		<li class="active"><a href="{url_page}?note={note_current}&lang={language_value}">{language_title}</a></li>
 		<!-- end_language_active -->
 	<!-- end_language -->
-        <li><a href="{url_main}administration/automail_settings.php?lang={lang}">{l_settings}</a></li>
+    <li><a href="{url_main}administration/automail_settings.php?lang={lang}">{l_settings}</a></li>
+
     </ul>
 </div>
 
@@ -114,12 +117,11 @@ tinymce.init({
         <label>{l_text}:</label>
         <textarea name="text" id="mail_content" class="config_textarea translateable">{text}</textarea>
         <!-- begin_delete -->
-        <div class="wrap_button fl_left">
-            <button class="button" type="submit" onclick="if (confirm('{j_are_you_sure}')) { location.href='{url_page}?note={note_current}&lang={lang}&cmd=delete' } else return false;">{l_delete}</button>
-        </div>
+        <div class="btn fl_right"><a onclick="if(confirm('{l_are_you_sure}')) return true; else return false;" href="{url_page}?note={note_current}&lang={lang}&cmd=delete">{l_delete}</a>
+		</div>
         <!-- end_delete -->
-        <div class="wrap_button fl_left">
-            <button class="button" type="submit">{l_save}</button>
+        <div class="btn fl_left"><a href="#" class="submit">{l_save}</a>
+		<input type="submit" style="visibility:hidden;position:absolute;">
 		</div>
         </form>
     </div>

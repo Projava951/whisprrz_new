@@ -8,10 +8,9 @@
         <form action="{url_page}" method="POST">
 			<input type="hidden" name="cmd" value="update">
 			{config_fields}
-            <div class="wrap_button fl_right">
-                <button class="button submit" type="submit">{l_save}</button>
-                <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-            </div>
+			<div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+				<input type="submit" style="visibility:hidden;position:absolute;">
+			</div>
         </form>
     </div>
     <div class="empty"></div>
@@ -20,18 +19,8 @@
     <!-- begin_block_image -->
     <div class="bl_form">
     <style>
-        .city_gallery_image{
-            width: 128px; 
-            height: 128px; 
-            padding: 0;
-        }
-        
-        .submiting{
-            padding-top: 60px; 
-            text-align: center; 
-            width: 100%; 
-            height: 100%;
-        }
+        .city_gallery_image{width:128px; height:128px; padding: 0;}
+        .submiting{padding-top:60px; text-align: center; width:100%; height:100%;}
     </style>
     <script>
     $(function() {
@@ -91,11 +80,12 @@
         <div class="fl_left">
             <input class="upload" type="file" name="upload_file"/>
         </div>
-        <div class="wrap_button fl_right">
-			<button id="delete" onClick="if (confirm('{l_are_you_sure}')) { $('#cmd{block}').val('delete'); return true;} else return false;" class="button submit" type="submit">{l_delete}</button>
+        <div class="btn fl_right">
+            <a href="#" id="delete" onClick="if (confirm('{l_are_you_sure}')) { $('#cmd{block}').val('delete'); return true;} else return false;"  class="submit">{l_delete}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
         </div>
-        <div class="wrap_button fl_right">
-			<button id="update" onClick="$('#cmd{block}').val('upload');" class="button submit" type="submit">{l_upload}</button>
+        <div class="btn fl_right"><a href="#" id="update" onClick="$('#cmd{block}').val('upload');" class="submit">{l_upload}</a>
+			<input type="submit" style="visibility:hidden;position:absolute;">
 		</div>
     </form>
     </div>

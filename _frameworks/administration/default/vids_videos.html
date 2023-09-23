@@ -6,17 +6,12 @@
     <h2>{l_title_current}</h2>
 
     <!-- begin_noitems --><div align="center">{l_no_videos}</div><!-- end_noitems -->
-    <!-- begin_pages -->
-    <div class="wrap_bl_pagin">
-        <div class="wrap_bl_total">{itemsTotal} {l_videos}</div>
-        <div class="wrap_bl_pager">{pager}</div>
-    </div>
-    <!-- end_pages -->
+    <!-- begin_pages --><div>{itemsTotal} {l_videos}</div><div>{pager}</div><!-- end_pages -->
     <!-- begin_items -->
     <table class="tb">
         <tr>
             <th class="decor_l"></th>
-            <th class="center">{l_action}</th>
+            <th class="right">{l_action}</th>
             <th>{l_id}</th>
             <th>{l_subject}</th>
             <th>{l_user}</th>
@@ -26,7 +21,7 @@
         <!-- begin_item -->
         <tr class="{item_class}" id="item_{item_id}">
             <td class="decor{item_decl}"></td>
-            <td class="left">
+            <td class="right">
                 <script type='text/javascript'>
                 $(document).ready(function(){
                     $("#delete_{item_id}").click(function() {

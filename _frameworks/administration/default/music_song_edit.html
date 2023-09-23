@@ -1,15 +1,14 @@
 {header}
 <div class="block_narrow">
-    {menu_page}
+    <ul class="lmenu_lgreen">
+        <li><a href="{url_main}administration/music_musicians.php">{l_menu_musicians}</a></li>
+        <li><a href="{url_main}administration/music_musician_comments.php">{l_menu_musician_comments}</a></li>
+        <li class="active"><a href="{url_main}administration/music_songs.php">{l_menu_songs}</a></li>
+        <li><a href="{url_main}administration/music_song_comments.php">{l_menu_song_comments}</a></li>
+        <li><a href="{url_main}administration/music_categories.php">{l_menu_categories}</a></li>
+        <li><a href="{url_main}administration/music_category_add.php">{l_menu_categories_add}</a></li>
+    </ul>
 </div>
-
-<!-- begin_edge_style -->
-<style>
-    .hide_edge{
-        display: none;
-    }
-</style>
-<!-- end_edge_style -->
 
 <script Language="JavaScript" type="text/javascript">
 
@@ -20,8 +19,8 @@ $(document).ready(function(){
             song_about: "required"
         },
         messages: {
-        	song_title: "{j_please_specify_title}",
-        	song_about: "{j_please_enter_text}"
+        	song_title: "{l_please_specify_title}",
+        	song_about: "{l_please_enter_text}"
         }
     })
 });
@@ -31,26 +30,25 @@ $(document).ready(function(){
 <script type="text/javascript" src="{url_main}_server/swfobject/swfobject.js{cache_version_param}"></script>
 
 <div class="block_main">
-    <h2>{l_title_current}{song_title_header}</h2>
+    <h2>{l_title_current} - {song_title}</h2>
 
     <div class="bl_form">
 
         <form method="POST" id="place_edit_form" action="{url_main}administration/music_song_edit.php?cmd=update&song_id={song_id}">
 
         <label>{l_listen_song}:</label>
-
-        <audio class="player_audio" src="{song_url}" controls></audio>
+        {song_player}
 
         <label>{l_song_title}:</label>
         <input type="text" name="song_title" value="{song_title}">
 
-        <label class="hide_edge">{l_song_year}:</label>
-        <select class="input hide_edge" name="song_year" id="song_year">
+        <label>{l_song_year}:</label>
+        <select class="input" name="song_year" id="song_year">
         {song_year_options}
         </select>
 
-        <label class="hide_edge">{l_song_about}:</label>
-        <textarea name="song_about" id="song_about" class="textarea_small hide_edge">{song_about}</textarea>
+        <label>{l_song_about}:</label>
+        <textarea name="song_about" id="song_about" class="textarea_small">{song_about}</textarea>
 
         <div style="height:20px"></div>
 
@@ -96,6 +94,7 @@ function edit_delete_image(image_id)
 
 </script>
 
+
             <!-- begin_photo-->
             <div style="width:24%;float: left;" id="edit_image_{image_id}">
                 <a class="edit_image_gallery" href="{image_file}"><img src="{image_thumbnail}"></a>
@@ -108,14 +107,13 @@ function edit_delete_image(image_id)
             </div>
             <!-- end_photo-->
         <!-- end_photo_edit -->
-        </div>
+</div>
 
         <div class="clear" style="height:20px"></div>
 
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save_changes}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-        </div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save_changes}</a>
+									<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
     </div>
 

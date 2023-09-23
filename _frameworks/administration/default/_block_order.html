@@ -45,8 +45,7 @@
 var moduleCurrent = '{current_module}';
     radio='';
 $(function(){
-    if (moduleCurrent == 'member_profile_tabs' || moduleCurrent == 'member_groups_tabs'
-        || moduleCurrent == 'member_profile_inner_tabs' || moduleCurrent == 'member_groups_inner_tabs') {
+    if (moduleCurrent == 'member_profile_tabs' || moduleCurrent == 'member_groups_tabs') {
         var option='set_default_profile_tab';
         if (moduleCurrent == 'member_groups_tabs') {
             option='set_default_groups_tab';
@@ -55,17 +54,7 @@ $(function(){
         $('input:radio[name='+option+']').filter('[value={current_checked}]').prop('checked',true);
         $('input:radio[name='+option+']').filter('[value={current_checked}]').addClass('active');
 
-		var maxNumber=6,
-            lmaxNumber='{j_a_maximum_of_6_items_can_be_selected}',
-            $option=$('form input[type=checkbox]', '.'+moduleCurrent);
-
-        /*var maxNumber=4,
-            lmaxNumber='{j_a_maximum_of_4_items_can_be_selected}',
-            $option=$('form input[type=checkbox]', '.'+moduleCurrent);
-        if (moduleCurrent == 'member_profile_inner_tabs' || moduleCurrent == 'member_groups_inner_tabs') {
-            maxNumber=6;
-            lmaxNumber='{j_a_maximum_of_6_items_can_be_selected}';
-        }*/
+        var $option=$('form input[type=checkbox]', '.member_profile_tabs');
         $option.change(function(){
             var $el = $(this), nC=$option.filter(':checked').length;
             if(nC==0){
@@ -73,9 +62,9 @@ $(function(){
                 alert('{j_it_must_be_selected_at_least_one_item}');
                 return;
             }
-            if(nC>maxNumber){
+            if(nC>4){
                 $(this).prop('checked',false);
-                alert(lmaxNumber);
+                alert('{j_a_maximum_of_4_items_can_be_selected}');
                 return;
             }
             var val=this.id.replace('status_',''),

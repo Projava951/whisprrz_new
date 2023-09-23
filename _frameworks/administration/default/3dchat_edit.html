@@ -44,9 +44,8 @@
         <input class="" type="file" name='bg'/>
         <!-- end_add_form -->
 
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
+        <div class="btn fl_right"><a href="" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
         </div>
         </form>
         <!-- begin_upload_rooms_bg -->
@@ -54,18 +53,16 @@
         <form id="bg_form" action="{url_page}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="cmd" value="update_bg">
         <input type="hidden" name="id" value="{id}">
-
-        <div id="bg_output" class="block_logo room_logo">
+        <div id="bg_output" class="block_logo" style="width: 746px; height: 426px; padding: 0px;">
             <img id="bg_output_img" src="{url_files}3dchat/{id}.jpg?rand={rand}" alt=""/>
         </div>
 
         <div class="fl_left">
             <input class="upload" type="file" name='bg'/>
         </div>
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
-        </div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_upload}</a>
+			<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
         </form>
         <!-- end_upload_rooms_bg -->
     </div>

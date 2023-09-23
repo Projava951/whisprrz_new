@@ -2,41 +2,35 @@
 <div class="block_narrow">
 {menu_page}
 </div>
-<style>
-    .tb_fields{
-        width: 240px;
-    }
-</style>
 <div class="block_main">
     <h2>{l_title_current}</h2>
     <div class="bl_form">
         <form action="{url_page}" method="POST">
         <input type="hidden" name="cmd" value="update">
-        <table class="tb_fields" id="sortable">
-            <thead>
+        <table class="tb_fields" id="sortable" style="width: 240px;">
+        <thead>
                 <tr id="no_sortable" >
-                    <th></th>
-                    <th align="right">{l_table_name}</th>
-                    <th class="last">{l_table_status}</th>
-                    <th></th>
+                    <th class="decor_l">&nbsp;</th>
+                    <th class="right" >{l_table_name}</th>
+                    <th class="last" style="text-align: center; width:30px; padding-left: 10px;">{l_table_status}</th>
+                    <th class="decor_r">&nbsp;</th>
                 </tr>
-            </thead>
-            <!-- begin_order_item -->
-            <tr class="color cursor_move">
-                <td id="decor_l" class="decor_l"></td>
-                    <td class="right" >
-                        <input type="hidden" name="order[]" value="{name_block_field}">{name_block}
-                    </td>
-                    <td align="center" class="last">
-                        <input type="checkbox" name="order_status[{name_block_field}]" {checked}>
-                    </td>
-                <td id="decor_r" class="decor_r"></td>
-            </tr>
-            <!-- end_order_item -->
+        </thead>
+        <!-- begin_order_item -->
+        <tr class="color" style="cursor:move;">
+            <td id ="decor_l" class="decor_l">&nbsp;</td>
+                <td class="right" >
+                    <input type="hidden" name="order[]" value="{name_block_field}">{name_block}
+                </td>
+                <td  class="last" style="text-align: center; width:30px; padding-left: 3px;">
+                    <input type="checkbox" name="order_status[{name_block_field}]" {checked} style="margin:0px; padding:0px; width: 20px;">
+                </td>
+            <td id ="decor_r" class="decor_r">&nbsp;</td>
+        </tr>
+        <!-- end_order_item -->
 		</table>
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit">{l_save}</button>
-            <div class="button_submit_instruction">{l_or_use_ctrl_s}</div>
+        <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
 		</div>
         </form>
     </div>

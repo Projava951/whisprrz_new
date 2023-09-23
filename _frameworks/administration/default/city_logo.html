@@ -76,7 +76,7 @@
     <form id="{block}_form" action="{url_page}" method="POST" enctype="multipart/form-data">
         <input type="hidden" id ="cmd{block}" name="cmd" value="update_{block}">
 		<input type="hidden" name="block" value="{block}">
-        <div id="{block}_output" class="block_logo city_logo">
+        <div id="{block}_output" class="block_logo" style="min-height: 80px; width:500px;">
             <img style="width:{logo_width}px; height:{logo_height}px;" src="{url_logo}?rand={rand}" alt=""/>
         </div>
         <!-- begin_logo_block_params -->
@@ -105,14 +105,16 @@
             <input class="upload" type="file" name='logo'/>
         </div>
         <!-- begin_delete -->
-        <div class="wrap_button fl_right">
-            <button id="delete" class="button submit" type="submit" onClick="if (confirm('{l_are_you_sure}')) { $('#cmd{block}').val('delete_{block}'); return true; } else return false;" >{l_delete}</button>
-        </div>
+        <div class="btn fl_right">
+
+            <a href="#" id="delete" onClick="if (confirm('{l_are_you_sure}')) { $('#cmd{block}').val('delete_{block}'); return true; } else return false;"  class="submit">{l_delete}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
+	</div>
         <!-- end_delete -->
-        
-        <div class="wrap_button fl_right">
-            <button class="button submit" type="submit" id="update" onClick="$('#cmd{block}').val('update_{block}');">{l_upload}</button>
-        </div>
+        <div class="btn fl_right"><a href="#" id="update" onClick="$('#cmd{block}').val('update_{block}');" class="submit">{l_upload}</a>
+
+			<input type="submit" style="visibility:hidden;position:absolute;">
+		</div>
     </form>
 
     </div>

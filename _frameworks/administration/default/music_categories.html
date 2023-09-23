@@ -33,7 +33,14 @@ var fixHelperModified = function(e, tr) {
 };
 </script>
 <div class="block_narrow">
-    {menu_page}
+    <ul class="lmenu_lgreen">
+        <li><a href="{url_main}administration/music_musicians.php">{l_menu_musicians}</a></li>
+        <li><a href="{url_main}administration/music_musician_comments.php">{l_menu_musician_comments}</a></li>
+        <li><a href="{url_main}administration/music_songs.php">{l_menu_songs}</a></li>
+        <li><a href="{url_main}administration/music_song_comments.php">{l_menu_song_comments}</a></li>
+        <li class="active"><a href="{url_main}administration/music_categories.php">{l_menu_categories}</a></li>
+        <li><a href="{url_main}administration/music_category_add.php">{l_menu_categories_add}</a></li>
+    </ul>
 </div>
 <div class="block_main">
     <h2>{l_title_current}</h2>
@@ -80,15 +87,12 @@ var fixHelperModified = function(e, tr) {
         </tr>
         <!-- end_main_item -->
     </table>
-
-    <div class="wrap_button fl_right">
-        <button class="button" type="submit">{l_save}</button>
-    </div>
-
+      <div class="btn fl_right"><a href="#" class="submit">{l_save}</a>
+            <input type="submit" style="visibility:hidden;position:absolute;">
+	</div>
     </form>
-
-    <div class="wrap_button fl_left">
-        <button class="button" onclick="if (confirm('{l_are_you_sure}')) actionChecked('{url_page}'); return false;" type="submit">{l_delete}</button>
+    <div class="btn fl_left">
+        <a class="submit" onclick="if (confirm('{l_are_you_sure}')) actionChecked('{url_page}'); return false;" href="#">{l_delete}</a>
     </div>
     <!-- end_main_items -->
     <!-- begin_main_noitems -->

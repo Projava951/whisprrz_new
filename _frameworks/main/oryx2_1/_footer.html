@@ -1,0 +1,89 @@
+                    </div>
+		</div><!-- content end -->
+
+		<!-- begin_adsense -->
+		<div id="ad">
+			<!--<img src="{url_tmpl_main}img/ads.png" width="800" height="85" alt="" />-->
+
+		</div>
+		<!-- end_adsense -->
+		<div id="footer">
+            <!-- begin_banner_footer -->
+            <div class="banner_footer">
+                <!--{banner_footer}-->
+            </div>
+            <!-- end_banner_footer -->
+			<p>                
+                <!-- begin_news_on -->
+				<a href="#" onclick="javascript:OpenWindow('./info.php?page=term_cond&amp;lang=default','650','400');">Terms &amp; Conditions</a> |
+                <a href="#" onclick="javascript:OpenWindow('./info.php?page=priv_policy&amp;lang=default','650','400','yes');">Privacy Policy</a> |
+				<a href="{url_main}news.php?view=2" title="{l_about_us}">{l_about_us}</a>
+                <!-- end_news_on -->
+                <!-- begin_help_on -->
+                {dash1}
+                    <a href="{url_main}help.php" title="{l_help}">{l_help}</a>
+                <!-- end_help_on -->
+				<!-- begin_link_partner -->
+				{dash2}
+                <a href="{url_main}partner/" target="_blank" title="{l_affiliates}">{l_affiliates}</a>
+				<!-- end_link_partner -->
+                <!-- begin_news_on1 -->
+				|
+                <a href="{url_main}news.php?view=3" title="{l_testimonials}">{l_testimonials}</a> |		 		
+                <!-- end_news_on1 -->
+                <!-- begin_contact_on -->
+		 		{dash3}
+                <a href="{url_main}contact.php" title="{l_contact_us}">{l_contact_us}</a>
+                <!-- end_contact_on -->
+				<!-- begin_menu_bottom_nsc_club_item -->
+				| <a {target} href="{url_main}{menu_item_page_bottom}">{menu_item_title_bottom}</a>					
+				<!-- end_menu_bottom_nsc_club_item -->
+				<br />
+			</p>
+			<p class="friends">{l_find_new_friends} <a href="{url_main}" title="{title_orig}">{title_orig}</a></p>
+            <p class="fosta">{l_this_site_does_not}</a></p>
+            <p class="fosta">{l_disclaimer}</a></p>  
+            <p class="copyrights">{l_copyrights}</a></p> 
+            <div class="footer-ssl-seal">{ssl_seal_html}</div>
+		</div>
+	</div>
+	<div id="xajax_im"></div>
+	<script>
+        try { initAjax(); 
+        initServer();}
+        catch(e) {};
+		{footer_custom_js}
+	</script>
+
+    <script src="{url_main}_server/videojs/video.js{cache_version_param}"></script>
+<style>
+#footer a {
+	color: {color_scheme_menu_text_color_impact};
+	border-top-color: rgba({color_scheme_menu_item_border_top_color_rgba});
+	border-bottom-color: rgba({color_scheme_menu_item_border_bottom_color_rgba});
+}
+#footer a:hover, #footer a.inactive:hover { color: {color_scheme_menu_text_hover_color_impact} }
+
+#footer a.inactive {
+	color: {color_scheme_menu_inactive_text_color_impact};
+}
+</style>
+<!-- begin_gdpr_cookie_popup -->
+<script>
+    $(function(){
+        //document.cookie = 'cookiesAccepted=; path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        var options = {
+            title: '{j_cookies_accept_title}',
+            text: '{cookies_accept_text}',
+            acceptButtonText: '{j_cookies_accept_accept_button_text}',
+            theme: 'dark',
+            learnMore: false,
+            position: 'bottom'
+        };
+        $.acceptCookies(options);
+    })
+</script>
+<!-- end_gdpr_cookie_popup -->
+
+</body>
+</html>
