@@ -1,0 +1,38 @@
+2023-09-20 00:58:23
+User_id: 0
+Error: E_COMPILE_ERROR
+URL: http://localhost/whisprrz_new/administration/popup_pages.php
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\current\common_admin.php
+Line: 75
+Message: Cannot use empty array elements in arrays
+
+Call stack:
+
+File:  (Line: )
+Function: fatalScriptError
+
+---------
+
+2023-09-20 21:05:05
+User_id: 0
+Error: E_ERROR
+URL: http://localhost:81/whisprrz_new/
+File: D:\xampp\htdocs\whisprrz_new\_include\lib\db_mysqli.php
+Line: 20
+Message: Uncaught mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: YES) in D:\xampp\htdocs\whisprrz_new\_include\lib\db_mysqli.php:20
+Stack trace:
+#0 D:\xampp\htdocs\whisprrz_new\_include\lib\db_mysqli.php(20): mysqli_connect('localhost', 'root', 'root')
+#1 D:\xampp\htdocs\whisprrz_new\_include\lib\db_common.php(69): DB::driver_connect('localhost', 'root', 'root')
+#2 D:\xampp\htdocs\whisprrz_new\_include\core\start.php(263): DB_Common::connect()
+#3 D:\xampp\htdocs\whisprrz_new\_include\core\main_start.php(11): include_once('D:\\xampp\\htdocs...')
+#4 D:\xampp\htdocs\whisprrz_new\index.php(16): include('D:\\xampp\\htdocs...')
+#5 {main}
+  thrown
+
+Call stack:
+
+File:  (Line: )
+Function: fatalScriptError
+
+---------
+
