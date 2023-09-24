@@ -6,6 +6,7 @@ and any kind of using it must agree to the Websplosion's license agreement.
 It can be found at http://www.chameleonsocial.com/license.doc
 
 This notice may not be removed from the source code. */
+// Rade 2023-09-23
 
 include("../_include/core/administration_start.php");
 

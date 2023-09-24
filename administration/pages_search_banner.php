@@ -24,7 +24,148 @@ class CBanners extends CHtmlBlock
         $cmd = get_param('cmd');
 		$slider_type = get_param('slider_type');
         $isAjax = get_param_int('ajax');
-        if($cmd == 'effect_save'){
+        if($cmd == 'search'){
+			$user_id = get_param('user_id');
+			$city_id = get_param('city_id');
+			$state_id = get_param('state');
+			$country_id = get_param('country');
+			$zipcode = get_param('zipcode');
+			$event_date = get_param('from_date');
+            $event_time = get_param('from_time');
+
+            $formatJS = $g['date_formats']['edit_event_time'];
+			
+            $formatData = 'edit_event_date';
+            $formatType = $g['date_formats'][$formatData];
+            $format = str_replace("|", "?", $formatType);
+            $date = date_create_from_format($format, $event_date);
+            $event_date = date_format($date, 'Y-m-d');
+            $format = str_replace("|", "?", $formatJS);
+            if($g_user['timezone']!='' && Common::isOptionActive('user_choose_time_zone')){
+                $usersTimeZone=$g_user['timezone'];
+            } elseif(Common::getOption('timezone', 'main')) {
+                $usersTimeZone=Common::getOption('timezone', 'main');
+            } else {
+                if (function_exists('date_default_timezone_set')) {
+                    $usersTimeZone = date_default_timezone_get();
+                } else {
+                    $usersTimeZone = 'UTC';
+                }
+            }
+
+            $zone = new DateTimeZone($usersTimeZone);
+            $time=DateTime::createFromFormat($format, $event_time, $zone);
+
+            $event_time = date_format($time, 'H:i');
+
+            $fdt=DateTime::createFromFormat('Y-m-d H:i', $event_date.' '.$event_time, $zone);
+            if(Common::getOption('timezone', 'main')){
+                $zone = new DateTimeZone(Common::getOption('timezone', 'main'));
+            } else {
+                $zone = new DateTimeZone(date_default_timezone_get());
+            }
+            $fdt->setTimezone($zone);
+
+
+
+            $event_date = get_param('end_date');
+            $event_time = get_param('end_time');
+
+            $formatJS = $g['date_formats']['edit_event_time'];
+
+            $formatData = 'edit_event_date';
+            $formatType = $g['date_formats'][$formatData];
+            $format = str_replace("|", "?", $formatType);
+            $date = date_create_from_format($format, $event_date);
+            $event_date = date_format($date, 'Y-m-d');
+            $format = str_replace("|", "?", $formatJS);
+            if($g_user['timezone']!='' && Common::isOptionActive('user_choose_time_zone')){
+                $usersTimeZone=$g_user['timezone'];
+            } elseif(Common::getOption('timezone', 'main')) {
+                $usersTimeZone=Common::getOption('timezone', 'main');
+            } else {
+                if (function_exists('date_default_timezone_set')) {
+                    $usersTimeZone = date_default_timezone_get();
+                } else {
+                    $usersTimeZone = 'UTC';
+                }
+            }
+
+            $zone = new DateTimeZone($usersTimeZone);
+            $time=DateTime::createFromFormat($format, $event_time, $zone);
+
+            $event_time = date_format($time, 'H:i');
+
+            $edt=DateTime::createFromFormat('Y-m-d H:i', $event_date.' '.$event_time, $zone);			
+            if(Common::getOption('timezone', 'main')){
+                $zone = new DateTimeZone(Common::getOption('timezone', 'main'));
+            } else {
+                $zone = new DateTimeZone(date_default_timezone_get());
+            }
+            $edt->setTimezone($zone); 
+			$where_sql="";
+			if(!is_null($user_id) && $user_id!="0"){
+				$where_sql = $where_sql." and e.user_id=".$user_id;
+			}
+			if(!is_null($country_id) && $country_id!="0"){
+				if($where_sql==""){
+					$where_sql = $where_sql." and e.country_id=".$country_id;
+				}else{
+					$where_sql = $where_sql." and e.country_id=".$country_id;
+				}
+			}
+			
+			if(!is_null($state_id) && $state_id!="0"){
+				if($where_sql==""){
+					$where_sql = $where_sql." and e.state_id=".$state_id;
+				}else{
+					$where_sql = $where_sql." and e.state_id=".$state_id;
+				}
+			}
+			
+			if(!is_null($city_id) && $city_id!="0"){
+				if($where_sql==""){
+					$where_sql = $where_sql." and e.city_id=".$city_id;
+				}else{
+					$where_sql = $where_sql." and e.city_id=".$city_id;
+				}
+			}
+			
+			if(!is_null(get_param('zipcode')) && get_param('zipcode')!=""){
+				if($where_sql==""){
+					$where_sql = $where_sql." and e.zipcode = '".$zipcode."'";
+				}else{
+					$where_sql = $where_sql." and e.zipcode = '".$zipcode."'";
+				}
+			}
+			
+			if(!is_null(get_param("link")) && get_param("link")!=""){
+				if($where_sql==""){
+					$where_sql = $where_sql." and e.link like '%".get_param("link")."%'";
+				}else{
+					$where_sql = $where_sql." and e.link like '%".get_param("link")."%'";
+				}
+			}
+			if(!is_null(get_param("title")) && get_param("title")!=""){
+				if($where_sql==""){
+					$where_sql = $where_sql." and e.title like '%".get_param("title")."%'";
+				}else{
+					$where_sql = $where_sql." and e.title like '%".get_param("title")."%'";
+				}
+			}		
+			
+			if(get_param('from_date')!=get_param('end_date')){
+				$from = date('Y-m-d',strtotime(get_param('from_date')));
+				$to = date('Y-m-d',strtotime(get_param('end_date')));
+				if($where_sql==""){
+					$where_sql = $where_sql." and not(e.from_datetime > CAST('" . $to . "' AS DATETIME) or e.end_datetime < CAST('" . $from . "' AS DATETIME))";
+				}else{
+					$where_sql = $where_sql." and not(e.from_datetime > CAST('" . $to . "' AS DATETIME) or e.end_datetime < CAST('" . $from . "' AS DATETIME))";
+				}
+			}
+			
+			redirect('pages_search_banner.php?where_sql='.$where_sql);
+		}else if($cmd == 'effect_save'){
 			DB::execute("UPDATE config SET " .
                     " value=".to_sql(get_param('slider_type'))." WHERE config.option='effects' AND module = 'wowslider'");
             redirect('pages_add_banner.php');
@@ -75,7 +216,7 @@ class CBanners extends CHtmlBlock
                 $target_file = $target_dir . $file_name;
                 move_uploaded_file($_FILES["slider_image"]["tmp_name"], $target_file);
             }
-			$user_id = get_param('user_id');
+
             $event_date = get_param('from_date');
             $event_time = get_param('from_time');
 
@@ -165,7 +306,7 @@ class CBanners extends CHtmlBlock
             {
                 $event_id_exists = true;
                 DB::execute("UPDATE wowslider SET " .
-                    " user_id=".to_sql($user_id, 'Number').
+                    " user_id=".to_sql($g_user['user_id'], 'Number').
 					", zipcode=".to_sql($zipcode).
                     (($file_name=="")?"":(", img_path=".to_sql($file_name))).
                     ", link=".to_sql(get_param('link')).
@@ -184,7 +325,7 @@ class CBanners extends CHtmlBlock
                 redirect('pages_add_banner.php');
             }else{
                 DB::execute("INSERT INTO wowslider SET ".
-                    " user_id=".to_sql($user_id, 'Number').
+                    " user_id=".to_sql($g_user['user_id'], 'Number').
                     ", zipcode=".to_sql($zipcode).
                     ", img_path=".to_sql($file_name).
                     ", link=".to_sql(get_param('link')).
@@ -214,20 +355,20 @@ class CBanners extends CHtmlBlock
         }
         if($cmd == 'ischeck'){
             $eid = get_param('event_id');
-			$uid = get_param('user_id');
+            $uid = get_param('user_id');
             $is_check = get_param('is_check');
 			DB::execute("UPDATE wowslider SET ".
             " is_check=0".
 			" WHERE ".
                 " user_id=".to_sql($uid).
 			"");
-			DB::execute("UPDATE wowslider SET ".
+            DB::execute("UPDATE wowslider SET ".
             " is_check=".to_sql($is_check).
             " WHERE ".
                 " event_id=".to_sql($eid).
             ""
-            );			
-			echo json_encode(array("status"=>"success"));
+            );
+            echo json_encode(array("status"=>"success"));
             exit;
         }
 		if($cmd == 'ischeck_user'){
@@ -257,10 +398,10 @@ class CBanners extends CHtmlBlock
 		global $g;
 		$tmplName = Common::getTmplName();
         $isEventSocial = Common::isOptionActiveTemplate('event_social_enabled');
-
+		
         $guid = guid();
         $event_private = intval(get_param('event_private')) ? 1 : 0;
-
+		$where_sql = get_param('where_sql');
         $event_id = get_param('event_id');
 		$event = DB::row("SELECT e.*, cn.*, ct.*, st.*, u.name ".
             "FROM wowslider as e,user u, geo_country as cn, geo_state as st, geo_city as ct ".   				
@@ -279,10 +420,8 @@ class CBanners extends CHtmlBlock
         } else {
             $formatTypeJS = 'edit_event_date_mixer_js';
         }
-		
-		
 		DB::query("SELECT * FROM user ORDER BY user_id ASC");
-		$user_option = "";
+		$user_option = '<option id="option_user_0" value="0" selected>All</option>';
 		while($users = DB::fetch_row()){
 			if($event && $event['user_id']==$users['user_id']){
 				$user_option = $user_option.'<option id="option_user_'.$users['user_id'].'" value="'.$users['user_id'].'" selected>'.$users['name'].'</option>';
@@ -298,8 +437,8 @@ class CBanners extends CHtmlBlock
 			$html->setvar("is_check", ($event['is_check']==1)?"checked":"");
 			$html->setvar("is_check_user", ($event['distance']==1)?"checked":"");
 			$html->setvar("user_id", $event['user_id']);	
-            $html->setvar('eevent_id', $event['event_id']);
-			$html->setvar('event_id', $event['event_id']);
+            $html->setvar('event_id', $event['event_id']);
+			$html->setvar('eevent_id', $event['event_id']);
             $html->setvar('etitle', he($event['title']));
             $html->setvar('ezipcode', $event['zipcode']);
             $html->setvar('from_date', Common::dateFormat($event['from_datetime'], $formatData));
@@ -310,6 +449,7 @@ class CBanners extends CHtmlBlock
             $html->setvar('eimg_path', $event['img_path']);
             $html->setvar("eimg_path", $g['path']['url_files']."/wowslider/" . $event['img_path']);
 			$html->setvar('user_name', $event['name']);
+            
             $html->parse('edit_title');
             $html->parse('edit_button');
 
@@ -381,8 +521,8 @@ class CBanners extends CHtmlBlock
         $html->setvar("state_options", Common::listStates($event ? $event['country_id'] : $g_user['country_id'], $event ? $event['state_id'] : $g_user['state_id']));
         $html->setvar("city_options", Common::listCities($event ? $event['state_id'] : $g_user['state_id'], $event ? $event['city_id'] : $g_user['city_id']));
 
-        //echo("SELECT e.*,u.* FROM wowslider as e,user as u WHERE u.user_id = e.user_id ".(($event_id)?("AND e. event_id=".$event_id):"")." ORDER BY event_id DESC");
-        DB::query("SELECT e.*,u.name FROM wowslider as e,user as u WHERE u.user_id = e.user_id ".(($event_id)?("AND e. event_id=".$event_id):"")." ORDER BY e.event_id DESC");
+        //echo("SELECT e.*,u.name FROM wowslider as e,user as u WHERE u.user_id = e.user_id ".(($event_id)?("AND e. event_id=".$event_id):"")." ".$where_sql." ORDER BY e.event_id DESC");
+		DB::query("SELECT e.*,u.name FROM wowslider as e,user as u WHERE u.user_id = e.user_id ".(($event_id)?("AND e. event_id=".$event_id):"")." ".$where_sql." ORDER BY e.event_id DESC");
 		//DB::query("SELECT e.*,u.* FROM wowslider as e,user as u WHERE u.user_id = e.user_id and ".(($event_id)?("AND e. event_id=".$event_id):"")." ORDER BY e.event_id DESC");
         $no=0;
         $html->setblockvar('forum_category', '');
@@ -393,7 +533,7 @@ class CBanners extends CHtmlBlock
             $html->setvar("cls", $class);
             $html->setvar("eevent_id", $image['event_id']);	
 			$html->setvar("distance", $image['distance']);	
-			$html->setvar("user_id", $image['user_id']);			
+			$html->setvar("user_id", $image['user_id']);				
             $html->setvar("img_path", $g['path']['url_files'] . "wowslider/" . $image['img_path']);
             $html->setvar("city_id", $image['city_id']);
             $html->setvar("zipcode", $image['zipcode']);
@@ -528,7 +668,7 @@ class CBanners extends CHtmlBlock
 	}
 }
 
-$page = new CBanners('', $g['tmpl']['dir_tmpl_administration'] . 'pages_add_banner.html');
+$page = new CBanners('', $g['tmpl']['dir_tmpl_administration'] . 'pages_search_banner.html');
 
 $header = new CAdminHeader("header", $g['tmpl']['dir_tmpl_administration'] . "_header.html");
 $page->add($header);
