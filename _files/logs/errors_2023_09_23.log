@@ -1,0 +1,126 @@
+2023-09-23 01:07:52
+User_id: 0
+Error: E_WARNING
+URL: http://localhost/whisprrz_new/administration/
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\lib\db_mysqli.php
+Line: 71
+Message: mysqli_select_db(): Error while reading INIT_DB's response packet. PID=34396
+
+Call stack:
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\lib\db_mysqli.php (Line: 71)
+Function: mysqli_select_db
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\lib\db_common.php (Line: 607)
+Class: DB
+Function: driver_select_db
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\lib\db_common.php (Line: 75)
+Class: DB_Common
+Function: select_db
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\core\start.php (Line: 263)
+Class: DB_Common
+Function: connect
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\core\administration_start.php (Line: 14)
+Function: include
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\administration\index.php (Line: 10)
+Function: include
+
+---------
+
+2023-09-23 01:07:58
+User_id: 0
+Error: E_WARNING
+URL: http://localhost/whisprrz_new/administration/
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\lib\db_mysqli.php
+Line: 20
+Message: mysqli_connect(): (HY000/2002): No connection could be made because the target machine actively refused it.
+
+
+Call stack:
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\lib\db_mysqli.php (Line: 20)
+Function: mysqli_connect
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\lib\db_common.php (Line: 69)
+Class: DB
+Function: driver_connect
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\core\start.php (Line: 263)
+Class: DB_Common
+Function: connect
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\_include\core\administration_start.php (Line: 14)
+Function: include
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\administration\index.php (Line: 10)
+Function: include
+
+---------
+
+2023-09-23 03:34:03
+User_id: 0
+Error: E_NOTICE
+URL: http://localhost/whisprrz_new/administration/sms_carriers.php
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\administration\sms_carriers.php
+Line: 67
+Message: Undefined variable: json_encode
+
+Call stack:
+
+---------
+
+2023-09-23 03:34:41
+User_id: 0
+Error: E_ERROR
+URL: http://localhost/whisprrz_new/administration/sms_carriers.php
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\administration\sms_carriers.php
+Line: 67
+Message: Uncaught Error: Using $this when not in object context in D:\SERVICE\xampp\htdocs\whisprrz_new\administration\sms_carriers.php:67
+Stack trace:
+#0 {main}
+  thrown
+
+Call stack:
+
+File:  (Line: )
+Function: fatalScriptError
+
+---------
+
+2023-09-23 03:35:02
+User_id: 0
+Error: E_ERROR
+URL: http://localhost/whisprrz_new/administration/sms_carriers.php
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\administration\sms_carriers.php
+Line: 66
+Message: Uncaught Error: Using $this when not in object context in D:\SERVICE\xampp\htdocs\whisprrz_new\administration\sms_carriers.php:66
+Stack trace:
+#0 {main}
+  thrown
+
+Call stack:
+
+File:  (Line: )
+Function: fatalScriptError
+
+---------
+
+2023-09-23 05:03:21
+User_id: 0
+Error: E_WARNING
+URL: http://localhost/whisprrz_new/administration/partyhouz_categories.php
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\administration\partyhouz_categories.php
+Line: 12
+Message: require_once(../_include/current/partyhouz/tools.php): failed to open stream: No such file or directory
+
+Call stack:
+
+File: D:\SERVICE\xampp\htdocs\whisprrz_new\administration\partyhouz_categories.php (Line: 12)
+Function: require_once
+
+---------
+
