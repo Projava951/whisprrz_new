@@ -1,6 +1,5 @@
 <?php
-
-/* (C) Websplosion LTD., 2001-2014
+/* (C) Websplosion LLC, 2001-2021
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -89,7 +88,11 @@ Class Common {
         'text_approved' => 'profile_view.php',
         'text_declined' => 'profile.php',
         'like_comment_photo' => 'photos_list.php?uid={uid_gallery}&show=gallery&photo_id={id}&cid={cid}',
-        'like_comment_video' => 'vids_list.php?uid={uid_gallery}&show=gallery&video_id={id}&cid={cid}'
+        'like_comment_video' => 'vids_list.php?uid={uid_gallery}&show=gallery&video_id={id}&cid={cid}',
+
+		'report_content_admin' => 'administration/users_reports_content.php',
+        'report_user_admin' => 'administration/users_reports.php',
+		'report_group_admin' => 'administration/groups_social_reports.php',
     );
 
     static $urlAutoMailTemplate = array(
@@ -267,8 +270,14 @@ Class Common {
         return $emailAuto;
     }
 
-    static function prepareUrlAutoMail($type, $vars)
+    static function prepareUrlAutoMail($type, &$vars)
     {
+        if ($type == 'profile_visitors' && isset($vars['to_user_id']) && $vars['to_user_id']) {
+            $userInfo = User::getInfoBasic($vars['to_user_id']);
+            if (!User::accessCheckFeatureSuperPowers('profile_visitors_paid', $userInfo['gold_days'], $userInfo['orientation'])) {
+                self::$urlAutoMail['profile_visitors'] = Common::pageUrl('users_viewed_me');
+            }
+        }
         $optionTmplName = Common::getOption('name', 'template_options');
         if (Common::isOptionActiveTemplate('is_prepare_url_auto_mail')) {
             if (!isset(self::$urlAutoMailTemplate[$optionTmplName])) {
@@ -276,7 +285,7 @@ Class Common {
             }
             if ($optionTmplName == 'edge') {
                 if ($type == 'new_message') {
-                    self::$urlAutoMailTemplate[$optionTmplName]['new_message'] = User::url($vars['uid'], null, array('show' => 'message', 'uid_sender' => $vars['uid_sender']));
+                    self::$urlAutoMailTemplate[$optionTmplName]['new_message'] = User::url($vars['uid'], null, array('show' => 'message', 'uid_sender' => $vars['uid_sender'], 'group_id_sender' => $vars['group_id_sender']));
                 } elseif ($type == 'friend_request') {
                     self::$urlAutoMailTemplate[$optionTmplName]['friend_request'] = User::url($vars['uid_send'], null, array('show' => 'friend_request'));
                 } elseif ($type == 'friend_added') {
@@ -292,6 +301,32 @@ Class Common {
                     if (isset($vars['cid']) && $vars['cid']) {
                         self::$urlAutoMailTemplate[$optionTmplName]['wall_alert_comment'] .= '&ncid={cid}';
                     }
+                } elseif ($type == 'group_subscribe_new') {
+                    self::$urlAutoMailTemplate[$optionTmplName]['group_subscribe_new'] = User::url($vars['uid']);
+                } elseif ($type == 'group_subscribe_request') {
+                    self::$urlAutoMailTemplate[$optionTmplName]['group_subscribe_request'] = User::url($vars['uid'], null, array('show' => 'friend_request'));
+                }
+
+            }
+        }
+
+		$isGroup = isset($vars['group_id']) && $vars['group_id'];
+		if ($type == 'report_content_admin') {
+			$isWall = isset($vars['wall_id']) && $vars['wall_id'];
+			if ($isWall) {
+				self::$urlAutoMail['report_content_admin'] = $isGroup ? 'administration/groups_social_reports_wall_post.php' : 'administration/users_reports_wall_post.php';
+			} elseif ($isGroup) {
+				self::$urlAutoMail['report_content_admin'] = 'administration/groups_social_reports_content.php';
+			}
+		}
+
+        if ($type == 'profile_visitors'  && isset($vars['to_user_id']) && $vars['to_user_id']) {
+            $isPaidVisitors = Common::isActiveFeatureSuperPowers('profile_visitors_paid');
+            if($isPaidVisitors) {
+                $userInfo = User::getInfoBasic($vars['to_user_id']);
+                if ($userInfo && !User::accessCheckFeatureSuperPowers('profile_visitors_paid', $userInfo['gold_days'], $userInfo['orientation'], $isPaidVisitors)) {
+                    $vars['name'] = l('mail_profile_visitors');
+                    self::$urlAutoMail['profile_visitors'] = Common::pageUrl('users_viewed_me');
                 }
             }
         }
@@ -300,11 +335,18 @@ Class Common {
     static function sendAutomail($lang, $email, $type, $vars = array(), $emailAuto = false, $dbIndex = DB_MAX_INDEX, $isGetData = false)
     {
         global $g;
+        global $sitePart;
+
         $sent = false;
 
         if(!Common::isOptionActive('mail') && $type == 'mail_message') {
             return false;
         }
+
+        if($type !== 'admin_delete' && User::getInfoBasicByEmail($email, 'ban_global', $dbIndex)) {
+            return false;
+        }
+
         //Common::getOption('info_mail', 'main') 'partner_delete' 'partner_forget' 'partner_join' 'invite_group' 'invite'
         if(mb_strpos($type, 'partner', 0, 'UTF-8') === false
             && !in_array($type, array('invite_group', 'invite'))
@@ -348,6 +390,9 @@ Class Common {
                     (strip_tags($vars['text']) == $vars['text'])) {
                     $vars['text'] = nl2br($vars['text']);
                 }
+
+                self::prepareUrlAutoMail($type, $vars);
+
                 $text = self::replaceByVars($text, $vars);
                 /*if (strip_tags($text) == $text) {
                     $text = nl2br($text);
@@ -366,9 +411,13 @@ Class Common {
                 if (isset(self::$urlAutoMailTemplate[$optionTmplName])
                         && isset(self::$urlAutoMailTemplate[$optionTmplName][$type])) {
                     $urlAutoMail = self::$urlAutoMailTemplate[$optionTmplName][$type];
+                } else {
+                    $urlAutoMail = isset(self::$urlAutoMail[$autoMailTmpl]) ? self::$urlAutoMail[$autoMailTmpl] : self::$urlAutoMail[$type];
                 }
 
-
+                if($type == 'forget' && $sitePart == 'administration') {
+                    $urlAutoMail = 'index.php';
+                }
 
                 if(in_array($type, self::$urlAutoMailByCurrentLocation)) {
                     $data['url'] = Common::urlSite() . self::replaceByVars($urlAutoMail, $vars);
@@ -390,7 +439,7 @@ Class Common {
                 $text = self::replaceByVars($emailAuto['template'], $data);
             }
             if (!$isGetData) {
-                //send_mail($email, Common::getOption('info_mail', 'main'), $subject, $text);
+                send_mail($email, Common::getOption('info_mail', 'main'), $subject, $text);
                 $sent = true;
                 }
             }
@@ -453,7 +502,6 @@ Class Common {
         $link_admin = get_session('ref_login_link_admin');
         $link_partner = get_session('ref_login_link_partner');
         $ref_link = self::getHomePage();
-
 
         if (Common::getOption('site_part', 'main') == 'mobile') {
             if ($link_mobile != '') {
@@ -598,7 +646,11 @@ Class Common {
                   FROM `geo_country`
               WHERE (hidden = 0 OR country_id = ' . to_sql($selected, 'Number') . ')';
 
-        $countries .= ($list) ? DB::db_options_ul($sql, $selected, 0, true) : DB::db_options($sql, $selected, 0, true, false, 'country');
+        if($isFirstValueEmpty && $countries !== '') {
+            $isFirstValueEmpty = false;
+        }
+
+        $countries .= ($list) ? DB::db_options_ul($sql, $selected, 0, true) : DB::db_options($sql, $selected, 0, true, $isFirstValueEmpty, 'country');
 
         return $countries;
     }
@@ -826,6 +878,7 @@ Class Common {
         $edgeColorSchemeVisitorOptions = array(
             'main_page_image',
             'main_page_header_background_color',
+            'main_page_image_darken',
         );
 
         foreach($edgeColorSchemeVisitorOptions as $edgeColorSchemeVisitorOption) {
@@ -863,7 +916,7 @@ Class Common {
             $value = get_param($param, '');
         }
 
-        if($value) {
+        if($value || get_param('demo_init')) {
             set_session($param, $value);
         }
         return get_session($param);
@@ -935,6 +988,7 @@ Class Common {
             $text = self::cutTag($text);
         }
         $text = replaceSmile($text);
+		$text = replaceSticker($text);
         return self::replaceByVars($text, self::$prepareLinks);
     }
 
@@ -986,8 +1040,6 @@ Class Common {
         return self::replaceByVars($text, $prepare);
     }
 
-
-
     static function getImgTagToDb($matches)
     {
         $exts = array('.png', '.jpg', '.jpeg', '.gif');
@@ -1006,6 +1058,16 @@ Class Common {
                 }
             }
         }
+
+        return $replase;
+    }
+
+    static function getLinkMetaSite($matches)
+    {
+
+        $replase = $matches[0];
+
+        $replase = OutsideImages::uploadLinkMetaSite($replase);
 
         return $replase;
     }
@@ -1063,7 +1125,7 @@ Class Common {
         return $url;
     }
 
-    static function urlSiteSubfolders()
+    static function urlSiteSubfolders($domain = true)
     {
         global $g;
 
@@ -1074,10 +1136,21 @@ Class Common {
             $urlSubfolders = str_replace(rtrim($_SERVER['CONTEXT_DOCUMENT_ROOT'], '/'), rtrim($_SERVER['CONTEXT_PREFIX'], '/'), $baseDir);
         } else {
 
-            $serverDocumentRoot = $_SERVER['DOCUMENT_ROOT'];
+            $serverDocumentRoot = realpath($_SERVER['DOCUMENT_ROOT']);
 
             if(strpos($serverDocumentRoot, '\\') !== false) {
                 $serverDocumentRoot = str_replace('\\', '/', $serverDocumentRoot);
+            }
+
+            // $serverDocumentRoot - /home/site/www
+            // $baseDir - /usr/home/site/www/
+            // use only left side of path
+            if(strpos($baseDir, $serverDocumentRoot) > 0) {
+                $baseDirParts = explode($serverDocumentRoot, $baseDir);
+                if(count($baseDirParts) > 1) {
+                    unset($baseDirParts[0]);
+                    $baseDir = $serverDocumentRoot . implode('', $baseDirParts);
+                }
             }
 
             $urlSubfolders = str_replace(rtrim($serverDocumentRoot, '/'), '', $baseDir);
@@ -1133,9 +1206,16 @@ Class Common {
             $urlSubfolders = '';
         }
 
-        $protocol = self::urlProtocol();
-        $domain   = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
-        $url = rtrim("{$protocol}://{$domain}{$urlSubfolders}", '/') . '/';
+        $url = $urlSubfolders;
+
+        if($domain) {
+        	$protocol = self::urlProtocol();
+        	$domain   = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+        	$url = "{$protocol}://{$domain}{$urlSubfolders}";
+        }
+
+        $url = rtrim($url, '/') . '/';
+
         return $url;
     }
 
@@ -1170,6 +1250,7 @@ Class Common {
     static function isOptionActive($option, $key = 'options')
     {
         global $g;
+
         $active = false;
         if(isset($g[$key][$option]) && $g[$key][$option] == 'Y') {
             $active = true;
@@ -1270,29 +1351,62 @@ Class Common {
                 }
                 return;
             }
+
             $optionTemplateSet = Common::getOption('set', 'template_options');
+			$optionTemplateName = Common::getOption('name', 'template_options');
             $url = self::urlSite() . MOBILE_VERSION_DIR . '/';
+
             $pagesAllowed = array(
                 'search_results.php',
                 'mutual_attractions.php',
                 'my_friends.php'
             );
+
+			$urlRedirect = '';
             if ($optionTemplateSet == 'urban') {
                 /* Messages template urban */
                 //Sent to the desktop Urban http://l/r/search_results.php?display=profile&uid=451&show=&email_auth_key=12_1
                 $uid = get_param('uid');
                 $show = get_param('show');
+				$nameSeoParams = get_param('name_seo');
+				$display = get_param('display');
+
                 if ($uid && $show == 'messages') {
-                    $urlRedirect = self::urlSiteSubfolders() . MOBILE_VERSION_DIR . '/messages.php?display=one_chat&user_id=' . $uid;
-                    redirect($urlRedirect);
+                    $urlRedirect = '/messages.php?display=one_chat&user_id=' . $uid;
                 }
+
                 //http://l/trunk/profile_view.php?show=gallery&photo_id=413859&email_auth_key=451_1
                 $pid = get_param('photo_id');
                 if($pid && $show == 'gallery'){
-                    $urlRedirect = self::urlSiteSubfolders() . MOBILE_VERSION_DIR . '/profile_view.php?show=albums&photo_id=' . $pid;
-                    redirect($urlRedirect);
+                    $urlRedirect = '/profile_view.php?show=albums&photo_id=' . $pid;
                 }
                 /* Messages template urban */
+
+                $page = get_param('page');
+                if ($p == 'info.php' && ($page == 'term_cond' || $page == 'priv_policy')) {
+                    $alias = 'terms';
+                    if ($page == 'priv_policy') {
+                        $alias = 'privacy_policy';
+                    }
+                    $urlRedirect = '/' . Common::pageUrl($alias);
+                }
+
+				//http://l/r/york_hunt?email_auth_key=12_1
+				if ($optionTemplateName != 'edge' && $p == 'search_results.php'
+						&& $display == 'profile'
+						&& ($uid || $nameSeoParams)) {
+					if ($nameSeoParams) {
+						$uid = User::getUidFromNameSeo($nameSeoParams);
+					}
+					if ($uid) {
+						$urlRedirect = '/profile_view.php?user_id=' . $uid;
+					}
+				}
+
+				if ($urlRedirect) {
+					redirect(self::urlSiteSubfolders() . MOBILE_VERSION_DIR . $urlRedirect);
+				}
+
                 $pagesAllowed[] = 'messages.php';//mobile urban - mobile impact
             }
             if (!in_array($p, $pagesAllowed)) {
@@ -1329,7 +1443,7 @@ Class Common {
 				redirect($urlRedirect);
             }
             $mobileRedirectUrl = array(
-                //'search_results.php_profile' => 'profile_view.php?user_id={uid}',//profile_visitors
+                'search_results.php_profile' => 'profile_view.php?user_id={uid}',//profile_visitors
             );
             $display = get_param('display');
             $type = "{$p}_{$display}";
@@ -1361,6 +1475,50 @@ Class Common {
 
         $userAgent = (!empty($userAgent) ? trim($userAgent) : null);
         return md5($userAgent);
+    }
+
+    static function iosVersion()
+    {
+        $version = 0;
+
+        if(isset($_SERVER['HTTP_USER_AGENT'])) {
+
+            //$pattern = '/(IOSWebview\((?<app>.*)\)|OS (?<os>.*) like Mac OS X)/';
+            $pattern = '/(IOSWebview\-(?<site>[\d\.]*)\((?<app>.*)\)|OS (?<os>.*) like Mac OS X)/U';
+            if(preg_match($pattern, $_SERVER['HTTP_USER_AGENT'], $matches)) {
+                if(isset($matches['os']) && $matches['os'] != '') {
+                    $version = str_replace('_', '.', $matches['os']);
+                } elseif(isset($matches['app']) && $matches['app'] != '') {
+                    $version = $matches['app'];
+                }
+            }
+        }
+
+        return $version;
+    }
+
+    static function isIosVersionCompatible($versionMajor, $versionMinor = 0)
+    {
+        $isIosVersionCompatible = false;
+
+        $version = self::iosVersion();
+        if($version) {
+
+            $versionParts = explode('.', $version);
+            $iosVersionMajor = $versionParts[0];
+            $iosVersionMinor = isset($versionParts[1]) ? $versionParts[1] : 0;
+
+            if($iosVersionMajor > $versionMajor || ($iosVersionMajor == $versionMajor && $iosVersionMinor >= $versionMinor)) {
+                $isIosVersionCompatible = true;
+            }
+        }
+
+        return $isIosVersionCompatible;
+    }
+
+    static function isAppIosWebrtcAvailable()
+    {
+        return self::isIosVersionCompatible(14, 3) || file_exists(Common::getOption('dir_include', 'path') . 'config/ios_app_webrtc_on');
     }
 
     static function isAppIos()
@@ -1413,12 +1571,28 @@ Class Common {
         return self::isAppIos() || self::isAppAndroid();
     }
 
+    static function androidAppVersion()
+    {
+        $version = 0;
+
+        if(isset($_SERVER['HTTP_USER_AGENT'])) {
+            $pattern = '/(AppWebview\-(?<app>[\d\.]*))/';
+            if(preg_match($pattern, $_SERVER['HTTP_USER_AGENT'], $matches)) {
+                if(isset($matches['app']) && $matches['app'] != '') {
+                    $version = $matches['app'];
+                }
+            }
+        }
+
+        return $version;
+    }
+
     static function isInAppPurchaseEnabled()
     {
         $isInAppPurchaseEnabled = true;
-        if (Common::isApp()) {
-            $isInAppPurchaseEnabled = Common::isOptionActive('in_app_purchase_enabled');
-        }
+        //if (Common::isApp()) {
+        //    $isInAppPurchaseEnabled = Common::isOptionActive('in_app_purchase_enabled');
+        //}
         //return Common::isOptionActive('in_app_purchase_enabled');
         return $isInAppPurchaseEnabled;
     }
@@ -2067,6 +2241,46 @@ Class Common {
         global $sitePart;
         global $sitePartParam;
 
+        if($html->varExists('to_head_meta')) {
+            $toHeadMeta = $html->getvar('to_head_meta');
+            $headerCustomJs = $toHeadMeta;
+
+            $headerCustomJsGroup = '';
+            $groupId = Groups::getParamId();
+            if ($groupId) {
+                $headerCustomJsGroup = ", group_vids_list_{$groupId} : '" . self::pageUrl('group_vids_list', $groupId) . "'
+                                        , group_songs_list_{$groupId} : '" . self::pageUrl('group_songs_list', $groupId) . "'
+                                        , group_photos_list_{$groupId} : '" . self::pageUrl('group_photos_list', $groupId) . "'";
+            }
+
+            $headerCustomJs .= "<script language=\"javascript\" type=\"text/javascript\">
+                var urlPageJoin = '" . Common::pageUrl('join') . "';
+                var urlPageLogin = '" . Common::pageUrl('login') . "';
+                var urlPageUpgrade = '" . Common::pageUrl('upgrade') . "';
+                var urlPagesSite = {
+                    index : '" . self::pageUrl('index') . "',
+                    login : '" . self::pageUrl('login') . "',
+                    join : '" . self::pageUrl('join') . "',
+                    home : '" . self::getHomePage() . "',
+                    upgrade : '" . self::pageUrl('upgrade') . "',
+                    search_results : '" . self::pageUrl('search_results') . "',
+                    profile_view : '" . self::pageUrl('profile_view') . "',
+                    messages : '" . self::pageUrl('messages') . "',
+                    refill_credits : '" . self::pageUrl('refill_credits') . "',
+                    my_vids_list : '" . self::pageUrl('user_vids_list', guid()) . "',
+                    my_photos_list : '" . self::pageUrl('user_photos_list', guid()) . "',
+                    my_songs_list : '" . self::pageUrl('user_songs_list', guid()) . "',
+                    photos_list : '" . Common::pageUrl('photos_list') . "',
+                    blogs_add : '" . Common::pageUrl('blogs_add') . "',
+                    profile_settings : '" . Common::pageUrl('profile_settings') . "',
+                    wall : '" . Common::pageUrl('wall') . "'"
+                    . $headerCustomJsGroup ."
+                };
+            </script>";
+
+            $html->setvar('to_head_meta', $headerCustomJs);
+        }
+
         if (FOOTER_CUSTOM_JS && $html->varExists('footer_custom_js')) {
             $dir = Common::getOption('dir_tmpl', 'path') . $sitePart;
 
@@ -2113,7 +2327,10 @@ Class Common {
                 $index++;
             }
 
-            $tmplLoaded = Common::getOption('tmpl_loaded', 'tmpl');
+            //$tmplLoaded = Common::getOption('tmpl_loaded', 'tmpl');
+            $tmplLoaded = Common::getOptionTemplate('name');
+            $tmplLoadedFolderName = Common::getOption('tmpl_loaded', 'tmpl');
+
             $languageOfUser = get_session('language_of_user');
             $languageLoaded = Common::getOption('lang_loaded', 'main');
             $analyticsCode = '';
@@ -2121,7 +2338,8 @@ Class Common {
                $analyticsCode = '</script>' . Common::getOption('analytics_code', 'main') . '<script>';
             }
 
-            if(IS_DEMO && $sitePart != 'mobile' && !file_exists(__DIR__ . '/../config/jivosite_off')) {
+            // Move all code to demo
+            if(IS_DEMO && $sitePart != 'mobile' && !file_exists(__DIR__ . '/../config/jivosite_off') && !file_exists(__DIR__ . '/../config/jivosite_off' . domain())) {
                 $analyticsCode .= "
                 <!-- BEGIN JIVOSITE CODE {literal} -->
 
@@ -2131,6 +2349,10 @@ Class Common {
                             content: '$tmplLoaded',
                         }
                     ]);
+                }
+
+                function jivo_onChangeState() {
+                    isCloseJivoPopup=false;
                 }
 
                 (function(){ var widget_id = 'MTc2NDAw';
@@ -2151,6 +2373,7 @@ Class Common {
 $tmplsToJs
 
 var tmplCurrent = '$tmplLoaded';
+var tmplCurrentFolderName = '$tmplLoadedFolderName';
 
 if($initDevFunctions) {
     initDevFunctions();
@@ -2203,6 +2426,30 @@ JS;
 
                 setAjaxPrefilter();
             ";
+
+            // For compatibility with old browsers and Android apps
+            if(isset($_SERVER['HTTP_USER_AGENT']) && preg_match('~Chrome/([89]\d|\d{3,})\.~', $_SERVER['HTTP_USER_AGENT'])) {
+
+                $footerCustomJs .= "
+                async function requestWakeLockScreen(unlock){
+                    unlock=unlock||false;
+                    try {
+                        if (unlock) {
+                            if (_lockDisplay!==false) {
+                                _lockDisplay.release();
+                                _lockDisplay=false;
+                                console.info('requestWakeLockScreen released');
+                            }
+                        } else {
+                            _lockDisplay = await navigator.wakeLock.request('screen');
+                        }
+                        console.info('INIT RequestWakeLock', unlock);
+                    } catch (err) {
+                        console.error('RequestWakeLock', unlock, err.name, err.message);
+                    }
+                }
+                ";
+            }
 
             $html->setvar('footer_custom_js', $footerCustomJs);
         }
@@ -2361,7 +2608,7 @@ JS;
         return $tmpl;
     }
 
-    static function getFolderTitle($name, $count = 0, $tmplBox, $tmplCounter, $nameItemBox)
+    static function getFolderTitle($name, $count, $tmplBox, $tmplCounter, $nameItemBox)
     {
         $countTitle = ($count > 0) ? lSetVars($tmplCounter, array('count' => $count)) : '';
         $vars = array($nameItemBox => strip_tags($name), 'counter' => $countTitle);
@@ -2394,7 +2641,7 @@ JS;
     {
         global $g;
 
-        $html = Common::getOption('meta_tags', 'main');
+        $html = (Common::getOption('site_part', 'main') === 'administration' ? '' : Common::getOption('meta_tags', 'main'));
         $faviconFileName = self::getFaviconFilename();
 
         if($faviconFileName) {
@@ -2431,7 +2678,7 @@ JS;
         return $faviconFileNameResult;
     }
 
-    static function getUrlLogo($name = 'logo', $part = 'main', $particle = '')
+    static function getUrlLogo($name = 'logo', $part = 'main', $particle = '', $isParticleSet = false)
     {
         global $g;
 
@@ -2439,9 +2686,12 @@ JS;
         if ($particle != '') {
             $particle = '_' . $particle;
         }
+
+        $templateLogoType = ($part == 'main' ? Common::templateFilesFolderType() : '');
+
         $typeAllowed = array('png', 'svg');
         foreach ($typeAllowed as $ext) {
-            $fileName = 'logo/' . $g['main']['site_part'] . '_' . $g['tmpl']['tmpl_loaded'] . "{$particle}.{$ext}";
+            $fileName = 'logo/' . $g['main']['site_part'] . '_' . $g['tmpl']['tmpl_loaded'] . "{$particle}{$templateLogoType}.{$ext}";
             if (file_exists($g['path']['dir_files'] . $fileName)) {
                 $url = $g['path']['url_files'] . $fileName;
             }
@@ -2456,22 +2706,26 @@ JS;
                 Demo::setLogoData($logoDemoPrefixes, $patchDir);
             }
 
+			if (!$isParticleSet) {
+				$particle = '';
+			}
+
             foreach($logoDemoPrefixes as $logoDemoPrefix) {
 
-            foreach ($patchDir as $patchV) {
-                foreach ($typeImage as $ext) {
-                    if($g['multisite']) {
-                        $name = $name . '_joomph';
-                    }
-                    $fileName = $patchV . '/' . $logoDemoPrefix . $name . '.' . $ext;
-                    if (file_exists($g['tmpl']['dir_tmpl_' . $part] . $fileName)) {
-                        $url = $g['tmpl']['url_tmpl_' . $part] . $fileName;
-                        break(2);
-                    }
-                }
-            }
+				foreach ($patchDir as $patchV) {
+					foreach ($typeImage as $ext) {
+						if($g['multisite']) {
+							$name = $name . '_joomph';
+						}
+						$fileName = $patchV . '/' . $logoDemoPrefix . $name . $particle . $templateLogoType . '.' . $ext;
+						if (file_exists($g['tmpl']['dir_tmpl_' . $part] . $fileName)) {
+							$url = $g['tmpl']['url_tmpl_' . $part] . $fileName;
+							break(2);
+						}
+					}
+				}
 
-        }
+			}
         }
         if ($url != '') {
             $url .= self::getVersionFile($url);
@@ -2586,7 +2840,7 @@ JS;
     static function getFileSize($file = '')
     {
         if ($file != '' && file_exists($file)) {
-            return filesize($file);
+            return @filesize($file);
         } else {
             return 0;
         }
@@ -2751,13 +3005,14 @@ JS;
                 $sendId = CIm::addMessageToDb($uid, 'welcoming_message', null, 1, 0, true, false, 1);
                 if ($sendId) {
                     User::update(array('welcoming_message_notify' => 1), $uid);
-                    if (Common::isEnabledAutoMail('new_message')
+                    if ($type != 'welcoming_message' && Common::isEnabledAutoMail('new_message')
                         && (User::isOptionSettings('set_notif_new_msg') || $admin)) {
                         $vars = array('title' => Common::getOption('title', 'main'),
                                       'name' => $toName,
                                       'name_sender'  => $g_user['name'],
                                       'uid_sender' => $g_user['user_id'],
                                       'uid' => $uid,
+                                      'group_id_sender' => 0,
                                       'url_site' => Common::urlSite());
                         $userInfo = User::getInfoBasic($uid);
                         Common::sendAutomail($userInfo['lang'], $userInfo['mail'], 'new_message', $vars);
@@ -3191,10 +3446,12 @@ JS;
             if ($html->varExists('tmpl_set_captcha')) {
                 $html->setvar('tmpl_set_captcha', Common::getOption('set', 'template_options'));
             }
-            function parseParam(&$html, $name){
-                $param = Common::getOption($name, 'template_options');
-                if ($param && $html->varExists($name)) {
-                    $html->setvar($name, "&{$name}={$param}");
+            if(!function_exists('parseParam')) {
+                function parseParam(&$html, $name){
+                    $param = Common::getOption($name, 'template_options');
+                    if ($param && $html->varExists($name)) {
+                        $html->setvar($name, "&{$name}={$param}");
+                    }
                 }
             }
             $params = array('width_captcha', 'height_captcha');
@@ -3415,7 +3672,7 @@ JS;
         return $isParse;
     }
 
-    static function getSeoSite($url, $uid, $userInfo = null, $noPlaceCity = false, $groupId = false)
+    static function getSeoSite($urls, $uid, $userInfo = null, $noPlaceCity = false, $groupId = false)
     {
         global $g, $p;
 
@@ -3429,8 +3686,12 @@ JS;
                               'description' => $groupInfo['description']
                         );
             } else {
-                $url = 'profile';
+                $urls = 'profile';
             }
+        }
+
+        if(!is_array($urls)) {
+            $urls = array($urls);
         }
 
         if ($uid) {
@@ -3443,18 +3704,37 @@ JS;
                           'location'   => $userInfo['city'] ? l($userInfo['city']) : l($userInfo['country'])
             );
         }
-        if ($url == '3dcity' && !$noPlaceCity) {
+        if (in_array('3dcity', $urls) && !$noPlaceCity) {
             $vars['place'] = City::getSeoTitlePlace(get_param('place'));
         }
 
         $langLoad = Common::getOption('lang_loaded', 'main');
-        $sql = 'SELECT * FROM `seo`
-                 WHERE `url` = ' . to_sql($url, 'Text') . '
-                   AND `lang` = ' . to_sql($langLoad);
-        $seo = DB::row($sql, 0, true);
+
+        //var_dump_pre($urls);
+
+        // For compatibility:
+        // first of all - new
+        // then - old
+
+        foreach($urls as $url) {
+
+            $sql = 'SELECT * FROM `seo`
+                     WHERE `url` = ' . to_sql($url, 'Text') . '
+                       AND `lang` = ' . to_sql($langLoad) . '
+                       AND `default` = 0';
+
+            $seo = DB::row($sql, 0, true);
+
+            if($seo) {
+                //echo "Found: $url<br>";
+                break;
+            }
+        }
 
         if (!$seo) {
             // get default for this language
+            $url = array_pop($urls);
+
             if ($url == '3dcity') {
                 $title = $g['main']['title'] . '.' . l('3dcity');
                 $seo = array('title' => $title,
@@ -3511,12 +3791,31 @@ JS;
             $seo['keywords'] = htmlspecialchars($seo['keywords'], ENT_QUOTES, 'UTF-8');
         } else {
             $queryString = isset($_SERVER['QUERY_STRING']) ? trim($_SERVER['QUERY_STRING']) : '';
+            if (isset($_GET['router_query_string'])) {
+                $queryString = $_GET['router_query_string'];
+            }
+
             $mobile = '';
             if (Common::isMobile()) {
-                if ($queryString) {
-                    $queryString = del_param('set_template_mobile_runtime', $queryString, true, false);
-                }
                 $mobile = MOBILE_VERSION_DIR . '/';
+            }
+
+            if ($queryString) {
+                $delParams = array('set_template',
+                                   'set_template_runtime',
+                                   'set_template_mobile',
+                                   'set_template_mobile_runtime',
+                                   'site_part_runtime',
+                                   'upload_page_content_ajax',
+                                   'ajax',
+                                   'site_guid',
+                                   'name_seo');
+                foreach ($delParams as $par) {
+                    $queryString = del_param($par, $queryString, true, false);
+                    if (!$queryString) {
+                        break;
+                    }
+                }
             }
 
             $url = $mobile . $p . ( $queryString != '' ? '?' . $queryString : '' );
@@ -3540,7 +3839,10 @@ JS;
                 $url = '3dcity';
             }
 
-            $seo = self::getSeoSite($url, $uid, null, false, $groupId);
+            $urls = self::prepareUrlForSeoRequest();
+            array_push($urls, $url);
+
+            $seo = self::getSeoSite($urls, $uid, null, false, $groupId);
         }
         $html->setvar('title', $seo['title']);
         $html->setvar('description', $seo['description']);
@@ -3556,6 +3858,70 @@ JS;
             $html->setvar('js_keywords', toJs($seo['keywords']));
         }
     }
+
+    static function prepareUrlForSeoRequest($url = false)
+    {
+        if($url === false) {
+            $urlBase = Common::urlSiteSubfolders(false);
+            $urlFull = Common::urlPage();
+
+            $start = mb_strlen($urlBase);
+            $url = rtrim(mb_substr($urlFull, $start), '/');
+        }
+
+        // page?z=1:
+        // page?z=1
+        // page*
+
+        // page:
+        // page
+        // page*
+
+        if($url != '') {
+            $urlParts = explode('?', $url);
+
+            if(isset($urlParts[1])) {
+
+                $url = $urlParts[0];
+
+                $deleteParams = array(
+                    'set_template',
+                    'set_template_runtime',
+                    'set_template_mobile',
+                    'set_template_mobile_runtime',
+                    'site_part_runtime',
+                    'upload_page_content_ajax',
+                    'ajax',
+                    'site_guid',
+                    'name_seo',
+                    'offset',
+                );
+                foreach ($deleteParams as $param) {
+                    $urlParts[1] = del_param($param, $urlParts[1], true, false);
+                    if (!$urlParts[1]) {
+                        break;
+                    }
+                }
+
+                if($urlParts[1]) {
+                    $urls = array(
+                        $url . '?' . $urlParts[1],
+                        $url . '*',
+                    );
+                }
+            }
+        }
+
+        if(!isset($urls)) {
+            $urls = array(
+                $url,
+                $url . '*',
+            );
+        }
+
+        return $urls;
+    }
+
 
     static function getOptionSetTmpl()
     {
@@ -3586,14 +3952,19 @@ JS;
         return Common::isCreditsEnabled() && Common::isOptionActive('credit_transfer_to_another_user');
     }
 
-    static function dateFormat($timestamp, $formatName, $strtotime = true, $isObjDateTime = false, $isTimeStamp = false, $siteTime = false) {
+    static function dateFormat($timestamp, $formatName, $strtotime = true, $isObjDateTime = false, $isTimeStamp = false, $siteTime = false, $isFormat = false) {
         global $g;
 
         if ($strtotime){
             $timestamp = strtotime($timestamp);
         }
         //echo $formatName.' - '.$timestamp.' <br>';
-        return pl_date($g['date_formats'][$formatName], $timestamp, $isObjDateTime, $isTimeStamp, $siteTime);
+        if ($isFormat) {
+            $format = $formatName;
+        } else {
+            $format = $g['date_formats'][$formatName];
+        }
+        return pl_date($format, $timestamp, $isObjDateTime, $isTimeStamp, $siteTime);
     }
 
     static function getMapImageUrl($x, $y, $sizeX, $sizeY, $scale, $needMarker) {
@@ -3774,7 +4145,7 @@ JS;
                         'value' => $params,
                     );
                     $nameTable = 'uck' . $numCheckbox;
-                    $from_add .= " LEFT JOIN users_checkbox AS " . $nameTable . " ON " . $nameTable . ".user_id = {$tableUser}.user_id AND " . $nameTable . ".field = " . to_sql($v['id'], 'Number') . " AND "  . $nameTable . ".value IN (" . implode($params, ',') . ")";
+                    $from_add .= " LEFT JOIN users_checkbox AS " . $nameTable . " ON " . $nameTable . ".user_id = {$tableUser}.user_id AND " . $nameTable . ".field = " . to_sql($v['id'], 'Number') . " AND "  . $nameTable . ".value IN (" . implode(',', $params) . ")";
                     $where .=  " AND " . $nameTable . ".user_id IS NOT NULL";
                     $numCheckbox++;
                 }
@@ -3884,7 +4255,7 @@ JS;
 
         $whereCore .=" AND {$ht}";
 
-        $uidsExclude = get_param('uids_exclude', '');
+        $uidsExclude = get_param_int_csv('uids_exclude', '');
         if($uidsExclude) {
             $where .= " AND {$tableUser}.user_id NOT IN (" . to_sql($uidsExclude, 'Plain') . ') ';
         }
@@ -4003,6 +4374,10 @@ JS;
             delses("{$blockErrorAccessing}_param");
             $html->setvar($blockErrorAccessing, lSetVars($errorAccessing, array('param' => $errorParam)));
             $html->parse($blockErrorAccessing, false);
+
+            if ($html->varExists('is_mode_viewing_moderator')) {//EDGE
+                $html->setvar('is_mode_viewing_moderator', intval(Moderator::isAllowedViewingUsers($errorAccessing)));
+            }
         }
     }
 
@@ -4080,10 +4455,23 @@ JS;
         return $result;
     }
 
-    static public function pageUrl($page, $uid = null, $id = null, $params = null)
+    static public function redirectFromWithBaseUrl($page, $uid = null, $id = null, $params = null)
+    {
+        redirect(self::pageUrlWithBaseUrl($page, $uid = null, $id = null, $params = null));
+    }
+
+    static public function pageUrlWithBaseUrl($page, $uid = null, $id = null, $params = null)
+    {
+        global $g;
+
+        return $g['path']['base_url_main'] . Common::pageUrl($page, $uid = null, $id = null, $params = null);
+    }
+
+    static public function pageUrl($page, $uid = null, $id = null, $params = null, $paramSeo = null)
     {
         global $g, $g_user;
 
+        $pageType = $page;
         if ($uid === null) {
             $uid = User::getParamUid();
         }
@@ -4091,18 +4479,33 @@ JS;
         if(Common::isOptionActive('seo_friendly_urls')) {
             $paramsAddSymbol = '?';
             $optionTmplName = Common::getTmplName();
-            if ($optionTmplName == 'edge') {
+			$isCustomUrls = $optionTmplName == 'edge';
+			if (($optionTmplName == 'impact' || $optionTmplName == 'urban') && in_array($page, array('live', 'live_', 'live_id'))) {
+				$isCustomUrls = true;
+			}
+            if ($isCustomUrls) {
                 $customUrls = array(
                     'user_photos_list'  => 'photos',
                     'user_vids_list'    => 'vids',
+                    'user_songs_list'    => 'songs',
+
                     'user_friends_list' => 'friends',
                     'my_friends_online' => 'friends_online',
-                    'photos_list'  => 'photos',
+
+                    'blogs_list'        => 'blogs',
+                    'user_blogs_list'   => 'blogs',
+
+                    'photos_list'        => 'photos',
                     'pages_photos_list'  => 'photos_pages',
                     'groups_photos_list' => 'photos_groups',
+
+                    'pages_songs_list'  => 'songs_pages',
+                    'groups_songs_list' => 'songs_groups',
+
                     'pages_vids_list'  => 'vids_pages',
                     'groups_vids_list' => 'vids_groups',
 
+                    'songs_list'   => 'songs',
                     'vids_list'    => 'vids',
                     'wall_liked'   => 'wall_liked/' . get_param_int('wall_item_id', $id),
                     'wall_shared'  => 'wall_shared/' . get_param_int('wall_shared_item_id', $id),
@@ -4119,20 +4522,43 @@ JS;
                     'group_subscribers'  => 'subscribers',
                     'group_vids_list'   => 'vids',
                     'group_block_list'  => 'block_list',
+                    'group_songs_list'  => 'songs',
                     'pages_list'        => 'pages',
                     'user_pages_list'   => 'pages',
                     'groups_list'       => 'groups',
                     'user_groups_list'  => 'groups',
                     'user_my_pages_photos_list' => 'photos_my_pages',
                     'user_my_groups_photos_list' => 'photos_my_groups',
+
+                    'user_my_pages_songs_list' => 'songs_my_pages',
+                    'user_my_groups_songs_list' => 'songs_my_groups',
+
                     'user_my_pages_vids_list' => 'vids_my_pages',
                     'user_my_groups_vids_list' => 'vids_my_groups',
+
+                    'user_calendar' => 'calendar',
+                    'user_my_calendar' => 'calendar',
+                    'task_create' => 'task_create',
+                    'task_my_create' => 'task_create',
+
+                    'blogs_post_liked'   => 'blogs_post_liked/' . get_param_int('blog_id', $id),
+                    'blogs_post_liked_comment' => 'blogs_post_liked_comment/' . get_param_int('comment_id', $id),
+
+                    'live' => 'live',
+                    'live_' => 'live_/' . $id,
+                    'live_id' => 'live/' . $id,
                 );
                 if (isset($customUrls[$page])) {
                     if ($page == 'my_friends_online') {
                         $urlSeo = User::url(guid(), null, null, true, true);
                     } else {
-                        if (in_array($page, array('group_photos_list', 'group_vids_list', 'group_page_liked', 'group_subscribers', 'group_block_list'))) {
+                        $pageGroupsProfile = array('group_photos_list',
+                                                   'group_vids_list',
+                                                   'group_songs_list',
+                                                   'group_page_liked',
+                                                   'group_subscribers',
+                                                   'group_block_list');
+                        if (in_array($page, $pageGroupsProfile)) {
                             $urlSeo = Groups::url($uid, null, null, true, true);
                         } else {
                             $urlSeo = User::url($uid, null, null, true, true);
@@ -4140,6 +4566,8 @@ JS;
                     }
                     $assignProfilePage = array('user_photos_list',
                                                'user_vids_list',
+                                               'user_songs_list',
+                                               'user_blogs_list',
                                                'user_pages_list',
                                                'user_friends_list',
                                                'my_friends_online',
@@ -4147,14 +4575,24 @@ JS;
                                                'user_groups_list',
                                                'group_photos_list',
                                                'group_vids_list',
+                                               'group_songs_list',
                                                'group_page_liked',
                                                'group_subscribers',
                                                'group_block_list',
                                                'photos_my_pages',
                                                'user_my_pages_photos_list',
                                                'user_my_groups_photos_list',
+                                               'user_my_pages_songs_list',
+                                               'user_my_groups_songs_list',
                                                'user_my_pages_vids_list',
-                                               'user_my_groups_vids_list'
+                                               'user_my_groups_vids_list',
+                                               'user_calendar',
+                                               'user_my_calendar',
+                                               'task_create',
+                                               'task_my_create',
+                                               'live',
+                                               'live_',
+                                               'live_id'
                                         );
                     if (in_array($page, $assignProfilePage)) {
                         $page = $urlSeo . '/' . $customUrls[$page];
@@ -4163,12 +4601,26 @@ JS;
                     }
                 }
 
-                if ($page == 'page_edit' || $page == 'group_edit') {
+                if ($page == 'page_edit' || $page == 'group_edit' || $page == 'blog_edit') {
                     $page .= '/' . $uid;
                 }
-                if (($page == 'create_task' || $page == 'edit_task' || $page == 'calendar') && $id) {
+
+                if (in_array($pageType, array('task_create', 'task_my_create', 'task_edit', 'calendar', 'user_calendar', 'user_my_calendar')) && $id) {
                     $page .= '/' . $id;
                 }
+				if ($paramSeo !== null){
+					$page .= '/' . $paramSeo;
+				}
+            }
+
+			if (Common::isMobile()) {
+				$urls = array(
+					'live_' => 'live_?user_id=' . $uid . '&live=' . $id,
+					'live_id' => 'live?user_id=' . $uid . '&live=' . $id
+				);
+				if (isset($urls[$page])) {
+					$page = $urls[$page];
+				}
             }
 
             $result = $page;
@@ -4189,9 +4641,11 @@ JS;
                 'refill_credits' => 'upgrade.php?action=refill_credits',
                 /* Edge */
                 'social_network_info' => 'info.php?page=social_network_info',
-                'my_friends_online'   => 'friends_list_online.php',
+                'my_friends_online'   => 'friends_list_online.php?uid=' . $uid,
                 'user_photos_list'    => 'photos_list.php?uid=' . $uid,
                 'user_vids_list'      => 'vids_list.php?uid=' . $uid,
+                'user_songs_list'     => 'songs_list.php?uid=' . $uid,
+                'user_blogs_list'     => 'blogs_list.php?uid=' . $uid,
                 'user_friends_list'   => 'friends_list.php?uid=' . $uid,
                 'wall_liked'          => 'search_results.php?show=wall_liked&wall_item_id=' . get_param_int('wall_item_id', $id),
                 'wall_shared'         => 'search_results.php?show=wall_shared&wall_shared_item_id=' . get_param_int('wall_shared_item_id', $id),
@@ -4211,35 +4665,58 @@ JS;
                 'page_edit'           => 'group_add.php?cmd=edit&view=group_page&group_id=' . $uid,
                 'group_edit'          => 'group_add.php?cmd=edit&group_id=' . $uid,
                 /* Edge */
-                'calendar'            => 'events_calendar.php',
-                'create_task'    => 'events_event_edit.php?event_private=1',
-                'edit_task'      => 'events_event_edit.php?event_id=' . $id,
+                'calendar'            => 'calendar.php',
+                'user_calendar'       => 'calendar.php?uid=' . $uid,
+                'user_my_calendar'    => 'calendar.php?uid=' . $uid,
+                'task_create'         => 'calendar_task_create.php?uid=' . $uid,
+                'task_my_create'      => 'calendar_task_create.php?uid=' . $uid,
+                'task_edit'           => 'calendar_task_edit.php?event_id=' . $id,
 
                 'pages_photos_list'  => 'photos_list.php?view_list=group_page',
                 'groups_photos_list' => 'photos_list.php?view_list=group',
+                'pages_songs_list'   => 'songs_list.php?view_list=group_page',
+                'groups_songs_list'  => 'songs_list.php?view_list=group',
+
                 'user_my_pages_photos_list'  => 'photos_list.php?view_list=group_page&uid=' . $uid,
                 'user_my_groups_photos_list' => 'photos_list.php?view_list=group&uid=' . $uid,
+
+                'user_my_pages_songs_list'  => 'songs_list.php?view_list=group_page&uid=' . $uid,
+                'user_my_groups_songs_list' => 'songs_list.php?view_list=group&uid=' . $uid,
+
                 'user_my_pages_vids_list'  => 'vids_list.php?view_list=group_page&uid=' . $uid,
                 'user_my_groups_vids_list' => 'vids_list.php?view_list=group&uid=' . $uid,
 
                 'pages_vids_list'    => 'vids_list.php?view_list=group_page',
                 'groups_vids_list'   => 'vids_list.php?view_list=group',
+
+                'user_blogs_list'    => 'blogs_list.php?uid=' . $uid,
+
+                'blog_edit'          => 'blogs_add.php?blog_id=' . $uid,
+
+                'blogs_post_liked'          => 'search_results.php?show=blogs_post_liked&blog_id=' . get_param_int('blog_id', $id),
+                'blogs_post_liked_comment'  => 'search_results.php?show=blogs_post_liked_comment&comment_id=' . get_param_int('comment_id', $id),
+
+                'street_chat'        => 'city.php?place=street_chat',
+
+                'live'     => 'live_streaming.php?uid=' . $uid,
+                'live_'    => 'live_streaming.php?uid=' . $uid . '&stream=1&live=' . $id,
+                'live_id'  => 'live_streaming.php?uid=' . $uid . '&live=' . $id,
             );
-            if ($id && in_array($page, array('calendar', 'create_task'))) {
+            if ($id && in_array($page, array('calendar', 'task_create', 'task_my_create', 'user_calendar', 'user_my_calendar'))) {
                 $delimiter = '&';
                 if ($page == 'calendar') {
                     $delimiter = '?';
                 }
                 $urls[$page] .= $delimiter . 'date=' . $id;
-            }
-            if (in_array($page, array('group_photos_list', 'group_vids_list', 'group_page_liked', 'group_subscribers'))) {
+            } elseif (in_array($page, array('group_photos_list', 'group_vids_list', 'group_songs_list', 'group_page_liked', 'group_subscribers'))) {
                 $typeGroupParam = Groups::getTypeParam($uid);
                 if ($typeGroupParam) {
                     $pagesGroupUrl = array('group_photos_list' => 'photos_list.php',
-                                           'group_vids_list' => 'vids_list.php',
-                                           'group_page_liked' => 'groups_social_subscribers.php',
+                                           'group_vids_list'   => 'vids_list.php',
+                                           'group_songs_list'  => 'songs_list.php',
+                                           'group_page_liked'  => 'groups_social_subscribers.php',
                                            'group_subscribers' => 'groups_social_subscribers.php',
-                                           'group_block_list' => 'groups_social_block_list.php');
+                                           'group_block_list'  => 'groups_social_block_list.php');
                     if (isset($pagesGroupUrl[$page])) {
                         $urlGroupParam = '?group_id=' . $uid . '&' . $typeGroupParam;
                         $urls[$page] = $pagesGroupUrl[$page] . $urlGroupParam;
@@ -4251,6 +4728,10 @@ JS;
                 $urls['profile_boost'] = 'upgrade.php?action=refill_credits&service=search';
                 $urls['whom_you_like'] = 'mutual_attractions.php?display=whom_you_like';
                 $urls['who_likes_you'] = 'mutual_attractions.php?display=who_likes_you';
+
+				$urls['live'] = 'live_streaming.php';
+				$urls['live_'] = 'live_streaming.php?user_id=' . $uid . '&stream=1&live=' . $id;
+				$urls['live_id'] = 'live_streaming.php?user_id=' . $uid . '&live=' . $id;
             }
 
             $result = isset($urls[$page]) ? $urls[$page] : $page . '.php';
@@ -4381,11 +4862,14 @@ JS;
         }
 
         if ($isRandomImageActive) {
-            $dir = Common::getOption('dir_tmpl_main', 'tmpl') . 'images/main_page_image';
+
+            $templateFilesFolderType = self::templateFilesFolderType($tmplName);
+
+            $dir = Common::getOption('dir_tmpl_main', 'tmpl') . 'images/main_page_image' . $templateFilesFolderType;
             if (file_exists($dir)){
                 $optionsArray = readAllFileArrayOfDir($dir, '');
                 $dir = Common::getOption('url_files', 'path') . 'tmpl';
-                $templateFile = Common::getOption('tmpl_loaded', 'tmpl') . '_main_page_image_';
+                $templateFile = Common::getOption('tmpl_loaded', 'tmpl') . '_main_page_image' . $templateFilesFolderType . '_';
                 $optionsArray += readAllFileArrayOfDir($dir,'', '', $templateFile);
                 if (!empty($optionsArray)){
                     $rand_file = array_rand($optionsArray);
@@ -4393,7 +4877,7 @@ JS;
                     if (file_exists($image)){
                         $g['options']['image_main_page_urban'] = $rand_file;
                         $g['options']['image_main_page_impact'] = $rand_file;
-                        $g['edge_color_scheme_visitor']['main_page_image'] = $rand_file;
+                        $g['edge_color_scheme_visitor']['main_page_image' . $templateFilesFolderType] = $rand_file;
                         if($tmplName == 'urban') {
                             $infoImage = getimagesize($image);
                             $g['options']['image_main_page_height_urban'] = $infoImage[1];
@@ -4483,7 +4967,8 @@ JS;
                 'number_of_columns_in_language_selector',
                 'message_notifications_not_show_when_3d_city',
                 'forced_open_chat_with_new_message',
-                'photo_approval'
+                'photo_approval',
+				'seo_friendly_urls'
             )
         );
 
@@ -4491,17 +4976,25 @@ JS;
             $allowedOptions = array(
                 'edge_member_settings' => array(
                     'show_your_photo_browse_photos',
-                    'show_your_video_browse_videos'
+                    'show_your_video_browse_videos',
+                    'show_your_song_browse_songs'
                 ),
                 'options' => array(
-                    'seo_friendly_urls'
+                    'seo_friendly_urls',
+					'face_input_size',
+					'face_score_threshold',
+					'audio_comment'
                 ),
                 'edge_gallery_settings' => array(
-                    'gallery_show_download_original'
+                    'gallery_show_download_original',
+					'gallery_photo_face_detection'
                 ),
                 'edge_events_settings' => array(
                     'first_day_week'
                 ),
+				'edge_stickers' => array(
+					'number_popular_show'
+				)
             );
         }
         $result = array();
@@ -4544,11 +5037,11 @@ JS;
                   || ($p == 'search_results.php' && $display == 'profile');
         } elseif ($page == 'search_results') {
             $isPage = $p == 'search_results.php' && !$display && !$show;
+
         } elseif ($page == 'user_vids_list' || $page == 'group_vids_list') {
             $isPage = $p == 'vids_list.php' && $paramUid && !$viewList;
         } elseif ($page == 'user_my_vids_list') {
             $isPage = $p == 'vids_list.php' && $guid == $paramUid && !$viewList;
-
         } elseif ($page == 'vids_list') {
             $isPage = $p == 'vids_list.php' && !$paramUid && !$viewList;
         } elseif ($page == 'pages_vids_list') {
@@ -4559,7 +5052,6 @@ JS;
             $isPage = $p == 'vids_list.php' && $viewList == 'group_page' && $paramUid == $guid;
         } elseif ($page == 'user_my_groups_vids_list') {
             $isPage = $p == 'vids_list.php' && $viewList == 'group' && $paramUid == $guid;
-
 
         } elseif ($page == 'user_photos_list' || $page == 'group_photos_list') {
             $isPage = $p == 'photos_list.php' && $paramUid && !$viewList;
@@ -4608,12 +5100,46 @@ JS;
         } elseif ($page == 'group_subscribers') {
             $isPage = $p == 'groups_social_subscribers.php';
         /* Pages */
+        /* Blogs */
+        } elseif ($page == 'blogs_list') {
+            $isPage = $p == 'blogs_list.php' && !$paramUid;
+        } elseif ($page == 'user_my_blogs_list') {
+            $isPage = $p == 'blogs_list.php' && $guid == $paramUid;
+        } elseif ($page == 'user_blogs_list') {
+            $isPage = $p == 'blogs_list.php' && $paramUid;
+        } elseif ($page == 'blogs_add') {
+            $isPage = $p == 'blogs_add.php' && !get_param_int('blog_id');
+        /* Blogs */
+        } elseif ($page == 'user_my_calendar') {
+            $isPage = $p == 'events_calendar.php' && $guid == $paramUid;
+        } elseif ($page == 'user_calendar') {
+            $isPage = $p == 'events_calendar.php' && $paramUid;
+        } elseif ($page == 'task_my_create') {
+            $isPage = $p == 'events_event_edit.php' && $uid == $guid && !get_param_int('event_id');
+        } elseif ($page == 'task_create') {
+            $isPage = $p == 'events_event_edit.php' && $paramUid && !get_param_int('event_id');
         /* Live streaming */
         } elseif ($page == 'my_live') {
             $isPage = $p == 'live_streaming.php' && $guid == $paramUid;
         } elseif ($page == 'live') {
             $isPage = $p == 'live_streaming.php' && $paramUid;
-        /* Live streaming */        
+        /* Live streaming */
+        /* Songs */
+        } elseif ($page == 'user_songs_list' || $page == 'group_songs_list') {
+            $isPage = $p == 'songs_list.php' && $paramUid && !$viewList;
+        } elseif ($page == 'user_my_songs_list') {
+            $isPage = $p == 'songs_list.php' && $guid == $paramUid && !$viewList;
+        } elseif ($page == 'songs_list') {
+            $isPage = $p == 'songs_list.php' && !$paramUid && !$viewList;
+        } elseif ($page == 'pages_songs_list') {
+            $isPage = $p == 'songs_list.php' && $viewList == 'group_page' && !$paramUid;
+        } elseif ($page == 'groups_songs_list') {
+            $isPage = $p == 'songs_list.php' && $viewList == 'group' && !$paramUid;
+        } elseif ($page == 'user_my_pages_songs_list') {
+            $isPage = $p == 'songs_list.php' && $viewList == 'group_page' && $paramUid == $guid;
+        } elseif ($page == 'user_my_groups_songs_list') {
+            $isPage = $p == 'songs_list.php' && $viewList == 'group' && $paramUid == $guid;
+        /* Songs */
         } else {
             $isPage = $p == ($page . '.php');
         }
@@ -4626,9 +5152,10 @@ JS;
 
     static function parseBackgroundImage(&$html, $module, $prf = '')
     {
-        $option = 'main_page_image';
+		$option = 'main_page_image';
         $blockImage = "{$option}_pic{$prf}";
         if ($html->blockExists($blockImage)) {
+            $option .= self::templateFilesFolderType();
             $bgImage = Common::getOption($option, $module);
             if($bgImage != 'no_image') {
                 $image = getFileUrl($option, $bgImage, "_{$option}_", $option, "{$option}_default", 'main', $module);
@@ -4679,6 +5206,14 @@ JS;
                     'link_end' => '</a>'
                 );
                 $html->setvar('cookies_accept_text', lSetVars('cookies_accept_text', $varsLink, 'toJsL'));
+
+                if (!Common::isMobile() && Common::getOption('gdpr_cookie_consent_popup_theme') == 'small') {
+                    $html->setvar('cookies_class', 'gdpr_small');
+                    $html->setvar('cookies_width', Common::getOptionInt('gdpr_cookie_consent_popup_width'));
+                    $html->setvar('cookies_width_unit', Common::getOption('gdpr_cookie_consent_popup_unit') == 'unit_px' ? 'px' : '%');
+
+                    $html->setvar('cookies_position', Common::getOption('gdpr_cookie_consent_popup_position'));
+                }
                 $html->parse('gdpr_cookie_popup', false);
             }
         }
@@ -4753,7 +5288,7 @@ JS;
     {
         self::$lPleaseChoose = '';
     }
-	// start-nnsscc-diamond-20200205
+// start-nnsscc-diamond-20200205
 	static public function isOptionOrientation($uid)
     {
         $sql = 'SELECT orientation
@@ -4772,6 +5307,46 @@ JS;
 	}
 	// end-nnscc-diamond-20200205
     // Start Divyesh - 21-07-2023
+    static public function deleteTags($id, $type = '')
+	{
+        $tableTags = '';
+        if ($type == 'video') {
+            $tableTags = 'vids_tags';
+            $tableTagsRelations = 'vids_tags_relations';
+            $fieldRelationsId = 'video_id';
+        } elseif ($type == 'photo') {
+            $tableTags = 'photo_tags';
+            $tableTagsRelations = 'photo_tags_relations';
+            $fieldRelationsId = 'photo_id';
+        } elseif ($type == 'blogs') {
+            $tableTags = 'blogs_post_tags';
+            $tableTagsRelations = 'blogs_post_tags_relations';
+            $fieldRelationsId = 'blog_id';
+        }
+
+        if (!$tableTags) {
+            return;
+        }
+
+        $sql = "SELECT TR.id, TR.tag_id, T.counter
+                  FROM `{$tableTagsRelations}` as TR
+                  LEFT JOIN `{$tableTags}` as T ON TR.tag_id = T.id
+                 WHERE TR.{$fieldRelationsId} = " . to_sql($id);
+        $tags = DB::all($sql);
+        if ($tags) {
+            foreach ($tags as $key => $tag) {
+                $count = $tag['counter'] - 1;
+                if ($count) {
+                    DB::update($tableTags, array('counter' => $count), '`id` = ' . to_sql($tag['tag_id']));
+                } else {
+                    DB::delete($tableTags, '`id` = ' . to_sql($tag['tag_id']));
+                }
+                DB::delete($tableTagsRelations, '`id` = ' . to_sql($tag['id']));
+            }
+        }
+    }
+    
+    // Start Divyesh - 21-07-2023
     public static function getCarrierOptionsSelect($where = '', $selected = NULL, $other = true)
     {
         $structure = '<option value="">' . l('please_select_only_one') . '</option>';
@@ -4787,6 +5362,398 @@ JS;
         return $structure;
     }
 
+	static public function uploadDataImage($file, $param = 'icon')
+	{
+		global $g;
+
+		if (!Common::isAdminModer()) {
+			return false;
+		}
+
+		$data = get_param($param);
+		if (!$data) {
+			return false;
+		}
+
+		$cmd = get_param('cmd');
+
+		$iconExt = '';
+		if ($cmd == 'update_favicon') {
+			$iconExt = '|x-icon';
+		}
+		$reg = "/^data:image\/(?<extension>(?:png|gif|jpg|jpeg{$iconExt}));base64,(?<image>.+)$/";
+		if (get_param_int('allow_svg')) {
+			$reg = "/^data:image\/(?<extension>(?:png|gif|jpg|jpeg{$iconExt}|(svg\+xml)));base64,(?<image>.+)$/";
+		}
+		if(preg_match($reg, $data, $matchings)){
+            $imageData = base64_decode($matchings['image']);
+            $extension = $matchings['extension'];
+			if ($extension == 'svg+xml') {
+				$extension = 'svg';
+			} elseif($extension == 'x-icon'){
+				$extension = 'ico';
+			}
+            $file .= '.' . $extension;
+            if(file_put_contents($file, $imageData)){
+                return $file;
+            } else {
+				return false;
+			}
+		}
+		return false;
+	}
+
+	static public function uploadDataImageFromSetData($fileTemp = null, $param = 'icon')
+	{
+		global $g;
+
+		if ($fileTemp === null) {
+			$fileTemp = $g['path']['dir_files'] . 'temp/admin_upload_' . $param . '_' . time();
+		}
+		$fileImageData = Common::uploadDataImage($fileTemp, $param);
+		if (!$fileImageData) {
+			return false;
+		}
+
+		$_FILES[$param]['name'] = pathinfo($fileImageData, PATHINFO_BASENAME);
+		$_FILES[$param]['tmp_name'] = $fileImageData;
+		$_FILES[$param]['error'] = 0;
+		$_FILES[$param]['type'] = '';
+		$fileImageDataInfo = @getimagesize($fileImageData);
+		if(isset($fileImageDataInfo['mime'])) {
+			$_FILES[$param]['type'] = $fileImageDataInfo['mime'];
+		}
+		$_FILES[$param]['size'] = filesize($fileImageData);
+		$_GET['image_upload_data'] = 1;
+
+		return $fileImageData;
+	}
+
+	static public function isAdminModer()
+	{
+		global $sitePart;
+
+		$tmplAdmin = Common::getOption('tmpl_loaded', 'tmpl');
+		return $sitePart == 'administration' && $tmplAdmin == 'modern';
+	}
+
+	static function parseSmileBlock(&$html, $block = 'smiles_tmpl')
+    {
+
+		if (!$html->blockExists($block)) {
+			return;
+		}
+
+		$url = Common::getOption('url_tmpl', 'path') . 'common/smilies/';
+
+		for ($i = 1; $i < 69; $i++) {
+			$html->setvar($block . '_id', $i);
+			$html->setvar($block . '_url', $url . $i . '.png');
+
+			$html->parse($block, true);
+		}
+		$html->parse($block . '_bl', true);
+    }
+
+	static function getStickersCollections($admin = false)
+    {
+		global $g;
+		$guid = guid();
+
+		if (!$admin) {
+			$keyCache = 'getStickersCollections_' . $guid;
+			$listCollectionsResult = Cache::get($keyCache);
+			if($listCollectionsResult !== null) {
+				return $listCollectionsResult;
+			}
+		}
+
+		$urlCollection = get_param('url_tmpl', Common::getOption('url_tmpl', 'path')) . 'common/stickers/';
+
+		$where = $admin ? '' : '`active` = 1';
+
+		$maxPopular = 10000000;
+		$popularityCollection = array(0 => $maxPopular);
+		$popularityStickers = array();
+		$popularityCollectionStickers = array();
+		if (!$admin) {
+			$popularityStickers = DB::select('stickers_popularity_users', 'user_id = ' . to_sql($guid), '`count` DESC');
+            foreach ($popularityStickers as $key => $row) {
+				$col = $row['collection'];
+				if (!isset($popularityCollection[$col])) {
+					$popularityCollection[$col] = 0;
+				}
+				$popularityCollection[$row['collection']] += $row['count'];
+				if (!isset($popularityCollectionStickers[$col])) {
+					$popularityCollectionStickers[$col] = array();
+				}
+				$popularityCollectionStickers[$col][$row['sticker']] = $row['count'];
+			}
+		}
+		$stikersCollectionPopular = array();
+		$stikersCollection = array();
+		$stikersCollectionTemp = array();
+		$orderBy = '`position`, `collection`';
+		$stikers = DB::select('stickers', $where, $orderBy);
+		foreach ($stikers as $key => $row) {
+			$col = $row['collection'];
+			$dirCollection = $urlCollection . $col;
+			if(!is_dir($dirCollection)) {
+				continue;
+			}
+			if (!isset($stikersCollection[$col])) {
+				$stikersCollection[$col] = array();
+			}
+			$img = $row['sticker'] . '.' . $row['type'];
+			$count = isset($popularityCollectionStickers[$col][$row['sticker']]) ? $popularityCollectionStickers[$col][$row['sticker']] : 0;
+			$stikersCollection[$col][$row['sticker']] = array(
+				'id' => $row['id'],
+				'sticker' => $row['sticker'],
+				'col' => $col,
+				'active' => $row['active'],
+				'animate' => $row['animate'],
+				'img' => $img,
+				'img_id' => $row['sticker'],
+				'src' => $dirCollection . '/' . $img,
+				'count' => $count
+			);
+		}
+
+        if (!$admin) {
+			$stikersCollection[0] = array();
+			$limit = Common::getOptionInt('number_popular_show', 'edge_stickers');
+			$stikersUsers = DB::select('stickers_popularity_users', '`user_id` = ' . to_sql($guid), '`date_send` DESC', $limit);
+			foreach ($stikersUsers as $key => $row) {
+				$col = $row['collection'];
+				$stick = $row['sticker'];
+				if (isset($stikersCollection[$col][$stick])) {
+					$stikersCollection[0][] = $stikersCollection[$col][$stick];
+				}
+			}
+		}
+
+
+		foreach ($stikersCollection as $col => $row) {
+			if (!$row) {
+				continue;
+			}
+			$k = array_keys($row)[0];
+			$stikersCollectionImg[$col] = array($row[$k]['src'], $row[$k]['img_id']);
+		}
+
+		$stikersCollectionImg[0] = array($g['path']['url_tmpl'] . 'common/stickers/icon_clock.svg', 0);
+
+		if (!$admin && $popularityCollectionStickers) {
+			foreach ($popularityCollectionStickers as $col => $row) {
+				if ($row) {
+					$stickers = $row;
+					arsort($stickers);
+
+					if (isset($stikersCollection[$col])) {
+
+						$stikersCollectionTemp = array();
+						$files = $stikersCollection[$col];
+						foreach ($stickers as $id => $v) {
+							if (isset($files[$id])) {
+								$stikersCollectionTemp[$id] = $files[$id];
+								unset($stikersCollection[$col][$id]);
+							}
+						}
+						$stikersCollectionTemp = array_merge($stikersCollectionTemp, $stikersCollection[$col]);
+						$stikersCollection[$col] = $stikersCollectionTemp;
+					}
+				}
+			}
+		}
+
+		$orderBy = 'position';
+		/*if ($admin) {
+			$orderBy = 'id';
+		}*/
+		$collections = DB::select('stickers_collections', $where, $orderBy);
+		$listCollections = array();
+		if (!$admin) {
+			$collectionsFavorite = array(
+				array('id' => 0, 'position' => 0, 'active' => 1)
+			);
+			$collections = array_merge($collectionsFavorite, $collections);
+		}
+
+        $activeCollections = array();
+
+		foreach ($collections as $key => $row) {
+			$col = $row['id'];
+            $activeCollections[] = $col;
+			if (!isset($stikersCollection[$col])) {
+				continue;
+			}
+			$files = $stikersCollection[$col];
+			$listCollections[$col] = array(
+				'id' => $col,
+				'active' => $row['active'],
+				'count' => isset($popularityCollection[$col]) ? $popularityCollection[$col] : 0,
+				'img' => $stikersCollectionImg[$col][0],
+				'img_id' => $stikersCollectionImg[$col][1],
+				'files' => $files
+ 			);
+		}
+
+		$listCollectionsResult = array();
+		if (!$admin && $popularityCollection) {
+			arsort($popularityCollection);
+			foreach ($popularityCollection as $cid => $row) {
+                if(isset($listCollections[$cid])) {
+                    $listCollectionsResult[$cid] = $listCollections[$cid];
+                    unset($listCollections[$cid]);
+                }
+			}
+			$listCollectionsResult = array_merge($listCollectionsResult, $listCollections);
+		} else {
+			$listCollectionsResult = $listCollections;
+		}
+
+		if (!$admin) {
+            if(isset($listCollectionsResult[0]['files'])) {
+                foreach($listCollectionsResult[0]['files'] as $listCollectionsResultKey => $listCollectionsResultValue) {
+                    if(!in_array($listCollectionsResultValue['col'], $activeCollections)) {
+                        unset($listCollectionsResult[0]['files'][$listCollectionsResultKey]);
+                    }
+                }
+            }
+			Cache::add($keyCache, $listCollectionsResult);
+		}
+
+		return $listCollectionsResult;
+	}
+
+	static function parseStickersBlock(&$html, $block = 'stickers_tmpl')
+    {
+
+		if (!$html->blockExists($block . '_bl')) {
+			return;
+		}
+
+		$collections = self::getStickersCollections();
+
+		if (!$collections) {
+			return;
+		}
+
+		$blockCol = "{$block}_col";
+		$blockStik = "{$block}_stik";
+
+		$colActive = $collections[array_keys($collections)[1]]['id'];
+		foreach ($collections as $key => $row) {
+			$html->setvar($blockCol . '_id', $row['id']);
+			$html->setvar($blockCol . '_url', $row['img']);
+			$html->setvar($blockCol . '_img_id', $row['img_id']);
+			$html->setvar($blockCol . '_count', $row['count']);
+			$html->subcond($colActive == $row['id'], "{$blockCol}_active");
+			if ($colActive == $row['id']) {
+				$html->setvar("{$blockCol}_active", $row['id']);
+			}
+
+			$files = $row['files'];
+			$html->subcond(!$row['id'] && !$files, "{$blockCol}_hide");
+
+			foreach ($files as $key => $file) {
+				$html->setvar($blockStik . '_id', $file['sticker']);
+				$html->setvar($blockStik . '_col_id', $file['col']);
+				$html->setvar($blockStik . '_url', $file['src']);
+				$html->setvar($blockStik . '_count', $file['count']);
+				$html->setvar($blockStik . '_img', $file['img']);
+				$html->parse($blockStik, true);
+			}
+
+			$html->subcond($colActive == $row['id'], "{$blockStik}_list_show");
+			$html->parse("{$blockStik}_list", true);
+			$html->parse($blockCol, true);
+			$html->clean($blockStik);
+		}
+		$html->parse($block . '_bl', false);
+    }
+
+	static function updatePopularitySticker($sticker = null)
+    {
+		if ($sticker === null) {
+			$sticker = get_param_array('sticker');
+		}
+
+		if (!$sticker) {
+			return;
+		}
+
+		$guid = guid();
+		$cid = $sticker['cid'];
+		$id = $sticker['id'];
+		$date = date('Y-m-d H:i:s');
+		$sql = 'INSERT INTO `stickers_popularity_users`
+                       SET `user_id` = ' . to_sql($guid) . ',
+                           `collection` = ' . to_sql($cid) . ',
+						   `sticker` = ' . to_sql($id) . ',
+						   `date_send` = ' . to_sql($date) . ',
+						   `count` = 1' .
+                      ' ON DUPLICATE KEY UPDATE
+                            `count` = `count` + 1, `date_send` = ' . to_sql($date);
+		DB::execute($sql);
+		//stickers_popularity_users
+	}
+
+    static function templateFilesFolderType($templateName = false)
+    {
+        $folderType = '';
+
+        if(Common::getTmplSet() == 'urban') {
+
+            if(!$templateName) {
+                $templateName = Common::getTmplName();
+            }
+
+            if($templateName === 'edge') {
+                if(!TemplateEdge::isModeDefault()) {
+                    $folderType = '_' . TemplateEdge::getMode();
+                }
+            }
+        }
+
+        return $folderType;
+    }
+
+    static public function isEdgeLmsMode($templateName = null)
+    {
+        if($templateName === null) {
+            $templateName = Common::getTmplName();
+        }
+
+        $isEdgeLmsMode = false;
+        if($templateName === 'edge' && TemplateEdge::isModeLms()) {
+            $isEdgeLmsMode = true;
+        }
+
+        return $isEdgeLmsMode;
+    }
+
+    static public function isImageEditorEnabled($fileExtension = '')
+    {
+        return ($fileExtension !== 'gif' && Common::isOptionActive('image_editor_enabled'));
+    }
+
+    static public function isSiteAdministrator()
+    {
+        return (get_session('admin_auth') == 'Y');
+    }
+
+    static public function generateFileNameHash()
+    {
+        $hashLength = 12;
+        return hash_generate($hashLength);
+    }
+
+    static public function createFileNameWithHash($dir, $file, $hash, $addLastSymbol = '_')
+    {
+        return $dir . '/' . $file . $addLastSymbol . ($hash ? $hash . $addLastSymbol : '');
+    }
+    
     public static function generateUniqueCode($length = 6)
     {
         //$characters = '123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -4867,4 +5834,5 @@ JS;
     }
 
     // End Divyesh - 31-07-2023
+
 }

@@ -1,5 +1,5 @@
 <?php
-/* (C) Websplosion LTD., 2001-2014
+/* (C) Websplosion LLC, 2001-2021
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -400,7 +400,6 @@ class CHtmlMailText extends CUsers
 	}
 	function init()
 	{
-
 		parent::init();
 		global $g;
 		global $g_user;
@@ -520,9 +519,8 @@ class CHtmlMailText extends CUsers
 
 	function onItem(&$html, $row, $i, $last)
 	{
-
 		global $g_user;
-        global $g_info;
+                global $g_info;
 		global $g;
 		global $l;
 
@@ -531,7 +529,9 @@ class CHtmlMailText extends CUsers
 		$row['text'] = strip_tags($row['text']);
         //$this->m_field['subject'][1] = strip_tags($this->m_field['subject'][1]);
         //$this->m_field['text'][1] = strip_tags($this->m_field['text'][1]);
+
 		parent::onItem($html, $row, $i, $last);
+
 		if (!isset($row['country_title'])) $this->m_field['country_title'][1] = '-';
 		if (!isset($row['state_title'])) $this->m_field['state_title'][1] = '-';
 		if (!isset($row['city_title'])) $this->m_field['city_title'][1] = '-';
@@ -548,7 +548,6 @@ class CHtmlMailText extends CUsers
 			global $no_folders;
 			$no_folders = true;
 		} else {
-
 			$html->setvar('text', nl2br(strip_tags($real_text, '<a><br>')));
 			$html->parse('plain', true);
 			$html->parse('top_plain', true);
@@ -563,7 +562,6 @@ class CHtmlMailText extends CUsers
             if ($row['sent_id'] != 0)
                 DB::execute("UPDATE `mail_msg` SET `receiver_read` = 'Y' WHERE id = " . to_sql($row['sent_id'], 'Number'));
         }
-		// echo "=====================";
 
         $sql = "SELECT COUNT(id)
                   FROM `mail_msg`

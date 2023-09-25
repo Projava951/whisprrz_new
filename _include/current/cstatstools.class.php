@@ -1,5 +1,5 @@
 <?php
-/* (C) Websplosion LTD., 2001-2014
+/* (C) Websplosion LLC, 2001-2021
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -87,8 +87,11 @@ class CStatsTools
 
         $columns = self::getSection();
 
-        DB::execute('LOCK TABLES stats WRITE');
-        DB::execute('TRUNCATE TABLE stats');
+        DB::execute('LOCK TABLES stats WRITE, stats_country WRITE');
+		DB::execute('TRUNCATE TABLE stats');
+		DB::execute('TRUNCATE TABLE stats_country');
+
+		$countries = array(229, 230, 74, 81, 107, 179, 14, 40, 22, 31, 100);
 
         $start = 600;
         $i = $start;
@@ -121,11 +124,19 @@ class CStatsTools
                     '$ort',
                     $sql
                 )";
-                DB::execute($query);
+				DB::execute($query);
+
                 #echo $query . '<br>';
             }
+
+			foreach ($countries as $key => $countryId) {
+				$countVisit = rand(1000, 5000);
+				$sql = "INSERT INTO `stats_country` VALUES('{$date}',0,{$countryId},{$countVisit})";
+				DB::execute($sql);
+			}
         }
         DB::execute('UNLOCK TABLES');
+
     }
     static public function count($field, $userId = NULL)
     {
@@ -158,6 +169,25 @@ class CStatsTools
             //echo $query . '<br>';
 
             DB::execute($query);
+
+			if ($field == 'logins') {
+				$infoCity = IP::geoInfoCity();
+
+				if ($userId === NULL) {
+					$countryId = intval(guser('country_id'));
+				} else {
+					$countryId = intval(User::getInfoBasic($userId, 'country_id'));
+				}
+				$orientationRow = '';
+				if ($orientation) {
+					$orientationRow = ",($orientation, '{$date}', '{$countryId}', 1)";
+				}
+				$query = "INSERT INTO `stats_country` (`orientation`, `date`, `country_id`, `count`)
+						  VALUES (0, '{$date}', '{$countryId}', 1)$orientationRow
+					ON DUPLICATE KEY UPDATE `count` = `count` + 1";
+				DB::execute($query);
+
+			}
         }
 
     }
@@ -199,10 +229,10 @@ class CStatsTools
 
     static public function parseChart(&$html, $param = 'logins', $month = null, $year = null)
     {
-        $colors = array('rgba(201, 15, 2, 1)',   'rgba(18, 88, 187, 1)',
-                        'rgba(162, 130, 2, 1)',  'rgba(61, 190, 74, 1)',
-                        'rgba(157, 98, 93, 1)',  'rgba(49, 98, 93, 1)',
-                        'rgba(248, 186, 40, 1)', 'rgba(157, 98, 224, 1)',
+        $colors = array('rgba(201, 15, 2, 1)',  'rgba(157, 98, 224, 1)',
+						'rgba(61, 190, 74, 1)', 'rgba(18, 88, 187, 1)',
+                        'rgba(162, 130, 2, 1)', 'rgba(157, 98, 93, 1)',
+						'rgba(49, 98, 93, 1)', 'rgba(248, 186, 40, 1)',
                         'rgba(48, 88, 26, 1)',   'rgba(48, 88, 115, 1)',
                         'rgba(95, 38, 68, 1)',   'rgba(253, 53, 115, 1)',
                         'rgba(207, 182, 115, 1)','rgba(61, 67, 74, 1)');

@@ -1,5 +1,5 @@
 <?php
-/* (C) Websplosion LTD., 2001-2014
+/* (C) Websplosion LLC, 2001-2021
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -7,20 +7,37 @@ It can be found at http://www.chameleonsocial.com/license.doc
 
 This notice may not be removed from the source code. */
 
-if(get_param("action")=="saved") {
-    $l[$p]['title_current'] = '<div class="thumb_left"><div class="thumb_right"><div class="thumb">' . l('changes_saved') . '</div></div></div>' . l('title_current');
-    $l[$p]['changes_save'] = '<div class="thumb_left"><div class="thumb_right"><div class="thumb">' . l('changes_saved') . '</div></div></div>';
+$isTmplModern = Common::isAdminModer();
+$actionParam = get_param("action");
+
+if($actionParam == "saved" || $actionParam == "changes_send") {
+	if ($isTmplModern) {
+		$msg = l('changes_saved');
+		if ($actionParam == "changes_send") {
+			$msg = l('changes_send');
+		}
+		$l[$p]['changes_save'] = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>' . $msg;
+	} elseif ($actionParam == "saved") {
+		$l[$p]['title_current'] = '<div class="thumb_left"><div class="thumb_right"><div class="thumb">' . l('changes_saved') . '</div></div></div>' . l('title_current');
+		$l[$p]['changes_save'] = '<div class="thumb_left"><div class="thumb_right"><div class="thumb">' . l('changes_saved') . '</div></div></div>';
+	}
 }
 if(get_param("action")=="delete") {
-    $l[$p]['title_current'] = '<div class="thumb_left"><div class="thumb_right"><div class="thumb">' . l('changes_deleted') . '</div></div></div>' . l('title_current');
-    $l[$p]['changes_save'] = '<div class="thumb_left"><div class="thumb_right"><div class="thumb">' . l('changes_deleted') . '</div></div></div>';
+	if ($isTmplModern) {
+		$l[$p]['changes_delete'] = '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>' . l('changes_deleted');
+	} else {
+		$l[$p]['title_current'] = '<div class="thumb_left"><div class="thumb_right"><div class="thumb">' . l('changes_deleted') . '</div></div></div>' . l('title_current');
+		$l[$p]['changes_save'] = '<div class="thumb_left"><div class="thumb_right"><div class="thumb">' . l('changes_deleted') . '</div></div></div>';
+	}
 }
+
 define('ADMINISTRATOR', true);
 
 class CAdminHeader extends CHtmlBlock
 {
 
 	var $message_template = "";
+	static public $linkToMainMenuAdmin = array();
 
     protected $linkToMainMenu = array(
                                     'news' => 'help_topic.php',
@@ -47,37 +64,45 @@ class CAdminHeader extends CHtmlBlock
                                           'hotdates_hotdates',
                                           'partyhouz_partyhouz',
                                           'forum_categories',
-                                          'games',
+			                              'stickers',
                                           'gifts',
                                           'cityrooms',
                                           'albums',
                                           'posting_popup',
 
                                           'popup_pages',
-                                          'groups_social'
-
+                                          'groups_social_videos',
+                                          'groups_social_music',
+										  'groups_social'
                                           );
 
-    protected $notAvailableItems = array('urban' => array('news',
-                                                          'help',
-                                                          'blogs_bloggers',
-                                                          'places_results',
-                                                          'music_musicians',
-                                                          //'flashchat_rooms',
-                                                          '3dchat_rooms',
-                                                         // 'vids_videos',
-                                                          'adv',
-                                                          'groups_groups',
-                                                          'events_events',
-                                                          'hotdates_hotdates',
-                                                          'partyhouz_partyhouz',
-                                                          'forum_categories',
-                                                          'games',
-                                                          'albums',
+    protected $notAvailableItems = array('urban' => array(
+                                                        //   'news', // rade 2023-09-20 delete
+                                                        //   'help', // rade 2023-09-20 delete
+                                                          'pages', // rade 2023-09-20 add
+                                                        //   'places_results', // rade 2023-09-20 delete
+                                                        //   '3dchat_rooms', // rade 2023-09-20 delete
+                                                        //   'adv', // rade 2023-09-20 delete
+                                                        //   'groups_groups', // rade 2023-09-20 delete
+                                                        //   'events_events', // rade 2023-09-20 delete
+                                                        //   'forum_categories', // rade 2023-09-20 delete
+                                                        //   'games', // rade 2023-09-20 delete
+                                                        //   'albums', // rade 2023-09-20 delete
                                                           ),
-                                         'old' => array('gifts', 'pages', 'groups_social'));//,'cityrooms'
+                                         'old' => array('stickers',
+														'gifts',
+                                                        'pages',
+                                                        'groups_social',
+                                                        'groups_social_videos',
+                                                        'groups_social_music',
+                                                        'flashchat_rooms',
+                                                        )
+                                        );
 
-    protected $notAvailableItemsTemplate = array('impact' => array('gifts', 'groups_social'), 'urban' => array('groups_social'), 'edge' => array('gifts'));
+    protected $notAvailableItemsTemplate = array(
+            'impact' => array('stickers', 'gifts', 'groups_social', 'groups_social_videos', 'groups_social_music', 'blogs_bloggers', 'music_musicians'),
+            'urban'  => array('stickers','groups_social', 'groups_social_videos', 'groups_social_music', 'blogs_bloggers', 'music_musicians'),
+            'edge'   => array('gifts', 'flashchat_rooms'));
 
     function setLinkMainMenu(&$html)
 	{
@@ -92,8 +117,10 @@ class CAdminHeader extends CHtmlBlock
             } elseif (isset($this->linkToMainMenuTmpl[$tmplOptionSet][$key])) {
                 $value = $this->linkToMainMenuTmpl[$tmplOptionSet][$key];
             }
+			self::$linkToMainMenuAdmin[$key] = $value;
             $html->setvar("main_menu_link_to_{$key}", $value);
         }
+
     }
 
     function parseItemMenu(&$html, $type = 'secondary')
@@ -133,8 +160,11 @@ class CAdminHeader extends CHtmlBlock
         //city.php = city_logo.php
         $activeMenu = '';
         $adminMenuItems = array('scityrooms' => array('city_rooms.php', 'city_cache.php', 'city_options.php', 'city_video.php', 'city_gallery.php', 'city_whole_world.php', 'city_platform.php', 'city.php'),
-                                'sipblock' => array('ipblock.php', 'ban_users.php', 'users_reports.php', 'users_reports_content.php'),
-                                'sgroupssocial' => array('groups_social.php', 'groups_social_pages.php', 'groups_social_photo.php', 'groups_social_video.php', 'groups_social_reports.php', 'groups_social_reports_content.php'));
+                                'sipblock' => array('ipblock.php', 'ban_users.php', 'users_reports.php', 'users_reports_content.php', 'users_reports_wall_post.php'),
+                                'sgroupssocial' => array('groups_social.php', 'groups_social_edit.php', 'groups_social_pages.php', 'groups_social_photo.php', 'groups_social_video.php', 'groups_social_reports.php', 'groups_social_reports_content.php', 'groups_social_reports_wall_post.php'),
+                                'sgroupssocialvideos' => array('groups_social_vids_groups.php', 'groups_social_vids_videos.php', 'groups_social_vids_groups_comments.php', 'groups_social_vids_groups_videos.php', 'groups_social_vids_comments.php', 'groups_social_vids_video_edit.php'),
+                                'sgroupssocialmusic' => array('groups_social_music_songs.php')
+                          );
         foreach ($adminMenuItems as $key => $pages) {
             if (in_array($p, $pages)) {
                 $activeMenu = $key;
@@ -156,8 +186,20 @@ class CAdminHeader extends CHtmlBlock
         $this->setLinkMainMenu($html);
         $this->parseItemMenu($html);
 
+		if ($html->blockExists('main_menu_compact')) {
+			$html->setvar('header_url_logo_inner', Common::getUrlLogo('logo', 'administration', 'inner', true));
+			$isMenuCompact = intval(get_cookie('admin_menu_main_collapse', true));
+			if ($isMenuCompact) {
+				$html->setvar('main_menu_compact', 1);
+				$html->parse('main_menu_compact', false);
+			}
+		}
+
         $html->setvar('header_favicon', Common::getFaviconSiteHtml());
         $html->setvar('header_url_logo', Common::getUrlLogo('logo', 'administration'));
+		if ($html->varExists('site_title')) {
+			$html->setvar('site_title', $g['main']['title']);
+		}
 
         // All templates 'menu_admin_banner' = 'Y'
         if (Common::isOptionActive('menu_admin_banner', 'template_options')) {
@@ -314,13 +356,23 @@ class CAdminHeader extends CHtmlBlock
 		{
 			$menu = "sfields";
 		}
-        elseif($filename == 'pay_price.php') {
+		elseif($filename == 'pay_price.php') {
             $menu = "spay";
-        } 
-		elseif(in_array($filename, array('partner.php','partner_baners.php','contact_partner.php','partner_main.php','partner_tips.php','partner_faq.php','partner_terms.php')))//nnsscc-diamond-20200508
-		{
-			 $menu = 'saffiliates';
-		}elseif($filename == 'banner.php') {
+        } elseif($filename == 'music_song_edit.php') {
+            $menu = "smusic";
+            $songId = get_param('song_id');
+            if ($songId) {
+                $groupId = DB::result('SELECT `group_id` FROM `music_song` WHERE `song_id` = ' . to_sql($songId, 'Number') . ' LIMIT 1');
+                if ($groupId) {
+                    $menu = "sgroupssocialmusic";
+                }
+            }
+        }
+        // Rade 2023-09-22 add start 
+        elseif(in_array($filename, array('partner.php','partner_baners.php','contact_partner.php','partner_main.php','partner_tips.php','partner_faq.php','partner_terms.php')))//nnsscc-diamond-20200508
+        {
+            $menu = 'saffiliates';
+        }elseif($filename == 'banner.php') {
             $menu = "saddmainbanner";
         }elseif($filename == 'pages_add_banner.php') {
             $menu = "saddbanner";
@@ -340,10 +392,10 @@ class CAdminHeader extends CHtmlBlock
             $menu = "smediaradio";
         }elseif($filename == 'media_podcast.php') {//eric-cuigao-nsc-20201210-end
             $menu = "smediapodcast";
-          }elseif($filename == 'partyhouz_partyhouz.php') {//eric-ECA-73023-830PM-Start
-            $menu = "spartyhouz";
-         }elseif($filename == 'partyhouz_partyhou_comments.php') {
-            $menu = "spartyhouzcomments";
+        }elseif($filename == 'partyhouz_partyhouz.php') {//eric-ECA-73023-830PM-Start
+        $menu = "spartyhouz";
+        }elseif($filename == 'partyhouz_partyhou_comments.php') {
+        $menu = "spartyhouzcomments";
         }elseif($filename == 'partyhouzcategories.php') {
             $menu = "spartyhouz_categories";
         }elseif($filename == 'partyhouz_category_add.php') {//eric-ECA-73023-830PM--end
@@ -357,21 +409,22 @@ class CAdminHeader extends CHtmlBlock
         }elseif($filename == 'autosms.php') {
             $menu = "ssms_auto_mailer";
         }else { // Divyesh - 31072023 - Start
+            // Rade 2023-09-22 add end
             $menu = $this->getActiveMenuItem();
             if (!$menu) {
-			$arr = explode('?', $request);
-			$arr = explode('.', $arr[0]);
+            $arr = explode('?', $request);
+            $arr = explode('.', $arr[0]);
             $arrPage = $arr[0];
-			$arr = explode('_', $arr[0]);
- 			$request = $arr[0];
-			$menu = 's' . $request;
+            $arr = explode('_', $arr[0]);
+            $request = $arr[0];
+            $menu = 's' . $request;
             if($menu == 'sbaner') {
                 $menu = 'sbanner';
             }
             if($arrPage == 'contact_partner') {
                 $menu = 'spartner';
             }
-		}
+        }
 		}
 
 //        look_message_im.php look_message_chat.php look_message_mail.php
@@ -392,10 +445,11 @@ class CAdminHeader extends CHtmlBlock
                 'dt_template' => array('stemplate_main', 'stemplate_mobile', 'stemplate_administration', 'stemplate_partner'),
                 'dt_lang'     => array('slanguage_main', 'slanguage_mobile', 'slanguage_administration', 'slanguage_partner'),
                 'dt_pages'    => array('shelp', 'snews', 'spopup', 'spages'),
-                'dt_users'    => array('susers', 'sfields', 'sautomail', 'smassmail', 'smatchmail', 'scontact', 'sipblock', 'sfakes', 'sgifts', 'smoderator'),
-                'dt_modules'  => array('sblogs', 'splaces', 'smusic', 'sflashchat', 's3dchat', 'svids', 'sadv', 'sgroups', 'sevents', 'spartyhouz', 'shotdates', 'sforum', 'sbanner', //ECA-072923,730pm spartyouz
-                                       'sseo', 'scityrooms', 'sgames', 'salb', 'sgroupssocial'),
-				'dt_advertise'   => array('saddbanner', 'saddmainbanner','saddwevent','saffiliates'),
+                'dt_users'    => array('susers', 'sfields', 'sautomail', 'smassmail', 'smatchmail', 'scontact', 'sipblock', 'sfakes', 'sgifts'),
+                'dt_modules'  => array('spartner', 'sblogs', 'splaces', 'smusic', 'sflashchat', 's3dchat',
+                                       'svids', 'sadv', 'sgroups', 'sevents', 'sforum', 'sbanner', 'spartyhouz','shotdates','sforum', 'sbanner',
+                                       'sseo', 'scityrooms', 'sgames', 'salb', 'sgroupssocial', 'sstickers'),
+				       'dt_advertise'   => array('saddbanner', 'saddmainbanner','saddwevent','saffiliates'),
                 'dt_sms'     => array('scarrier', 'ssms_mass_text','ssms_auto_mailer'), //Divyesh - 31072023
 				'dt_media'  => array('smediaalb', 'smediavids','smediamusic', 'smediaradio','smediapodcast')//eric-cuigao-nsc-20201210
                 //'dt_party' => array('spartyhouz', 'spartyhouzcomments','spartyhouz_categories', 'spartyhouzcategory')//eric-ECA-73023830pm
@@ -418,12 +472,14 @@ class CAdminHeader extends CHtmlBlock
 
 		$html->parse("view", true);
 
-        if($filename == 'banner.php'
+		$isTmplModern = Common::isAdminModer();
+		$isAllowCheckPage = $filename == 'banner.php'
            || $filename == 'banner_add.php'
            || $filename == 'banner_edit.php'
            || $filename == 'seo.php'
-           || in_array($filename, array('template.php', 'template_edit.php', 'template_settings.php'))
-        ) {
+           || in_array($filename, array('template.php', 'template_edit.php', 'template_settings.php'));
+
+        if($isAllowCheckPage || $isTmplModern) {
             $template = array();
             $main = countFrameworks('main');
             $admin = countFrameworks('administration');
@@ -448,7 +504,9 @@ class CAdminHeader extends CHtmlBlock
                 $html->parse('template_mobile', false);
             }
 
-            if ($filename != 'banner.php'
+			$isCheckModern = $isAllowCheckPage && $isTmplModern;
+            if ($isCheckModern
+					&& $filename != 'banner.php'
                     && $filename != 'banner_add.php'
                     && $filename != 'banner_edit.php'
                     && $filename != 'seo.php') {
@@ -461,6 +519,7 @@ class CAdminHeader extends CHtmlBlock
                 }
             }
         }
+
         Common::devCustomJs($html);
         if (!Common::isMultisite()) {
             $html->parse('menu_template');
@@ -488,12 +547,17 @@ class CAdminHeader extends CHtmlBlock
                 $html->parse('auth_menu', true);
                 $html->parse('menu_script_auth', true);
             } else {
+				$html->parse('content_full_width', true);
                 $html->setvar('replier_name', get_session("replier_name"));
                 $html->parse('replier_auth', true);
             }
+
+			/* Modern */
+			$html->parse('header_admin', true);
+			/* Modern */
 		} else {
-                $html->parse('auth_menu', true);
-                $html->parse('menu_script_auth', true);
+			$html->parse('auth_menu', true);
+			$html->parse('menu_script_auth', true);
         }
 
 
@@ -505,6 +569,26 @@ class CAdminHeader extends CHtmlBlock
 
 class CAdminFooter extends CAdminHeader
 {
+	function parseBlock(&$html)
+	{
+		/* Modern */
+		if(get_session('admin_auth') == 'Y' || get_session('replier_auth') == 'Y') {
+
+			if (Common::isMultisite()) {
+                $html->parse('support_multisate');
+            } else {
+                $html->parse('support_no_multisate');
+            }
+
+			$year = strftime('%Y');
+			$html->setvar('year', $year);
+
+			$html->parse('footer_admin', true);
+		}
+		/* Modern */
+
+		parent::parseBlock($html);
+	}
 }
 
 class CAdminConfig extends CHtmlBlock {
@@ -546,6 +630,10 @@ class CAdminConfig extends CHtmlBlock {
             'gps_enabled', 'watch_geo_position_time', 'geo_position_max_age',
             'audio_greeting',
             'im_audio_messages',
+			'audio_comment',
+            'app_vibration_duration',
+            'type_media_chat',
+			'face_input_size', 'face_score_threshold', 'in_app_purchase_enabled',
         ),
         'old' => array(//General website's settings
                        'minimum_match_percent_on_graphs',
@@ -602,7 +690,25 @@ class CAdminConfig extends CHtmlBlock {
                        'use_only_admob_in_apps',
                        'audio_greeting',
                        'im_audio_messages',
-                       'auto_ban_messages_min_length'
+					   'audio_comment',
+                       'auto_ban_messages_min_length',
+                       'live_streaming', // rade 2023-09-20 add
+                       'live_streaming_auto_connect', // rade 2023-09-20 add
+
+                        'recorder',
+                        'videochat',
+                        'audiochat',
+                        'postcard',
+                        'games',
+                        'flashchat',
+                        'mode_profile',
+                        'allow_users_profile_mode',
+                        'in_app_purchase_enabled',
+						'face_input_size', 'face_score_threshold',
+
+                        'main_page_header_text_color',
+                        'main_page_header_button_border_color',
+                        'main_page_title_shadow_color',
         ),
     );
 
@@ -610,9 +716,12 @@ class CAdminConfig extends CHtmlBlock {
         'edge' => array(
             'favorite_add',
             'audio_greeting',
-            'im_audio_messages',
-            'wall_like_comment_alert'
-        ),
+            'im_audio_messages', //'audio_comment',
+            'music_mp3_file_size_limit_mbs',
+            'live_streaming',
+            'live_streaming_auto_connect',
+			//'face_input_size', 'face_score_threshold'
+        )
     );
 
 	private $notAvailableOptionTemplate = array(
@@ -647,7 +756,9 @@ class CAdminConfig extends CHtmlBlock {
             'message_notifications_lifetime', 'message_notifications_position','message_notifications_active', 'message_notifications_not_show_when_3d_city',
             'facebook_url', 'google_plus_url', 'linkedin_url', 'twitter_url', 'vk_url',
             'hide_profile_data_for_guests_urban',
-            'hide_site_from_guests'
+            'hide_site_from_guests',
+            'wall_like_comment_alert',
+            'wall_join_message_enabled',
         ),
         'urban' => array(
             'join_impact', 'join_number_photo_likes', 'join_with_photo_only', 'minimum_match_percent_on_graphs',
@@ -658,7 +769,10 @@ class CAdminConfig extends CHtmlBlock {
             'main_page_header_background_color_upper_stop', 'main_page_header_background_color_lower',
             'main_page_header_background_color_lower_stop',
             'hide_im_on_page_city',
-            'facebook_url', 'google_plus_url', 'linkedin_url', 'twitter_url', 'vk_url'
+            'facebook_url', 'google_plus_url', 'linkedin_url', 'twitter_url', 'vk_url',
+            'main_page_header_text_color',
+            'main_page_header_button_border_color',
+            'main_page_title_shadow_color',
         ),
         'edge' => array(
             //General website's settings
@@ -704,7 +818,11 @@ class CAdminConfig extends CHtmlBlock {
             'map_on_main_page_urban', 'image_main_page_urban', 'image_main_page_compression_ratio_urban', 'upload_image_main_page_urban', 'background_color_urban',
             'upload_limit_photo_count',
             'videogallery', 'mobile_enabled', 'hide_profile_data_for_guests_urban',
-            'profile_verification_enabled', 'in_app_purchase_enabled',
+	     'profile_verification_enabled', 'in_app_purchase_enabled',
+            'in_app_purchase_enabled', 'join_with_photo_only',
+            'main_page_header_text_color',
+            'main_page_header_button_border_color',
+            'main_page_title_shadow_color',
         )
     );
 
@@ -730,17 +848,17 @@ class CAdminConfig extends CHtmlBlock {
         'old' => array('super_powers_date_format', 'im_datetime', 'im_mobile_datetime_today', 'im_mobile_datetime_this_month',
                        'im_mobile_datetime', 'gift_date', 'general_chat',
                        'profile_birth_edge', 'profile_birth_full_edge', 'list_blogs_info_plain_edge', 'photo_date',
-                       'group_create_full', 'task_date')
+                       'group_create_full', 'task_time')
     );
 
     private $notAvailableDateFormatsTemplate = array(
         'urban' => array(
             'profile_birth_edge', 'profile_birth_full_edge',
-            'list_blogs_info_plain_edge', 'photo_date', 'group_create_full', 'task_date'
+            'list_blogs_info_plain_edge', 'photo_date', 'group_create_full', 'task_time'
         ),
         'impact' => array(
             'profile_birth_edge', 'profile_birth_full_edge',
-            'list_blogs_info_plain_edge', 'photo_date', 'gift_date', 'group_create_full', 'task_date'
+            'list_blogs_info_plain_edge', 'photo_date', 'gift_date', 'group_create_full', 'task_time'
         ),
         'edge' => array(
             'general_chat', 'gift_date', 'photo_comment_date', 'super_powers_date_format'
@@ -761,13 +879,22 @@ class CAdminConfig extends CHtmlBlock {
             $tmplOptionSet = 'old';
         }
         if ($this->isOptionsTemplate()) {
+
+            if($tmplOptionName === 'edge') {
+                if(TemplateEdge::isModeLms()) {
+                    unset($config['main_page_image']);
+                } else {
+                    unset($config['main_page_image_mode_lms']);
+                }
+            }
+
             return;
         }
 
         if(Common::getAppIosApiVersion() < 48) {
             if(isset($this->allowAvailableOptionTemplate[$tmplOptionName])) {
 
-                $iosAppFeatures = array('audio_greeting', 'im_audio_messages');
+                $iosAppFeatures = array('audio_greeting', 'im_audio_messages', 'audio_comment');
 
                 foreach($iosAppFeatures as $iosAppFeature) {
                     $iosAppFeatureKey = array_search($iosAppFeature, $this->allowAvailableOptionTemplate[$tmplOptionName]);
@@ -905,6 +1032,10 @@ class CAdminConfig extends CHtmlBlock {
                             $im->loadImage($_FILES[$uploadBg]['tmp_name']);
                             $im->saveImage($fileParams['file'], $fileParams['ratio']);
                             Common::saveFileSize($fileParams['file']);
+
+							if (get_param_int('image_upload_data')) {
+								@unlink($_FILES[$uploadBg]['tmp_name']);
+							}
                             unset($im);
                             $options[$setOptions] = $fileParams['name'];
                         } else {
@@ -926,7 +1057,7 @@ class CAdminConfig extends CHtmlBlock {
                                 $isVideoCodeError = true;
                             } else {
                                 $code = array($urlBgVideoCode[1],1);
-                                $url='http://www.youtube.com/oembed?url=youtu.be/' . $urlBgVideoCode[1];
+                                $url='https://www.youtube.com/oembed?url=youtu.be/' . $urlBgVideoCode[1];
                                 $oembed_text=@urlGetContents($url);
                                 if ($oembed_data=json_decode($oembed_text, true)) {
                                     $ratio = 1.778;
@@ -1025,6 +1156,9 @@ class CAdminConfig extends CHtmlBlock {
                         move_uploaded_file($_FILES[$uploadBg]['tmp_name'], $fileSrc);
                         Common::saveFileSize(array($file, $fileSrc));
                         unset($im);
+						if (get_param_int('image_upload_data')) {
+							@unlink($_FILES[$uploadBg]['tmp_name']);
+						}
                         $options['website_background_oryx'] = $name;
                     } else {
                         $errors[] = $error;
@@ -1110,6 +1244,10 @@ class CAdminConfig extends CHtmlBlock {
                         Common::saveFileSize($fileParams['file']);
                         unset($im);
                         $options[$setOptions] = $fileParams['name'];
+
+						if (get_param_int('image_upload_data')) {
+							@unlink($_FILES[$uploadBg]['tmp_name']);
+						}
                     } else {
                         $errors[] = $error;
                     }
@@ -1141,16 +1279,24 @@ class CAdminConfig extends CHtmlBlock {
             if (in_array($this->module, $modules) && isset($optionsUpload[$this->module])) {
                 foreach ($optionsUpload[$this->module] as $key => $param) {
                     $uploadFile = "{$key}_upload";
-                    if (isset($options[$key]) && isset($_FILES[$uploadFile])) {
+
+                    $setOptions = $key;
+                    if($key === 'main_page_image') {
+                        $setOptions = $key . Common::templateFilesFolderType($this->name);
+                    }
+
+                    if (isset($options[$setOptions])
+							&& (isset($_FILES[$uploadFile]) || Common::uploadDataImageFromSetData(null, $uploadFile))) {
                         $minWidth = $param[0];
                         $minHeight = $param[1];
                         $numError = $param[2];
                         $error = validUploadFileImage($uploadFile, $numError, $minWidth, $minHeight);
+
                         if ($error == '') {
-                            $setOptions = $key;
-                            $addPrfFile = '_main_page_image_';
+                            $templateFilesFolderType = Common::templateFilesFolderType($this->name);
+                            $addPrfFile = '_main_page_image' . $templateFilesFolderType . '_';
                             $compresion = "{$key}_compression_ratio";
-                            $fileParams = getParamsFile('main_page_image', $addPrfFile, $setOptions, $compresion, 'jpg', $param[3], $this->module);
+                            $fileParams = getParamsFile('main_page_image' . $templateFilesFolderType, $addPrfFile, $setOptions, $compresion, 'jpg', $param[3], $this->module);
                             $ratio = $fileParams['ratio'];
                             if (isset($options[$compresion])) {
                                 $ratio = $options[$compresion];
@@ -1161,6 +1307,10 @@ class CAdminConfig extends CHtmlBlock {
                             Common::saveFileSize($fileParams['file']);
                             unset($im);
                             $options[$setOptions] = $fileParams['name'];
+
+							if (get_param_int('image_upload_data')) {
+								@unlink($_FILES[$uploadFile]['tmp_name']);
+							}
                         } else {
                             $errors[] = $error;
                         }
@@ -1185,7 +1335,7 @@ class CAdminConfig extends CHtmlBlock {
                             $isVideoCodeError = true;
                         } else {
                             $code = array($urlBgVideoCode[1],1);
-                            $url='http://www.youtube.com/oembed?url=youtu.be/' . $urlBgVideoCode[1];
+                            $url='https://www.youtube.com/oembed?url=youtu.be/' . $urlBgVideoCode[1];
                             $oembed_text=@urlGetContents($url);
                             if ($oembed_data=json_decode($oembed_text, true)) {
                                 $ratio = 1.778;
@@ -1264,7 +1414,7 @@ class CAdminConfig extends CHtmlBlock {
             $errors = array_diff($errors, array('', 4));
             $error = '';
             if (!empty($errors)) {
-                $error = '&error=' . implode($errors, '_');
+                $error = '&error=' . implode('_', $errors);
             }
             if(empty($options['admin_password'])) {
                 unset($options['admin_password']);
@@ -1316,10 +1466,17 @@ class CAdminConfig extends CHtmlBlock {
             }
         }
 
-        if ($this->module == 'image' && Common::isMultisite()) {
-            $notAvailable = array('quality_orig','big_x','big_y','medium_x',
-                                  'medium_y','small_x','small_y','root_x','root_y',
-                                  'gallery_width','gallery_height','affiliates_banner_width','affiliates_banner_height');
+        if ($this->module == 'image') {
+            $notAvailable = array();
+            if (Common::isMultisite()) {
+                $notAvailable = array('quality_orig','big_x','big_y','medium_x',
+                                      'medium_y','small_x','small_y','root_x','root_y',
+                                      'gallery_width','gallery_height',
+                                      'affiliates_banner_width','affiliates_banner_height');
+            } elseif($this->set !== NULL && $this->name != 'edge'){
+                $notAvailable = array('blog_middle_x', 'blog_middle_y', 'blog_big_x', 'blog_big_y');
+            }
+
             foreach ($notAvailable as $value) {
                 unset($config[$value]);
             }
@@ -1597,8 +1754,12 @@ class CAdminConfig extends CHtmlBlock {
             }
 
             if($row['type'] != 'section' && $row['type'] != 'label') {
-                $keyTitle = 'field_' . $key;
 
+                if($key === 'main_page_image_mode_lms') {
+                    $key = 'main_page_image';
+                }
+
+                $keyTitle = 'field_' . $key;
                 $titleField = lCascade(l($keyTitle), array($keyTitle . '_' . $optionTmplName));
                 $html->setvar('label', $titleField);
                 if ($row['option'] == 'users_on_main_page_map_and_mobile'){
@@ -1678,6 +1839,20 @@ class CAdminConfig extends CHtmlBlock {
                 } elseif($row['options'] == 'special_field:background_video_volume') {
                     for ($i = 0; $i <= 10; $i++) {
                         $optionsArray[$i*10] = $i*10;
+                    }
+				} elseif($row['options'] == 'special_field:face_input_size') {
+					$optionsArray = array(
+						128 => 128,
+						160 => 160,
+						224 => 224,
+						320 => 320,
+						416 => 416,
+						512 => 512,
+						608 => 608
+					);
+				} elseif($row['options'] == 'special_field:face_score_threshold') {
+					for ($i = 1; $i <= 9; $i++) {
+                        $optionsArray[$i] = $i/10;
                     }
                 } elseif($row['options'] == 'special_field:notifications_position') {
                     $optionsArray = array(
@@ -1817,8 +1992,8 @@ class CAdminConfig extends CHtmlBlock {
                         $extension = 'jpg';
                         $isMobileTemplateFile = true;
                     } elseif ($row['module'] == "{$optionTmplName}_color_scheme_visitor"
-                                && $row['option'] == 'main_page_image') {
-                        $dir = Common::getOption('dir_tmpl_main', 'tmpl') . 'images/main_page_image';
+                                && ($row['option'] == 'main_page_image' || $row['option'] == 'main_page_image_mode_lms')) {
+                        $dir = Common::getOption('dir_tmpl_main', 'tmpl') . 'images/' . $row['option'];
                         $default = Common::getOption('main_page_image', 'template_options');
                         $addTitle = l('image');
                         $addTmpl = '_main_page_image_';
@@ -1899,8 +2074,12 @@ class CAdminConfig extends CHtmlBlock {
                                                         'list_groups_number_row',
                                                         'list_pages_number_row',
                                                         'list_videos_number_row',
-                                                        'list_photos_number_row'))) {
-                    if ($row['option'] == 'list_people_number_row' || $row['option'] == 'list_photos_number_row') {
+                                                        'list_photos_number_row',
+                                                        'list_blog_my_posts_number_row',
+                                                        'list_blog_someones_posts_number_row',
+                                                        'list_live_number_row'))) {
+                    if ($row['option'] == 'list_people_number_row'
+                            || $row['option'] == 'list_photos_number_row') {
                         $optionsArray = array(
                             0 => 2,
                             4 => 3,
@@ -1908,6 +2087,8 @@ class CAdminConfig extends CHtmlBlock {
                             2 => 6
                         );
                     } elseif ($row['option'] == 'list_blog_posts_number_row'
+                           || $row['option'] == 'list_blog_my_posts_number_row'
+                           || $row['option'] == 'list_blog_someones_posts_number_row'
                            || $row['option'] == 'list_groups_number_row'
                            || $row['option'] == 'list_pages_number_row') {
                         $optionsArray = array(
@@ -1915,16 +2096,18 @@ class CAdminConfig extends CHtmlBlock {
                             4 => 3,
                             3 => 4
                         );
-                    } elseif ($row['option'] == 'list_videos_number_row') {
+                    } elseif ($row['option'] == 'list_videos_number_row' || $row['option'] == 'list_live_number_row') {
                         $optionsArray = array(
                             0 => 2,
                             4 => 3,
                             //3 => 4
                         );
                     }
-                } elseif ($row['option'] == 'list_blog_posts_type_order') {
-                    include('../_include/current/blogs/tools.php');
-                    $optionsArray = CBlogsTools::getTypeOrderList($row['module'] == 'edge_general_settings');
+                } elseif (in_array($row['option'], array('list_blog_posts_type_order', 'blogs_list_1_type_order',
+                                                         'blogs_list_2_type_order', 'list_blog_my_posts_type_order',
+                                                         'list_blog_someones_posts_type_order'))) {
+                    $noRandom = $row['module'] == 'edge_general_settings' || $row['module'] == 'edge_member_settings' || $row['module'] == 'edge_blogs_settings';
+                    $optionsArray = Blogs::getTypeOrderList($noRandom);
                 } elseif ($row['option'] == 'list_groups_type_order' ||$row['option'] == 'list_pages_type_order' ) {
                     $optionsArray = GroupsList::getTypeOrderList($row['module'] == 'edge_general_settings');
                 } elseif (in_array($row['option'], array('list_videos_type_order', 'videos_list_1_type_order', 'videos_list_2_type_order'))) {
@@ -1935,6 +2118,13 @@ class CAdminConfig extends CHtmlBlock {
                     $noRandom = in_array($row['option'], array('photos_list_1_type_order', 'photos_list_2_type_order'))
                                 || $row['module'] == 'edge_general_settings';
                     $optionsArray = CProfilePhoto::getTypeOrderPhotosList($noRandom);
+                } elseif ($row['option'] == 'list_live_type_order') {
+                    $noRandom = $row['module'] == 'edge_general_settings';
+                    $optionsArray = LiveStreaming::getTypeOrderList($noRandom);
+                } elseif (in_array($row['option'], array('list_songs_type_order', 'songs_list_1_type_order', 'songs_list_2_type_order'))) {
+                    $noRandom = in_array($row['option'], array('songs_list_1_type_order', 'songs_list_2_type_order'))
+                                || $row['module'] == 'edge_general_settings';
+                    $optionsArray = Songs::getTypeOrderList($noRandom);
                 } else {
                     $optionsValues = explode('|', $row['options']);
                     $optionsArray = array();
@@ -1963,6 +2153,51 @@ class CAdminConfig extends CHtmlBlock {
                     $html->setblockvar('item_background_preview_js', '');
                 } else {
                     $html->setvar('item_background_img_current', $row['value']);
+
+					if (Common::isAdminModer()) {//Carousel
+						global $g;
+
+						$fileTmplUrl = "{$g['path']['url_tmpl']}main/edge/images/" . $row['option'] . "/";
+						$fileUserPart = Common::getOption('url_files', 'path') . 'tmpl/edge';
+						$i = 0;
+						$blockPreview = 'item_background_preview';
+
+                        $html->clean("{$blockPreview}_img");
+                        $html->clean("{$blockPreview}_li");
+
+						foreach ($optionsArray as $file => $name) {
+							$value = $file;
+							if ($file == 'no_image') {
+								$fileUrl = "{$g['path']['url_tmpl']}main/edge/images/no_image.jpg";
+							} else {
+								$fileUrl = "{$fileTmplUrl}{$file}";
+							}
+							if (!file_exists($fileUrl)) {
+								$fileUrl = false;
+								$fileUser = "{$fileUserPart}_{$row['option']}_{$file}";
+								if (file_exists($fileUser)) {
+									$fileUrl = $fileUser;
+								}
+							}
+							if ($fileUrl) {
+								$html->setvar("{$blockPreview}_value", $value);
+								if ($row['value'] == $value) {
+									$html->parse("{$blockPreview}_img_active", false);
+									$html->parse("{$blockPreview}_li_active", false);
+								}
+								$html->setvar("{$blockPreview}_li", $i);
+								$html->parse("{$blockPreview}_li", true);
+
+								$html->setvar("{$blockPreview}_img", $fileUrl);
+								$html->parse("{$blockPreview}_img", true);
+
+								$html->clean("{$blockPreview}_img_active");
+								$html->clean("{$blockPreview}_li_active");
+								$i++;
+							}
+						}
+					}
+
                     $html->parse('item_background_preview_js', false);
                 }
 
@@ -2050,6 +2285,11 @@ class CAdminConfig extends CHtmlBlock {
                     $html->setvar('item_' . $field . '_max_length', Common::getOption('paid_days_length'));
                     $html->parse('item_' . $field . '_max_length', false);
                 }
+
+                if($field == 'color') {
+                    $html->subcond(strpos($row['options'], 'allow_empty') !== false, 'item_' . $field . '_allow_empty');
+                }
+
                 $html->parse('item_' . $field, false);
             }
 
@@ -2282,33 +2522,34 @@ function unsetDisabledStats($columns)
     $optionName = Common::getOption('name', 'template_options');
     $columns = array_flip($columns);
     if($optionSet == 'urban'){
-        unset($columns['new_blogs']);
-        unset($columns['events_created']);
-        unset($columns['hotdates_created']);
-         unset($columns['partyhouz_created']);
-        unset($columns['new_forum_posts']);
-        unset($columns['groups_created']);
-        unset($columns['ads_published']);
-        unset($columns['replies_to_ads']);
-        unset($columns['mp3_uploaded']);
-        unset($columns['games_started']);
-        unset($columns['added_to_favourites']);
-        unset($columns['blog_search_used']);
-        unset($columns['mail_messages_sent']);
-        unset($columns['postcards_sent']);
-        unset($columns['3d_chat_opened']);
-        unset($columns['hot_or_not_votes']);
-        unset($columns['im_started']);
-        if ($optionName == 'impact') {
-            unset($columns['gifts_sent']);
-            unset($columns['winks_sent']);
-        } elseif ($optionName == 'edge') {
-            unset($columns['gifts_sent']);
-            unset($columns['winks_sent']);
-            unset($columns['pics_uploaded']);
-            unset($columns['gold_memberships']);
-            unset($columns['flash_chat_opened']);
-        }
+        // rade 2023-09-20 delete start
+        // unset($columns['new_blogs']);
+        // unset($columns['events_created']);
+        // unset($columns['new_forum_posts']);
+        // unset($columns['groups_created']);
+        // unset($columns['ads_published']);
+        // unset($columns['replies_to_ads']);
+        // unset($columns['mp3_uploaded']);
+        // unset($columns['games_started']);
+        // unset($columns['added_to_favourites']);
+        // unset($columns['blog_search_used']);
+        // unset($columns['mail_messages_sent']);
+        // unset($columns['postcards_sent']);
+        // unset($columns['3d_chat_opened']);
+        // unset($columns['hot_or_not_votes']);
+        // unset($columns['im_started']);
+        // unset($columns['pics_uploaded']);
+        // if ($optionName == 'impact') {
+        //     unset($columns['gifts_sent']);
+        //     unset($columns['winks_sent']);
+        // } elseif ($optionName == 'edge') {
+        //     unset($columns['gifts_sent']);
+        //     unset($columns['winks_sent']);
+        //     unset($columns['flash_chat_opened']);
+        // }
+        // rade 2023-09-20 delete end
+
+        unset($columns['gifts_sent']); // rade 2023-09-20 add
     } else {
         unset($columns['gifts_sent']);
     }
@@ -2347,6 +2588,7 @@ class CAdminOptions extends CHtmlBlock {
                            'logo_mobile_inner' => 0,
                            'logo_affiliates' => 1,
                            'logo_admin' => 1,
+						   'logo_admin_inner' => 0,
                            'logo_mail' => 1);
 
     private $logoPart = array('favicon' => '',
@@ -2359,6 +2601,7 @@ class CAdminOptions extends CHtmlBlock {
                               'logo_mobile_inner' => 'mobile',
                               'logo_affiliates' => 'partner',
                               'logo_admin' => 'administration',
+							  'logo_admin_inner' => 'administration',
                               'logo_mail' => 'mail');
 
     function setBlock($block)
@@ -2401,13 +2644,15 @@ class CAdminOptions extends CHtmlBlock {
         $this->part = '';
         $this->partCustom = '';
         $sfx = ($g['multisite'] != '') ? '_joomph' : '';
-
+        $templateFilesFolderType = Common::templateFilesFolderType(Common::getOption('name', 'template_options'));
 
         if (in_array($block, array('logo', 'logo_footer', 'logo_inner'))) {
             $this->part = 'main';
         } elseif (in_array($block, array('logo_mobile', 'logo_mobile_inner'))) {
             $this->part = 'mobile';
         }
+
+		$isModern = Common::isAdminModer();
 
         if ($this->part) {
             $templateOptions = loadTemplateSettings($this->part, Common::getOption($this->part, 'tmpl'));
@@ -2437,7 +2682,8 @@ class CAdminOptions extends CHtmlBlock {
 
             case 'logo':
                 //$this->part = 'main';
-                $this->logo = 'logo' . $sfx;
+                $this->logo = 'logo' . $templateFilesFolderType . $sfx;
+                $this->particle = trim($templateFilesFolderType, '_');
                 $this->dirTmpl = 'dir_tmpl_main';
                 $this->urlTmpl = 'url_tmpl_main';
                 $this->newWidth = Common::getOption('logo_w', 'template_options');
@@ -2446,20 +2692,20 @@ class CAdminOptions extends CHtmlBlock {
 
             case 'logo_footer':
                 //$this->part = 'main';
-                $this->logo = 'logo_footer' . $sfx;
+                $this->logo = 'logo_footer' . $templateFilesFolderType . $sfx;
                 $this->dirTmpl = 'dir_tmpl_main';
                 $this->urlTmpl = 'url_tmpl_main';
-                $this->particle = 'footer';
+                $this->particle = 'footer' . $templateFilesFolderType;
                 $this->newWidth = Common::getOption('logo_footer_w', 'template_options');
                 $this->newHeight = Common::getOption('logo_footer_h', 'template_options');
                 break;
 
             case 'logo_inner':
                 //$this->part = 'main';
-                $this->logo = 'logo_inner' . $sfx;
+                $this->logo = 'logo_inner' . $templateFilesFolderType . $sfx;
                 $this->dirTmpl = 'dir_tmpl_main';
                 $this->urlTmpl = 'url_tmpl_main';
-                $this->particle = 'inner';
+                $this->particle = 'inner' . $templateFilesFolderType;
                 $this->newWidth = Common::getOption('logo_inner_w', 'template_options');
                 $this->newHeight = Common::getOption('logo_inner_h', 'template_options');
                 break;
@@ -2513,8 +2759,21 @@ class CAdminOptions extends CHtmlBlock {
                 $this->dirTmpl = 'dir_tmpl_administration';
                 $this->urlTmpl = 'url_tmpl_administration';
                 $this->patchDir = array('images');
-                $this->newWidth = 202;
-                $this->newHeight = 43;
+                $this->newWidth = $isModern ? 160 : 202;
+                $this->newHeight = $isModern ? 26 : 43;
+
+                break;
+
+			case 'logo_admin_inner':
+                $this->part = 'administration';
+                $this->logo = 'logo_inner' . $sfx;
+                $this->dirTmpl = 'dir_tmpl_administration';
+                $this->urlTmpl = 'url_tmpl_administration';
+				$this->particle = 'inner';
+                $this->patchDir = array('images');
+                $this->newWidth = 36;
+                $this->newHeight = 20;
+
                 break;
 
             case 'logo_mail':
@@ -2715,6 +2974,23 @@ class CAdminOptions extends CHtmlBlock {
         $response['status'] = 1;
         $response['url'] = '';
 
+		$fileImageData = false;
+		if (!$flagDelete){
+			$fileTemp = $g['path']['dir_files'] . 'temp/admin_upload_' . $block . time();
+			$fileImageData = Common::uploadDataImage($fileTemp, 'logo_data');
+			if ($fileImageData) {
+				$_FILES['logo']['name'] = pathinfo($fileImageData, PATHINFO_BASENAME);
+				$_FILES['logo']['tmp_name'] = $fileImageData;
+				$_FILES['logo']['error'] = 0;
+				$_FILES['logo']['type'] = '';
+				$fileImageDataInfo = @getimagesize($fileImageData);
+				if(isset($fileImageDataInfo['mime'])) {
+					$_FILES['logo']['type'] = $fileImageDataInfo['mime'];
+				}
+				$_FILES['logo']['size'] = filesize($fileImageData);
+			}
+		}
+
         if ($filename
             && isset($_FILES['logo'])
             && $_FILES['logo']['error'] == 0
@@ -2743,8 +3019,8 @@ class CAdminOptions extends CHtmlBlock {
                             $response['width'] = $width;
                             $response['height'] = $height;
                             $svg = SVGDocument::getInstance($_FILES['logo']['tmp_name']);
-                            $svgWidth = $svg->getWidth();
-                            $svgHeight = $svg->getHeight();
+                            $svgWidth = intval($svg->getWidth());
+                            $svgHeight = intval($svg->getHeight());
 
                             $dW = $svgWidth/$width;
                             $widthNew = round($svgWidth/$dW);
@@ -2787,7 +3063,7 @@ class CAdminOptions extends CHtmlBlock {
                     //if (file_exists($filename)) unlink($filename);
 
                     $save = true;
-                    if($flagDelete){
+                    if($flagDelete || $fileImageData){
                         $image = new uploadImage($_FILES['logo']['tmp_name']);
                     } else {
                         $image = new uploadImage($_FILES['logo']);
@@ -2879,6 +3155,11 @@ class CAdminOptions extends CHtmlBlock {
                         }
                         unset($image);
                     }
+
+					if($fileImageData){
+						@unlink($fileImageData);
+					}
+
                     if ($error) {
                         $response['status'] = 0;
                         $response['msg'] = $error;
@@ -3070,6 +3351,9 @@ class CAdminOptions extends CHtmlBlock {
     function parseBlock(&$html)
     {
         global $g;
+		global $p;
+		global $sitePart;
+
 		if ($this->isCustomLogo) {
 			$customLogo = array('logo_inner' => 'Y', 'logo_footer' => 'Y',
                                 'logo_mobile' => 'N', 'logo_mobile_inner' => 'Y',
@@ -3086,7 +3370,12 @@ class CAdminOptions extends CHtmlBlock {
                     }
 				}
 			}
+
+			if ($sitePart == 'administration' && Common::isAdminModer() && $p == 'options.php') {
+				$this->block['logo_admin_inner'] = 1;
+			}
 		}
+
         //$this->logoPart[$type]
         $this->parseBlockAll($html);
 
@@ -3105,7 +3394,17 @@ class CAdminPageMenu extends CHtmlBlock {
 
     function __construct($name = 'menu_page', $path = null)
     {
-        $this->setActive(Common::page());
+		$pageActive = Common::page();
+		if ($pageActive == 'partner_edit.php') {
+			$pageActive = 'partner.php';
+		} elseif ($pageActive == 'flashchat_edit.php') {
+			$pageActive = 'flashchat_rooms.php';
+		} elseif ($pageActive == '3dchat_edit.php' && get_param('action') == 'edit_room') {
+			$pageActive = '3dchat_rooms.php';
+		} elseif ($pageActive == 'vids_category_edit.php' && get_param_int('category_id')) {
+			$pageActive = 'vids_categories.php';
+		}
+        $this->setActive($pageActive);
         if($path === null) {
             $path = Common::getOption('tmpl_loaded_dir', 'tmpl') . '_menu_page.html';
         }
@@ -3144,12 +3443,30 @@ class CAdminPageMenu extends CHtmlBlock {
         }
 
         foreach($this->items as $itemPage => $itemTitle) {
+
+			$params = '';
+			$icon = '';
+			if (is_array($itemTitle)) {
+				$item = $itemTitle;
+				$itemTitle = $itemTitle['title'];
+				if (isset($item['params'])) {
+					$params = $item['params'];
+				}
+				if (isset($item['icon'])) {
+					$icon = $item['icon'];
+				}
+			}
+
             $itemClass = '';
             if($this->active == $itemPage) {
                 $itemClass = 'active';
             }
+			$itemPage .= $params;
+
             $html->setvar('item_class', $itemClass);
+			$html->setvar('item_icon', $icon);
             $html->setvar('item_page', $itemPage);
+			$html->setvar('item_alias', $itemTitle);
             $html->setvar('item_title', l($itemTitle));
             $html->parse('item');
         }
@@ -3159,21 +3476,28 @@ class CAdminPageMenu extends CHtmlBlock {
 
 }
 
+class CAdminPageMenuEvents extends CAdminPageMenu {
+    protected $items = array(
+		'events_events.php'			=> array('title' => 'menu_events', 'icon' => '<i class="fa fa-file-text" aria-hidden="true"></i>'),
+		'events_event_comments.php'	=> array('title' => 'menu_event_comments', 'icon' => '<i class="fa fa-commenting" aria-hidden="true"></i>'),
+		'events_categories.php'		=> array('title' => 'menu_categories', 'icon' => '<i class="fa fa-th-list" aria-hidden="true"></i>'),
+		'events_category_add.php'	=> array('title' => 'menu_categories_add', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>')
+    );
+}
+
 class CAdminPageMenuUsersFields extends CAdminPageMenu {
 
     protected $items = array(
-        'users_fields.php' => 'menu_profile_fields',
-        'users_fields_add.php' => 'menu_table_add',
-        'users_fields_countries.php' => 'menu_countries',
-        'users_fields_states.php' => 'menu_states',
-        'users_fields_cities.php' => 'menu_cities',
-        'users_fields_interests.php' => 'menu_fields_interests',
-        'users_fields_add_nickname.php' => 'menu_fields_nickname_add',
-
+		'users_fields.php'			 => array('title' => 'menu_profile_fields', 'icon' => '<i class="fa fa-list-ul" aria-hidden="true"></i>'),
+		'users_fields_add.php'		 => array('title' => 'menu_table_add', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>'),
+		'users_fields_countries.php' => array('title' => 'menu_countries', 'icon' => '<i class="icon-globe"></i>'),
+		'users_fields_states.php'	 => array('title' => 'menu_states', 'icon' => '<i class="icon-globe"></i>'),
+		'users_fields_cities.php'	 => array('title' => 'menu_cities', 'icon' => '<i class="icon-globe"></i>'),
+		'users_fields_interests.php' => array('title' => 'menu_fields_interests', 'icon' => '<i class="fa fa-star" aria-hidden="true"></i>'),
     );
     protected $notAvailableItems = array('old' => array('users_fields_interests.php'));
     protected $notAvailableItemsTemplate = array('impact' => array('users_fields_interests.php'),
-                                                 'edge' => array('users_fields_interests.php', 'users_fields_add.php')
+                                                 'edge' => array('users_fields_interests.php')
                                            );
 
 }
@@ -3181,21 +3505,129 @@ class CAdminPageMenuUsersFields extends CAdminPageMenu {
 class CAdminPageMenuGifts extends CAdminPageMenu {
 
     protected $items = array(
-        'gifts.php' => 'menu_gifts',
-        'gifts_edit.php' => 'menu_gifts_add',
-        'gifts_set.php' => 'menu_style_set',
+		'gifts.php'      => array('title' => 'menu_gifts', 'icon' => '<i class="fa fa-gift" aria-hidden="true"></i>'),
+		'gifts_edit.php' => array('title' => 'menu_gifts_add', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>'),
+		'gifts_set.php'  => array('title' => 'menu_style_set', 'icon' => '<i class="fa fa-folder" aria-hidden="true"></i>')
+    );
+}
+
+class CAdminPageMenuStickers extends CAdminPageMenu {
+
+    protected $items = array(
+		'stickers_settings.php'  => array('title' => 'menu_stickers_settings', 'icon' => '<i class="ft-settings"></i>'),
+		'stickers_scheme.php'  => array('title' => 'menu_stickers_scheme', 'icon' => '<i class="fa fa-tasks" aria-hidden="true"></i>'),
+		'stickers_collections.php'  => array('title' => 'menu_stickers_collections', 'icon' => '<i class="fa fa-th" aria-hidden="true"></i>'),
+		'stickers_collections_sticker.php'  => array('title' => 'menu_stickers_collections_sticker', 'icon' => '<i class="fa fa-smile-o" aria-hidden="true"></i>'),
+    );
+}
+
+class CAdminPageMenuPartner extends CAdminPageMenu {
+
+    protected $items = array(
+		'partner.php'         => array('title' => 'menu_partners', 'icon' => '<i class="fa fa-users" aria-hidden="true"></i>'),
+		'partner_baners.php'  => array('title' => 'menu_partners_banners', 'icon' => '<i class="fa fa-wpforms" aria-hidden="true"></i>'),
+		'contact_partner.php' => array('title' => 'menu_from_partners', 'icon' => '<i class="fa fa-user-circle" aria-hidden="true"></i>'),
+		'partner_main.php'    => array('title' => 'main_page', 'icon' => '<i class="fa fa-file-text" aria-hidden="true"></i>'),
+		'partner_tips.php'    => array('title' => 'page_tips', 'icon' => '<i class="fa fa-file-o" aria-hidden="true"></i>'),
+		'partner_faq.php'     => array('title' => 'page_faq', 'icon' => '<i class="fa fa-file-text-o" aria-hidden="true"></i>'),
+		'partner_terms.php'   => array('title' => 'page_terms', 'icon' => '<i class="fa fa-file" aria-hidden="true"></i>'),
+    );
+}
+
+class CAdminPageMenuBlogs extends CAdminPageMenu {
+
+    protected $items = array(
+		'blogs_bloggers.php' => array('title' => 'menu_blogs_bloggers', 'icon' => '<i class="fa fa-user" aria-hidden="true"></i>'),
+		'blogs_posts.php'    => array('title' => 'menu_blogs_posts', 'icon' => '<i class="fa fa-file-text-o" aria-hidden="true"></i>'),
+		'blogs_comments.php' => array('title' => 'menu_blogs_comments', 'icon' => '<i class="fa fa-commenting" aria-hidden="true"></i>'),
+    );
+}
+
+class CAdminPageMenuAdv extends CAdminPageMenu {
+
+    protected $items = array(
+		'adv.php' => array('title' => 'menu_adv', 'icon' => '<i class="fa fa-buysellads" aria-hidden="true"></i>')
+    );
+}
+
+class CAdminPageMenuGroups extends CAdminPageMenu {
+
+    protected $items = array(
+		'groups_groups.php'			=> array('title' => 'menu_groups', 'icon' => '<i class="fa fa-users" aria-hidden="true"></i>'),
+		'groups_group_comments.php' => array('title' => 'menu_group_comments', 'icon' => '<i class="fa fa-commenting" aria-hidden="true"></i>'),
+		'groups_forums.php'			=> array('title' => 'menu_forums', 'icon' => '<i class="fa fa-clone" aria-hidden="true"></i>'),
+		'groups_forum_comments.php' => array('title' => 'menu_forum_comments', 'icon' => '<i class="fa fa-commenting-o" aria-hidden="true"></i>'),
+		'groups_categories.php'		=> array('title' => 'menu_group_categories', 'icon' => '<i class="fa fa-th-list" aria-hidden="true"></i>'),
+		'groups_category_add.php'	=> array('title' => 'menu_group_categories_add', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>'),
+    );
+}
+
+class CAdminPageMenuPlace extends CAdminPageMenu {
+
+    protected $items = array(
+		'places_results.php' => array('title' => 'menu_places', 'icon' => '<i class="fa fa-globe" aria-hidden="true"></i>'),
+		'places_reviews.php' => array('title' => 'menu_reviews', 'icon' => '<i class="fa fa-file-text-o" aria-hidden="true"></i>'),
+		'places_categories.php' => array('title' => 'menu_categories', 'icon' => '<i class="fa fa-th-list" aria-hidden="true"></i>'),
+		'places_category_add.php' => array('title' => 'menu_categories_add', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>'),
+    );
+}
+
+class CAdminPageMenuFlashChat extends CAdminPageMenu {
+    protected $items = array(
+		'flashchat_rooms.php' => array('title' => 'menu_flashchat_rooms', 'icon' => '<i class="fa fa-th-list" aria-hidden="true"></i>'),
+		'flashchat_edit.php' => array('title' => 'menu_flashchat_rooms_edit', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>'),
+		'flashchat_ban.php' => array('title' => 'menu_flashchat_ban', 'icon' => '<i class="fa fa-ban" aria-hidden="true"></i>'),
+    );
+}
+
+class CAdminPageMenu3DChat extends CAdminPageMenu {
+    protected $items = array(
+		'3dchat_rooms.php' => array('title' => 'menu_3dchat_rooms', 'icon' => '<i class="fa fa-th-list" aria-hidden="true"></i>'),
+		'3dchat_edit.php' => array('title' => 'menu_3dchat_rooms_edit', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>')
     );
 }
 
 class CAdminPageMenuGroupsSocial extends CAdminPageMenu {
 
     protected $items = array(
-        'groups_social.php' => 'menu_groups_social_groups',
-        'groups_social_pages.php' => 'menu_groups_social_pages',
-        'groups_social_photo.php' => 'menu_groups_social_photo',
-        'groups_social_video.php' => 'menu_groups_social_video',
-        'groups_social_reports.php' => 'menu_groups_social_reports',
-        'groups_social_reports_content.php' => 'menu_groups_social_reports_content'
+		'groups_social.php'					=> array('title' => 'menu_groups_social_groups', 'icon' => '<i class="fa fa-users" aria-hidden="true"></i>'),
+		'groups_social_pages.php'			=> array('title' => 'menu_groups_social_pages', 'icon' => '<i class="fa fa-newspaper-o" aria-hidden="true"></i>'),
+		'groups_social_photo.php'			=> array('title' => 'menu_groups_social_photo', 'icon' => '<i class="la la-photo"></i>'),
+		'groups_social_video.php'			=> array('title' => 'menu_groups_social_video', 'icon' => '<i class="la la-youtube-play"></i>'),
+		'groups_social_reports.php'			=> array('title' => 'menu_groups_social_reports', 'icon' => '<i class="ft-file-text"></i>'),
+		'groups_social_reports_content.php'	=> array('title' => 'menu_groups_social_reports_content', 'icon' => '<i class="la la-clone"></i>'),
+		'groups_social_reports_wall_post.php' => array('title' => 'menu_groups_social_reports_wall_post', 'icon' => '<i class="la la-clone"></i>'),
+    );
+}
+
+class CAdminPageMenuNews extends CAdminPageMenu {
+
+    protected $items = array(
+        'news.php'		=> array('title' => 'menu_news_edit', 'icon' => '<i class="ft-file-text"></i>'),
+        'news_add.php'  => array('title' => 'menu_news_add',  'icon' => '<i class="ft-file-plus"></i>'),
+        'news_cats.php' => array('title' => 'menu_news_cats', 'icon' => '<i class="ft-list"></i>')
+    );
+
+	function parseBlock(&$html)
+	{
+        global $g, $l;
+
+		$lang = Common::langParamValue();
+		if ($lang) {
+			foreach ($this->items as $key => $value) {
+				$this->items[$key]['params'] = '?lang=' . $lang;
+			}
+		}
+
+        parent::parseBlock($html);
+    }
+}
+
+class CAdminPageMenuBanner extends CAdminPageMenu {
+
+    protected $items = array(
+		'banner.php'		=> array('title' => 'menu_banners', 'icon' => '<i class="fa fa-wpforms" aria-hidden="true"></i>'),
+		'banner_add.php'	=> array('title' => 'menu_add_banner', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>'),
     );
 }
 
@@ -3203,25 +3635,25 @@ class CAdminPageMenuOptions extends CAdminPageMenu {
 
     protected $items = array(
         //<!--begin_space_page--><li><a href="{url_main}administration/main_page.php">{l_menu_options_main_page}</a></li><!--end_space_page-->
-        'options.php' => 'menu_main_options',
-        'site_options.php' => 'menu_site_options',
-        'image.php' => 'menu_images',
-        'menu.php' => 'menu_menu',
-        'submenu_order.php' => 'submenu_order',
-        'headermenu_order.php' => 'header_menu_order',
-        'quick_search_order.php' => 'quick_search_order',
-        'main_col_order.php' => 'main_col_order',
-        'profile_tabs_order.php' => 'profile_tabs_order',
-        'profile_col_narrow.php' => 'profile_col_narrow',
-        'user_menu_order.php' => 'user_menu_order',
-        'right_col_order.php' => 'right_col_order',
-        'visitor_menu_order.php' => 'visitor_menu_order',
-        'smtp.php' => 'menu_smtp',
-        'cache.php' => 'menu_cache',
-        'date_options.php' => 'menu_date_options',
+        'options.php'			 => array('title' => 'menu_main_options', 'icon' => '<i class="ft-settings"></i>'),
+        'site_options.php'		 => array('title' => 'menu_site_options', 'icon' => '<i class="icon-globe"></i>'),
+        'image.php'			     => array('title' => 'menu_images', 'icon' => '<i class="la la-picture-o"></i>'),
+        'menu.php'				 => array('title' => 'menu_menu', 'icon' => '<i class="la la-list"></i>'),
+        'submenu_order.php'		 => array('title' => 'submenu_order', 'icon' => '<i class="la la-list-alt"></i>'),
+        'headermenu_order.php'	 => array('title' => 'header_menu_order', 'icon' => '<i class="la la-h-square"></i>'),
+        'quick_search_order.php' => array('title' => 'quick_search_order', 'icon' => '<i class="ft-search"></i>'),
+        'main_col_order.php'	 => array('title' => 'main_col_order', 'icon' => '<i class="ft-grid"></i>'),
+        'profile_tabs_order.php' => array('title' => 'profile_tabs_order', 'icon' => '<i class="icon-user"></i>'),
+        'profile_col_narrow.php' => array('title' => 'profile_col_narrow', 'icon' => '<i class="la la-dedent"></i>'),
+        'user_menu_order.php'	 => array('title' => 'user_menu_order', 'icon' => '<i class="la la-list"></i>'),
+        'right_col_order.php'	 => array('title' => 'right_col_order', 'icon' => '<i class="la la-indent"></i>'),
+        'visitor_menu_order.php' => array('title' => 'visitor_menu_order', 'icon' => '<i class="la la-list-alt"></i>'),
+        'smtp.php'				 => array('title' => 'menu_smtp', 'icon' => '<i class="ft-sliders"></i>'),
+        'cache.php'				 => array('title' => 'menu_cache', 'icon' => '<i class="ft-trash-2"></i>'),
+        'date_options.php'		 => array('title' => 'menu_date_options', 'icon' => '<i class="la la-calendar"></i>'),
     );
 
-    protected $notAvailableItems = array('urban' => array('menu.php', 'submenu_order.php', 'quick_search_order.php'));
+    protected $notAvailableItems = array('urban' => array()); // rade 2023-09-20 delete
     protected $notAvailableItemsTemplate = array(
                                                 'impact' => array('visitor_menu_order.php'),
                                                 'edge' => array(
@@ -3256,10 +3688,10 @@ class CAdminPageMenuOptions extends CAdminPageMenu {
             unset($this->items['submenu_order.php']);
         } else {
            if (!Common::isOptionActive('main_col_order', 'template_options')) {
-               unset($this->items['main_col_order.php']);
+            //    unset($this->items['main_col_order.php']); // rade 2023-09-20 delete
            }
            if (!Common::isOptionActive('right_col_order', 'template_options')) {
-               unset($this->items['right_col_order.php']);
+            //    unset($this->items['right_col_order.php']); // rade 2023-09-20 delete
            }
            if (!Common::isOptionActive('profile_col_narrow', 'template_options')) {
                unset($this->items['profile_col_narrow.php']);
@@ -3277,15 +3709,20 @@ class CAdminPageMenuOptions extends CAdminPageMenu {
 
 class CAdminPageMenuFakes extends CAdminPageMenu {
     protected $items = array(
-        'fakes_reply_mails.php' => 'menu_fakes_reply_mails',
-        'fakes_reply_im.php' => 'menu_fakes_reply_im',
-        'fakes_reply_winks.php' => 'menu_fakes_reply_winks',
-        'fakes_friend_requests.php' => 'menu_friend_requests',
-        'fakes_reply_replier.php' => 'fake_profiles_replier',
+		'fakes_reply_mails.php'		=> array('title' => 'menu_fakes_reply_mails', 'icon' => '<i class="ft-mail"></i>'),
+		'fakes_reply_im.php'		=> array('title' => 'menu_fakes_reply_im', 'icon' => '<i class="fa fa-weixin"></i>'),
+		'fakes_reply_winks.php'		=> array('title' => 'menu_fakes_reply_winks', 'icon' => '<i class="ft-heart"></i>'),
+		'fakes_friend_requests.php'	=> array('title' => 'menu_friend_requests', 'icon' => '<i class="fa fa-user-plus"></i>'),
+		'fakes_reply_replier.php'	=> array('title' => 'fake_profiles_replier', 'icon' => '<i class="fa fa-users"></i>'),
     );
 
-    protected $notAvailableItems = array('urban' => array('fakes_reply_mails.php'));
-    protected $notAvailableItemsTemplate = array('impact' => array('fakes_reply_winks.php'));
+    // rade 2023-09-20 delete start
+    protected $notAvailableItems = array('urban' => array());
+    // rade 2023-09-20 delete end
+    protected $notAvailableItemsTemplate = array(
+        'impact' => array('fakes_reply_winks.php'),
+        'edge' => array(), // rade 2023-09-20 delete
+    );
 
     function parseBlock(&$html)
     {
@@ -3298,25 +3735,26 @@ class CAdminPageMenuFakes extends CAdminPageMenu {
 
 class CAdminPageMenuPay extends CAdminPageMenu {
     protected $items = array(
-        'pay.php' => 'menu_payment_systems',
-        'pay_order.php' => 'menu_payment_systems_order',
-        'pay_plans.php' => 'menu_payment_plans',
-        'pay_price.php' => 'menu_features_price',
-        'pay_features.php' => 'menu_features',
-        'pay_cat.php' => 'pay_areas',
-        'pay_type.php' => 'pay_access',
-        'pay_trial.php' => 'pay_trial',
+        'pay.php' => array('title' => 'menu_payment_systems', 'icon' => '<i class="fa fa-credit-card"></i>'),
+        'pay_order.php' => array('title' => 'menu_payment_systems_order', 'icon' => '<i class="la la-list"></i>'),
+        'pay_plans.php' => array('title' => 'menu_payment_plans', 'icon' => '<i class="la la-list-alt"></i>'),
+        'pay_price.php' => array('title' => 'menu_features_price', 'icon' => '<i class="fa fa-dollar"></i>'),
+        'pay_features.php' => array('title' => 'menu_features', 'icon' => '<i class="fa fa-shopping-cart"></i>'),
+        'pay_cat.php' => array('title' => 'pay_areas', 'icon' => '<i class="la la-file-text-o"></i>'),
+        'pay_type.php' => array('title' => 'pay_access', 'icon' => '<i class="fa fa-check"></i>'),
+        'pay_trial.php' => array('title' => 'pay_trial', 'icon' => '<i class="fa fa-gift"></i>'),
     );
 
     protected $notAvailableItems = array('old' => array('pay_price.php', 'pay_features.php'),
-                                         'urban' => array('pay_cat.php', 'pay_type.php'));
-    protected $notAvailableItemsTemplate = array('edge' => array('pay_price.php'));
+                                        'urban' => array()// rade 2023-09-20 delete
+                                        );
+    protected $notAvailableItemsTemplate = array();/*'edge' => array('pay_price.php')*/
 }
 
 class CAdminPageMenuCustomPages extends CAdminPageMenu {
     protected $items = array(
-        'pages.php' => 'menu_pages',
-        'pages_add.php' => 'menu_pages_add',
+		'pages.php'		=> array('title' => 'menu_pages', 'icon' => '<i class="ft-file-text"></i>'),
+		'pages_add.php'	=> array('title' => 'menu_pages_add', 'icon' => '<i class="ft-file-plus"></i>')
     );
 }
 
@@ -3328,42 +3766,143 @@ class CAdminPageMenuCustomPagesClub extends CAdminPageMenu {
     );
 }
 //nnsscc-diamond-20200301-end
+
+class CAdminPageMenuUsers extends CAdminPageMenu {
+    protected $items = array(
+		'users_results.php'		=> array('title' => 'menu_users', 'icon' => '<i class="ft-users"></i>'),
+		'users_approval.php?view=activate'	=> array('title' => 'menu_users_activate', 'icon' => '<i class="ft-user-plus"></i>'),
+		'users_approval.php'	=> array('title' => 'menu_users_approval', 'icon' => '<i class="ft-user-check"></i>'),
+		'users_search.php'		=> array('title' => 'menu_search', 'icon' => '<i class="ft-search"></i>'),
+		'users_photo.php'		=> array('title' => 'menu_photos', 'icon' => '<i class="la la-photo"></i>'),
+		'users_video.php'		=> array('title' => 'menu_videos', 'icon' => '<i class="la la-youtube-play"></i>'),
+		'users_text.php'		=> array('title' => 'menu_texts', 'icon' => '<i class="la la-file-text-o"></i>'),
+		'users_filter.php'		=> array('title' => 'menu_filter', 'icon' => '<i class="la la-filter"></i>'),
+    );
+}
+
+class CAdminPageAlbum extends CAdminPageMenu {
+	protected $items = array(
+        'alb_albums.php'	  => array('title' => 'menu_right_alb_albums', 'icon' => '<i class="fa fa-picture-o" aria-hidden="true"></i>'),
+		'alb_albums_show.php' => array('title' => 'menu_right_alb_images', 'icon' => '<i class="fa fa-file-image-o" aria-hidden="true"></i>'),
+		'alb_comments.php'	  => array('title' => 'menu_right_alb_comments', 'icon' => '<i class="fa fa-commenting" aria-hidden="true"></i>'),
+		'alb_users.php'		  => array('title' => 'menu_right_alb_users', 'icon' => '<i class="fa fa-user" aria-hidden="true"></i>')
+    );
+}
+
+class CAdminPageAutoMail extends CAdminPageMenu {
+
+	protected $items = array(
+        'automail.php'		=> array('title' => 'menu_auto_mail', 'icon' => '<i class="ft-mail"></i>'),
+        'automail_settings.php'  => array('title' => 'menu_auto_mail_settings',  'icon' => '<i class="ft-settings"></i>')
+    );
+
+	function parseBlock(&$html)
+	{
+        global $g, $l;
+
+		$lang = Common::langParamValue();
+		if ($lang) {
+			$this->items['automail_settings.php']['params'] = '?lang=' . $lang;
+		}
+
+        parent::parseBlock($html);
+    }
+}
+
+class CAdminPageMassMail extends CAdminPageMenu {
+	protected $items = array(
+        'massmail.php'		=> array('title' => 'menu_mass_send', 'icon' => '<i class="ft-mail"></i>'),
+        'massmail_edit.php'  => array('title' => 'menu_mass_add',  'icon' => '<i class="ft-edit"></i>')
+    );
+}
+
 class CAdminPageMenuCity extends CAdminPageMenu {
     protected $items = array(
-        'city_options.php' => 'menu_city_options',
-		'city_logo.php' => 'menu_city_logo',
-        'city_rooms.php' => 'menu_city_rooms',
-		'city_platform.php' => 'menu_city_platform',
-        'city_video.php' => 'menu_city_video',
-        'city_gallery.php' => 'menu_city_gallery',
+		'city_options.php'	=> array('title' => 'menu_city_options', 'icon' => '<i class="ft-settings"></i>'),
+		'city_logo.php'		=> array('title' => 'menu_city_logo', 'icon' => '<i class="fa fa-flag" aria-hidden="true"></i>'),
+		'city_rooms.php'	=> array('title' => 'menu_city_rooms', 'icon' => '<i class="fa fa-th-list"></i>'),
+		'city_platform.php'	=> array('title' => 'menu_city_platform', 'icon' => '<i class="icon-globe"></i>'),
+		'city_video.php'	=> array('title' => 'menu_city_video', 'icon' => '<i class="fa fa-film"></i>'),
+		'city_gallery.php'	=> array('title' => 'menu_city_gallery', 'icon' => '<i class="la la-picture-o"></i>'),
+		'city_cache.php'	=> array('title' => 'menu_city_cache', 'icon' => '<i class="ft-trash-2"></i>'),
         //'city_avatar_face.php' => 'menu_city_avatar_face_default',
-        'city_cache.php' => 'menu_city_cache',
+    );
+}
+
+class CAdminPageMenuForums extends CAdminPageMenu {
+    protected $items = array(
+		'forum_forums.php'		 => array('title' => 'menu_forum_forums', 'icon' => '<i class="fa fa-clone" aria-hidden="true"></i>'),
+		'forum_forum_add.php'	 => array('title' => 'menu_forum_forums_add', 'icon' => '<i class="fa fa-plus-circle" aria-hidden="true"></i>'),
+		'forum_topics.php'		 => array('title' => 'menu_forum_topics', 'icon' => '<i class="fa fa-file" aria-hidden="true"></i>'),
+		'forum_messages.php'	 => array('title' => 'menu_forum_messages', 'icon' => '<i class="fa fa-commenting-o" aria-hidden="true"></i>'),
+		'forum_categories.php'	 => array('title' => 'menu_forum_categories', 'icon' => '<i class="fa fa-th-list" aria-hidden="true"></i>'),
+		'forum_category_add.php' => array('title' => 'menu_forum_categories_add}', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>')
     );
 }
 
 class CAdminPageMenuBlock extends CAdminPageMenu {
     protected $items = array(
-        'ipblock.php' => 'menu_ipblock',
-        'ban_users.php' => 'menu_users_ban_mails',
-        'users_reports.php' => 'menu_users_reports',
-        'users_reports_content.php' => 'menu_content_reports',
+		'ipblock.php'				  => array('title' => 'menu_ipblock', 'icon' => '<i class="ft-cloud-off"></i>'),
+		'ban_users.php'				  => array('title' => 'menu_users_ban_mails', 'icon' => '<i class="la la-ban"></i>'),
+		'users_reports.php'			  => array('title' => 'menu_users_reports', 'icon' => '<i class="la la-user"></i>'),
+		'users_reports_content.php'	  => array('title' => 'menu_content_reports', 'icon' => '<i class="la la-clone"></i>'),
+		'users_reports_wall_post.php' => array('title' => 'menu_content_wall_post', 'icon' => '<i class="ft-file-text"></i>'),
     );
     protected $notAvailableItems = array(
-        'old' => array('users_reports_content.php'),
-		//'urban' => array('ban_users.php'),
-    );}
+        'old' => array('users_reports.php', 'users_reports_content.php', 'users_reports_wall_post.php'),
+    );
+	protected $notAvailableItemsTemplate = array(
+		'impact' => array('users_reports_wall_post.php'),
+		'urban' => array('users_reports_wall_post.php'),
+    );
+}
 
 class CAdminPageMenuVids extends CAdminPageMenu {
     protected $items = array(
-        'vids_users.php' => 'menu_vids_users',
-        'vids_videos.php' => 'menu_vids_videos',
-        'vids_comments.php' => 'menu_vids_comments',
-        'vids_categories.php' => 'menu_categories',
-        'vids_category_add.php' => 'menu_categories_add',
+		'vids_videos.php'		=> array('title' => 'menu_vids_videos', 'icon' => '<i class="fa fa-file-video-o" aria-hidden="true"></i>'),
+		'vids_users.php'		=> array('title' => 'menu_vids_users', 'icon' => '<i class="fa fa-film" aria-hidden="true"></i>'),
+		'vids_comments.php'		=> array('title' => 'menu_vids_comments', 'icon' => '<i class="fa fa-commenting-o" aria-hidden="true"></i>'),
+		'vids_categories.php'	=> array('title' => 'menu_categories', 'icon' => '<i class="fa fa-th-list" aria-hidden="true"></i>'),
+		'vids_category_add.php'	=> array('title' => 'menu_categories_add', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>'),
     );
 
     protected $notAvailableItems = array(
-        'urban' => array('vids_categories.php', 'vids_category_add.php'),
+        // rade 2023-09-20 delete start
+        // 'urban' => array('vids_categories.php', 'vids_category_add.php'),
+        // rade 2023-09-20 delete end
+    );
+}
+
+class CAdminPageMenuGroupsSocialVids extends CAdminPageMenu {
+    protected $items = array(
+		'groups_social_vids_videos.php'   => array('title' => 'menu_vids_groups_videos', 'icon' => '<i class="fa fa-users" aria-hidden="true"></i>'),
+		'groups_social_vids_groups.php'	  => array('title' => 'menu_vids_groups', 'icon' => '<i class="fa fa-file-video-o" aria-hidden="true"></i>'),
+        'groups_social_vids_comments.php' => array('title' => 'menu_vids_groups_comments', 'icon' => '<i class="fa fa-commenting-o" aria-hidden="true"></i>'),
+    );
+}
+
+class CAdminPageMenuMusic extends CAdminPageMenu {
+    protected $items = array(
+		'music_musicians.php'			=> array('title' => 'menu_musicians', 'icon' => '<i class="fa fa-user-circle" aria-hidden="true"></i>'),
+		'music_musician_comments.php'	=> array('title' => 'menu_musician_comments', 'icon' => '<i class="fa fa-commenting" aria-hidden="true"></i>'),
+		'music_songs.php'				=> array('title' => 'menu_songs', 'icon' => '<i class="fa fa-music" aria-hidden="true"></i>'),
+		'music_song_comments.php'		=> array('title' => 'menu_song_comments', 'icon' => '<i class="fa fa-commenting-o" aria-hidden="true"></i>'),
+		'music_categories.php'			=> array('title' => 'menu_categories', 'icon' => '<i class="fa fa-th-list" aria-hidden="true"></i>'),
+		'music_category_add.php'		=> array('title' => 'menu_categories_add', 'icon' => '<i class="fa fa-plus-square" aria-hidden="true"></i>'),
+    );
+
+    protected $notAvailableItemsTemplate = array(
+        // 'edge' => array('music_musicians.php', 'music_musician_comments.php', 'music_song_comments.php', 'music_categories.php', 'music_category_add.php'), // rade 2023-09-20 delete
+        'edge' => array(), // rade 2023-09-20 add
+    );
+}
+
+class CAdminPageMenuMusicGroupSocial extends CAdminPageMenu {
+    protected $items = array(
+        'groups_social_music_songs.php' => array('title' => 'menu_songs', 'icon' => '<i class="fa fa-music" aria-hidden="true"></i>'),
+    );
+
+    protected $notAvailableItemsTemplate = array(
     );
 }
 
@@ -3556,4 +4095,106 @@ function adminFileBackupRestore($filename)
         $backupFilePath = pathinfo($filename, PATHINFO_DIRNAME) . '/' . $backupFile;
         copy($backupFilePath, $filename);
     }
+}
+
+function deleteReport($del)
+{
+    $debug = false;
+
+    $listUsersReport = explode(',', $del);
+    foreach ($listUsersReport as $rid) {
+        $where = 'id = ' . to_sql($rid);
+        $report = DB::select('users_reports', $where);
+        $usersToReport = array();
+        if ($report && isset($report[0])) {
+            $report = $report[0];
+
+            $idField = 'id';
+            $usersReportsField = 'users_reports';
+            $idFieldValue = $report['photo_id'];
+
+            if ($report['comment_type'] == 'video') {
+                $table = 'vids_comment';
+                $usersReportsField = 'users_reports_comment';
+                $idFieldValue = $report['comment_id'];
+            } elseif ($report['comment_type'] == 'photo') {
+                $table = 'photo_comments';
+                $usersReportsField = 'users_reports_comment';
+                $idFieldValue = $report['comment_id'];
+            } elseif ($report['comment_type'] == 'wall') {
+                $table = 'wall_comments';
+                $usersReportsField = 'users_reports_comment';
+                $idFieldValue = $report['comment_id'];
+            } elseif($report['wall_id']) {
+                $table = 'wall';
+                $idFieldValue = $report['wall_id'];
+            } elseif($report['video']) {
+                $table = 'vids_video';
+            } elseif($report['photo_id']) {
+                $table = 'photo';
+                $idField = 'photo_id';
+            }
+
+            $whereContent = "`$idField` = " . to_sql($idFieldValue);
+
+            $usersToReport = DB::field($table, $usersReportsField, $whereContent);
+            if($debug) {
+                var_dump_pre($rid);
+                var_dump_pre($table);
+                var_dump_pre($whereContent);
+                var_dump_pre($usersToReport);
+            } else {
+                DB::delete('users_reports', $where);
+            }
+        }
+        if ($usersToReport && isset($usersToReport[0])) {
+            $usersToReport = $usersToReport[0];
+            $usersToReport = explode(',', $usersToReport);
+            unset_from_array($report['user_from'], $usersToReport);
+            if($debug) {
+                var_dump_pre($usersReportsField);
+                var_dump_pre($usersToReport);
+            } else {
+                DB::update($table, array($usersReportsField => implode(',', $usersToReport)), $whereContent);
+            }
+        }
+
+        if($debug) {
+            die();
+        }
+    }
+}
+
+class CUsersResultsBase
+{
+
+    static public function init(&$m_field)
+    {
+        if (Common::isEdgeLmsMode()) {
+            $m_field['lms_user_type'] = array("lms_user_type", null);
+        } else {
+            $m_field['orientation'] = array("orientation", null);
+        }
+    }
+
+    static public function parse($html, $m_field, $row)
+    {
+        if (Common::isEdgeLmsMode()) {
+            $userTypeBlock = 'lms_user_type';
+            $m_field[$userTypeBlock][1] = DB::result('SELECT title FROM ' . LMS::getTableUserTypes() . ' WHERE id = ' . $row[$userTypeBlock], 0, 2);
+            $invalidValue = "Invalid type";
+        } else {
+            $userTypeBlock = 'orientation';
+            $m_field[$userTypeBlock][1] = DB::result("SELECT title FROM const_orientation WHERE id=" . $row[$userTypeBlock] . "", 0, 2);
+            $invalidValue = "Invalid orientation";
+        }
+
+        if ($m_field[$userTypeBlock][1] == '') {
+            $m_field[$userTypeBlock][1] = l($invalidValue);
+        }
+
+        $html->setvar($userTypeBlock, $m_field[$userTypeBlock][1]);
+        $html->parse($userTypeBlock, false);
+    }
+
 }

@@ -1,12 +1,11 @@
 <?php
+/* (C) Websplosion LLC, 2001-2021
 
-/* (C) Websplosion LTD., 2001-2014
+IMPORTANT: This is a commercial software product
+and any kind of using it must agree to the Websplosion's license agreement.
+It can be found at http://www.chameleonsocial.com/license.doc
 
-  IMPORTANT: This is a commercial software product
-  and any kind of using it must agree to the Websplosion's license agreement.
-  It can be found at http://www.chameleonsocial.com/license.doc
-
-  This notice may not be removed from the source code. */
+This notice may not be removed from the source code. */
 
 #выводы списков пользователей
 
@@ -163,9 +162,9 @@ class CUsers extends CHtmlList {
         }
 
         if ($row['user_id'] == guid()) {
-            $this->m_is_me = true;			
+            $this->m_is_me = true;
         } else {
-            $this->m_is_me = false;			
+            $this->m_is_me = false;
         }
 // profile status
         if($this->profileStatusVarExists || $html->varExists('status') || $html->varExists('profile_status')) {
@@ -455,8 +454,8 @@ class CUsers extends CHtmlList {
         $html->setvar("name_short", User::nameShort($row['name']));
         $html->setvar("name_one_letter", User::nameOneLetterFull($row['name']));
         $html->setvar("name_one_letter_short", User::nameOneLetterShort($row['name']));
-        // $html->setvar("age", $row['age']);
-		$orientation = isset($orientation_row['title']) ? $orientation_row['title'] : '';
+        $html->setvar("age", $row['age']);
+        $orientation = isset($orientation_row['title']) ? $orientation_row['title'] : '';
         $html->setvar("orientation", l($orientation));
         if (UserFields::isActive('orientation')){
             $html->setvar("i_am", l($orientation));
@@ -1002,8 +1001,6 @@ class CUsers extends CHtmlList {
         }
 
         User::isBlockedMeSetvar($html, $row['user_id']);
-		
-		
 
         $blockGifts = 'gifts_enabled';
         if ($html->blockExists($blockGifts)) {
@@ -1026,8 +1023,6 @@ class CUsers extends CHtmlList {
         if ($html->varExists('sign_blocked_user_hide') && !$isBlockedUser) {
             $html->setvar('sign_blocked_user_hide', 'sign_blocked_user_hide');
         }
-
-
 
         if (guid() != $row['user_id']) {
 
@@ -2496,8 +2491,8 @@ class CUsersProfile extends CUsers {
             }
             $lang .= '</lang>';
 
-            //echo $lang;
-            //die();
+            echo $lang;
+            die();
         } elseif (!isset($g_user['user_id']) and $g_user['user_id'] <= 0) {
             Common::toLoginPage();
         }
@@ -2540,6 +2535,9 @@ class CUsersProfile extends CUsers {
             }
             $html->parse('profile_main_edit', false);
         } else {
+			if ($html->varExists('live_price')) {
+				$html->setvar('live_price', Pay::getServicePrice('live_stream', 'credits'));
+			}
             if (User::isVisiblePlugPrivatePhotoFromId($row['user_id'], self::$photoDefaultId)) {
                 $html->parse('photo_main_plug_private_photos', false);
             }
@@ -2566,13 +2564,19 @@ class CUsersProfile extends CUsers {
             $html->parse('edit_field', false);
         }
         $show = get_param('show');
-        if ($html->blockExists('show_albums_js') && $show == 'albums') {
+		$videoShow = get_param_int('video_show');
+        if ($html->blockExists('show_albums_js') && ($show == 'albums' || $videoShow)) {
             $block = 'show_albums_js';
             $pid = get_param_int('photo_id');
             if ($pid) {
                 $block = 'show_photo_js';
                 $html->setvar("{$block}_id", $pid);
             }
+
+			if ($videoShow) {
+				$block = 'show_video_js';
+                $html->setvar("{$block}_id", $videoShow);
+			}
             $html->parse($block, false);
         }
 
@@ -2593,7 +2597,7 @@ class CUsersProfile extends CUsers {
             $orientationTitle = l($this->u_orientations[$row['orientation']]['title']);
         }
         $html->setvar('user_orientation', $orientationTitle);
-        if (!$orientationTitle) {
+        if (!$orientationTitle || !UserFields::isActive('orientation')) {
             $html->parse('user_orientation_hide' . ($isMyProfile ? '_member' : '_visitor'), false);
         }
 
@@ -2658,8 +2662,6 @@ class CUsersProfile extends CUsers {
                 }
                 $html->parse($blockMenuVisitor, false);
             }
-            $html->setvar('user_status_online', intval(User::isOnline($row['user_id'])));
-            $html->setvar('real_status_online', intval(User::isOnline($row['user_id'], null, true)));
 
             $html->parse('profile_send_message_btn', false);
             $html->parse('profile_info_visitor', false);
@@ -2669,6 +2671,28 @@ class CUsersProfile extends CUsers {
 
         if(get_param('cmd_enc')) {
             $html->setvar('update_menu_counters_data', getResponseAjaxByAuth(true, MutualAttractions::getCounters()));
+        }
+    }
+
+	function onItemUrban_mobile(&$html, $row, $i, $last) {
+
+		if ($html->varExists('live_price')) {
+			$html->setvar('live_price', Pay::getServicePrice('live_stream', 'credits'));
+		}
+
+		$videoShow = get_param_int('video_show');
+        if ($html->blockExists('show_video_js') && $videoShow) {
+			if ($videoShow) {
+				$videoInfo = DB::row("SELECT * FROM `vids_video` WHERE id=" . to_sql($videoShow));
+				if ($videoInfo) {
+					$block = 'show_video_js';
+					$html->setvar("{$block}_id", $videoShow);
+					$html->setvar("{$block}_live_id", $videoInfo['live_id']);
+					$html->setvar("{$block}_my_video", intval($videoInfo['user_id'] == guid()));
+				}
+
+			}
+            $html->parse($block, false);
         }
     }
 
@@ -2683,6 +2707,8 @@ class CUsersProfile extends CUsers {
                 }
             }*/
         }
+        // parse profile fields
+        $this->onItemImpact($html, $row, $i, $last);
     }
 
     function onItem(&$html, $row, $i, $last) {
@@ -2705,6 +2731,11 @@ class CUsersProfile extends CUsers {
         $option = 'set_who_view_profile';
         if (!guid() && User::isSettingEnabled($option) && $row[$option] == 'members') {
             redirect(Common::pageUrl('login'));
+        }
+
+        if ($html->varExists('real_status_online')) {
+            $html->setvar('user_status_online', intval(User::isOnline($row['user_id'])));
+            $html->setvar('real_status_online', intval(User::isOnline($row['user_id'], null, true)));
         }
 
         if ($p != 'profile_view.php') {
@@ -2743,18 +2774,6 @@ class CUsersProfile extends CUsers {
             }
         }
         // profile status
-        // Start - Divyesh 05-09-2023
-        if ($this->m_is_me) {
-            $certify_count = DB::count("user_certify","is_approved='0' AND user_to=" . to_sql($g_user['user_id'], "Number"));
-            if ($certify_count > 0){
-                $html->setvar("certify_count", $certify_count);
-                $html->parse('certify_count_yes',true);
-            }
-            $html->parse('my_certify_link',true);
-        }else{
-            $html->parse('view_certify_link',true);
-        }
-        // End - Divyesh 05-09-2023
 
         // URBAN
         ProfileGift::parseGift($html, $row['user_id']);
@@ -2996,20 +3015,30 @@ class CUsersProfile extends CUsers {
 
         $this->m_field['photo_id'][1] = User::getPhotoDefault($row['user_id'], 'm', false, $row['gender']);
 
-        if (!$this->m_is_me and $this->m_view == 1 and guid()) {
+        $groupId = Groups::getParamId();
+        if (!$this->m_is_me and $this->m_view == 1 and guid() && !$groupId) {
             $ref = get_param('ref');
-            $view = DB::result("SELECT user_to FROM users_view WHERE user_from=" . $g_user['user_id'] . " AND user_to=" . $row_user['user_id'] . "");
-            if ($view != "0" and $p != "users_i_viewed.php") {
+            $lastEmailNotification = DB::result("SELECT `last_email_notification` FROM users_view WHERE user_from=" . $g_user['user_id'] . " AND user_to=" . $row_user['user_id'] . "");
+            if ($lastEmailNotification != '0' and $p != "users_i_viewed.php") {
                 DB::execute("DELETE FROM users_view WHERE user_from=" . $g_user['user_id'] . " AND user_to=" . $row_user['user_id'] . "");
             }
             if ($p != "users_i_viewed.php") {
                 $isVisitors = !User::isInvisibleModeOptionActive('set_do_not_show_me_visitors');
-                if ($isVisitors) {
-                    DB::execute("INSERT INTO users_view (user_from, user_to, new, visited, ref, created_at) VALUES(" . $g_user['user_id'] . ", " . $row_user['user_id'] . ", 'Y', 1, " . to_sql($ref) . ", ". to_sql(date('Y-m-d H:i:s')) .")");
+                if ($isVisitors && !Moderator::isAllowedViewingUsers()) {
+                    $timeNow = time();
+                    $createdAt = date('Y-m-d H:i:s', $timeNow);
+                    $sendEmailNotificationInThisInterval = false;
+                    $intervalBetweenEmailsAboutSameNewProfileVisit = intval(trim(Common::getOption('interval_between_emails_about_same_new_profile_visit')));
+                    if($intervalBetweenEmailsAboutSameNewProfileVisit === 0 || ($lastEmailNotification < date('Y-m-d H:i:s', $timeNow - 60 * $intervalBetweenEmailsAboutSameNewProfileVisit))) {
+                        $lastEmailNotification = $createdAt;
+                        $sendEmailNotificationInThisInterval = true;
+                    }
+                    DB::execute("INSERT INTO users_view (user_from, user_to, new, visited, ref, created_at, last_email_notification) VALUES(" . $g_user['user_id'] . ", " . $row_user['user_id'] . ", 'Y', 1, " . to_sql($ref) . ", ". to_sql($createdAt) .", " . to_sql($lastEmailNotification) . ")");
                     DB::execute("UPDATE user SET new_views=new_views+1, total_views=total_views+1, popularity = popularity + 1 WHERE user_id=" . to_sql($row_user['user_id'], "Number") . "");
 
                     $option = 'set_notif_profile_visitors';
                     if (Common::isEnabledAutoMail('profile_visitors')
+                            && $sendEmailNotificationInThisInterval
                             && $display != 'encounters'
                             && User::isSettingEnabled($option)
                             && User::isOptionSettings($option, $row_user)) {
@@ -3021,7 +3050,6 @@ class CUsersProfile extends CUsers {
                 }
             }
 
-
             if($optionTmplSet != 'urban') {
                 $views = DB::result("SELECT COUNT(*) FROM users_view WHERE user_from=" . $g_user['user_id']);
                 if ($views > 40) {
@@ -3029,42 +3057,8 @@ class CUsersProfile extends CUsers {
                 }
             }
         }
-      
-		//eric-cuigao-20201125-start
-		$show_private_state = true;
-		if($g_user['orientation']==5 && $row_user['set_photo_couples']==2){
-			$show_private_state = false;
-		}
-		if($g_user['orientation']==1 && $row_user['set_photo_males']==2){
-			$show_private_state = false;
-		}
-		if($g_user['orientation']==2 && $row_user['set_photo_females']==2){
-			$show_private_state = false;
-		}
-		
-		
-		$psqlCount = 'SELECT COUNT(fu.user_id) FROM invited_private AS fu where fu.friend_id = '.$row_user['user_id'].' and fu.user_id = '.$g_user['user_id'].' and activity=3';
-        $total = DB::result($psqlCount);
-        // if($total>0){
-        //     $html->parse("cancel_private_photo", true);	
-        //     $html->setblockvar('show_private_photo', "");
-			
-        // }else{
-
-        //     $html->parse("show_private_photo", true);	
-        //     $html->setblockvar('cancel_private_photo', "");
-        // }
-		
-		if($show_private_state==true){// || $g_user['user_id']==$row_user['user_id'] || $g_user['nsc_couple_id']==$row_user['user_id']){			
-			$html->parse("show_private_photo", true);	
-		}else{			
-
-			$html->setblockvar('show_private_photo', "");
-			$html->setblockvar('cancel_private_photo', "");
-		}
 
 
-		//eric-cuigao-nsc-20201125-end
 
         if ($row_user['p_age_from'] != 0) {
             $html->setvar("p_age", $row_user['p_age_from'] . " - " . $row_user['p_age_to']);
@@ -3075,23 +3069,21 @@ class CUsersProfile extends CUsers {
 // MUSIC
 
         if (isset($g['options']['music']) and $g['options']['music'] == "Y") {
-            if (DB::count('music_song', 'user_id=' . $row_user['user_id']) || DB::count('music_musician', 'user_id=' . $row_user['user_id'])){
-                
+            if (DB::count('music_song', 'user_id=' . $row_user['user_id']) || DB::count('music_musician', 'user_id=' . $row_user['user_id']))
                 $html->parse("yes_audio", true);
-            }
         }
 
 // MUSIC
 
-        // if (isset($g['options']['videogallery']) and $g['options']['videogallery'] == "Y")
-        //   {
-        //       DB::query("SELECT id FROM videogallery_video WHERE user_id=" . $row_user['user_id'] . " AND status='ACTIVE' ORDER BY id DESC LIMIT 1");
-        //       if ($row = DB::fetch_row())
-        //       {
-        //           $html->setvar("last_vid", $row['id']);
-        //           $html->parse("yes_vids", true);
-        //       }
-        //   } 
+        /* if (isset($g['options']['videogallery']) and $g['options']['videogallery'] == "Y")
+          {
+          DB::query("SELECT id FROM videogallery_video WHERE user_id=" . $row_user['user_id'] . " AND status='ACTIVE' ORDER BY id DESC LIMIT 1");
+          if ($row = DB::fetch_row())
+          {
+          $html->setvar("last_vid", $row['id']);
+          $html->parse("yes_vids", true);
+          }
+          } */
 
         $html->setvar('url_absolute', "http://" . str_replace("//", "/", str_replace("\\", "", $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/")));
 
@@ -3104,32 +3096,12 @@ class CUsersProfile extends CUsers {
         $html->setvar('rand', '' . (rand(0, 10000000)) . '');
 
         if ($optionTmplSet !== 'urban' && !User::isSimpleProfile($row_user['user_id']) && !Common::isMobile()) {
-            //start-nnsscc-diamond-20200214
-			/*
-			if ($this->m_is_me) {
-                $html->setvar('flash_profile1', User::flashProfile($row_user['user_id']));
+            if ($this->m_is_me) {
+                $html->setvar('flash_profile', User::flashProfile($row_user['user_id']));
             } else {
-                $html->setvar('flash_profile', User::flashProfile($row_user['user_id'], 'viewer'));				
+                $html->setvar('flash_profile', User::flashProfile($row_user['user_id'], 'viewer'));
             }
             $html->parse('flash_profile', false);
-			*/
-			$prf = null;
-            if ($display == 'profile_info') {
-                $prf = Common::getOption('custom_profile_info_html', 'template_options');
-            }
-            if ($prf === null) {
-                $prf = Common::getOption('custom_profile_html', 'template_options');
-            }
-            if ($prf === null) {
-                $prf = 'profile_html';
-            }
-            $profileHtml = new CUsersProfileHtml($prf, null, false, false, true);
-            $profileHtml->formatValue = 'html';
-            $profileHtml->mode = 'view';
-            $this->add($profileHtml);
-            $profileHtml->setUser($row_user['user_id']);
-            $profileHtml->parseBlock($html);
-			//end-nnsscc-diamond-20200214
         } elseif (self::$tmplName != 'impact_mobile'
                     || (self::$tmplName == 'impact_mobile' && $display != 'encounters')) {
             $prf = null;
@@ -3410,11 +3382,15 @@ class CUsersProfile extends CUsers {
                         if ($html->blockExists('set_profile_photo_default')) {
                             $html->parse('set_profile_photo_default', false);
                         }
+
+						CProfilePhoto::parseImageEditor($html, 'image_editor_profile');
+
                     } else {
                         if ($html->blockExists('set_profile_photo_report')) {
                             $html->parse('set_profile_photo_report', false);
                         }
                     }
+
                     if ($display == 'encounters') {
                         if ($html->blockExists('show_btn_encounters')) {
                             $html->parse('show_btn_encounters', false);
@@ -3498,56 +3474,7 @@ class CUsersProfile extends CUsers {
             $this->$onItemTemplateMethod($html, $row, $i, $last);
         }
 
-        $block = 'profile_verification_verified';
-
-        if ($html->blockExists($block) && Common::isOptionActive('profile_verification_enabled') && count(Social::getActiveItems())) {
-
-            $verificationSystems = Social::getActiveItems();
-            $verifiedSystems = array();
-
-            $verificationSystemsData = array();
-            foreach($verificationSystems as $verificationSystemKey => $verificationSystemValue) {
-                $profileSystemKey = $verificationSystemKey . '_id';
-
-                $verificationSystemTitle = l($verificationSystemKey);
-
-                if(isset($row_user[$profileSystemKey]) && $row_user[$profileSystemKey]) {
-                    $verifiedSystems[] = $verificationSystemTitle;
-                }
-
-                if(guser($profileSystemKey)) {
-                    continue;
-                }
-
-                $verificationSystem = Social::$socialArr[$verificationSystemKey];
-                $verificationSystemsData[urlencode($verificationSystem->loginRedirectUrl())] = $verificationSystemTitle;
-            }
-
-            if($verificationSystemsData) {
-                $html->setvar('profile_verification_system_options', h_options($verificationSystemsData, ''));
-            }
-
-            if($this->m_is_me) {
-                if(!count($verifiedSystems) && count($verificationSystemsData)) {
-                    $html->parse('profile_verification_unverified_my');
-                }
-            }
-
-            if($verifiedSystems) {
-                $html->setvar('profile_verification_verified', toAttr(implode(l('profile_verified_systems_delimiter'), $verifiedSystems)));
-
-                // parse link only if I not verified yet
-                if(count($verificationSystemsData)) {
-                    $html->setvar('profile_verification_show_class', 'profile_verification_show');
-                } else {
-                    $html->setvar('profile_verification_off_class', 'profile_verification_off');
-                }
-
-                $html->parse('profile_verification_verified');
-            }
-
-            //$html->parse($block, false);
-        }
+        User::parseProfileVerification($html, $row_user);
 
     }
 
@@ -3911,6 +3838,9 @@ class CHtmlUsersPhoto extends CUsers {
                     || $row_user['user_id'] == guid())) {
 
             $where = ($optionTmplSet == 'urban') ? '' : ' AND `system` = 0';
+			if (!Common::isOptionActiveTemplate('comments_replies')){
+				$where .= ($where ? ' AND ' : ' ') . '`parent_id` = 0';
+			}
             DB::query("SELECT * FROM photo_comments WHERE photo_id=" . $photo_id . $where . " ORDER BY id DESC");
             $count = DB::num_rows();
 
@@ -3930,6 +3860,9 @@ class CHtmlUsersPhoto extends CUsers {
                     $html->setvar("photo", $user_photo);
 
                     $html->setvar("date", Common::dateFormat($row['date'], 'users_photo_date'));
+
+					$row['comment'] = ImAudioMessage::getHtmlPlayer($row, $row['id'],  'photo_comment_audio_', true) . $row['comment'];
+
                     $html->setvar("comment_text", to_html(Common::parseLinksSmile($row['comment']), true, true));
                     $html->setvar("user_name", $name);
                     $html->setvar("cid", $row['id']);
@@ -3986,355 +3919,7 @@ class CHtmlUsersPhoto extends CUsers {
                 redirect('profile_photo.php');
             }
         }
-		//eric-cuigao-20201125-start
-		$num_photo = DB::result("SELECT COUNT(photo_id) FROM photo WHERE private='Y' and user_id = " . $row_user['user_id'] . " " . $g['sql']['photo_vis'] . "");
-		$html->setvar("num_photo", $num_photo);
-        if ($num_photo > 0) {
-            if (($offset > $num_photo - 1) || ($offset < 0)) {
-                $photo_id = User::getPhotoDefault($row_user['user_id'], "r", true, $row['gender']);
-                $offsetCurrent = User::photoOffset($row_user['user_id'], $photo_id);
-            } else {
-                $offsetCurrent = $offset;
-                $photo_id = DB::result("SELECT `photo_id` FROM `photo` WHERE private='Y' and `user_id` = " . $row_user['user_id'] . " "
-                                . $g['sql']['photo_vis'] . " ORDER BY `photo_id` ASC LIMIT " . $offset . ' , 1');
-            }
-			if ($photo_id) {
-                CProfilePhoto::setMediaViews($photo_id);
-                /* For compatibility with new templates */
-                if ($photo_id) {
-                    $photoUserId = DB::result('SELECT `user_id` FROM `photo` WHERE private="Y" and `photo_id` = ' . to_sql($photo_id), 0, DB_MAX_INDEX);
-                    CProfilePhoto::markReadCommentsAndLikes($photo_id, $photoUserId, 'photo');
-                }
-                /*For compatibility with new templates */
-            }
 
-            $private_photo = DB::result("SELECT `private` FROM photo WHERE photo_id = " . to_sql($photo_id, "Numeric"));
-
-            // FIND PREV - NEXT
-            if ($num_photo > 1) {
-                if ($offsetCurrent == 0) {
-                    $next = $offsetCurrent + 1;
-                    $prev = $num_photo - 1;
-                } elseif ($offsetCurrent == $num_photo - 1) {
-                    $next = 0;
-                    $prev = $num_photo - 2;
-                } else {
-                    $next = $offsetCurrent + 1;
-                    $prev = $offsetCurrent - 1;
-                }
-            } else {
-                $next = 0;
-                $prev = 0;
-            }
-
-            $html->setvar("photo_id_cur", $photo_id);
-
-            $html->setvar("photo_id_next", $next);
-            $html->setvar("photo_offset_next", $next);
-            $html->setvar("photo_offset_prev", $prev);
-            $html->setvar("photo_id_prev", $prev);
-
-            if ($num_photo != 1) {
-                $html->parse('yes_pagination', '');
-            }
-
-            /* Encounters && Rate people */
-            $displayParams = get_param('display');
-            $publicWhereSql = '';
-            $paramsLink = '';
-            if ($displayParams == 'rate_people') {
-                $paramsLink = 'ref=rate_people&uid='. $row['user_id'];
-                $publicWhereSql = ' AND `photo_id` = ' . to_sql($row['photo_rate_id'], 'Number');
-            } elseif ($displayParams == 'encounters') {
-                $paramsLink = 'ref=encounters&uid='. $row['user_id'];;
-                $publicWhereSql = " AND `private` = 'N'";
-                $html->setvar('question_encounters', l('would_you_like_to_meet_' . $row['gender']));
-
-                $html->setvar('is_mutual_attraction_encounters', intval(MutualAttractions::isMutualAttraction($row['user_id'])));
-                $html->setvar('is_attraction_from', MutualAttractions::isAttractionFrom($row['user_id']));
-                $html->setvar('from_gender', $row['gender']);
-                if ($html->varExists('my_photo_default')) {
-                    $html->setvar('my_photo_default', User::getPhotoDefault($g_user['user_id'], 'r'));
-                }
-            }
-            /* Encounters && Rate people  */
-
-            $sql = "SELECT * FROM photo WHERE private='Y' and user_id=" . $row_user['user_id'] . $publicWhereSql . " "
-                    . $g['sql']['photo_vis'] . ' ORDER BY photo_id ASC ';
-            DB::query($sql, 1);
-
-            $i = 0;
-            $item = 0;
-            if ($html->varExists('user_profile_param')) {
-                $html->setvar('user_profile_param', $paramsLink);
-            }
-            $html->setvar('user_profile_link', User::url($row_user['user_id']));
-
-            if ($displayParams == 'encounters' || $displayParams == 'rate_people') {
-                $isUserReport = User::isReportUser($row_user['user_id']);
-            }
-
-            while ($row = DB::fetch_row(1)) {
-                if ($i == 0 && $displayParams != 'rate_people') {
-                    if ($photo_id)
-                        $sql = "SELECT * FROM photo WHERE private='Y' and photo_id=" . to_sql($photo_id, "Text") . " AND user_id=" . $row_user['user_id'] . " " . $g['sql']['photo_vis'] . "";
-                    else
-                        $sql = "SELECT * FROM photo WHERE private='Y' user_id=" . $row_user['user_id'] . " " . $g['sql']['photo_vis'] . " ORDER BY photo_id ASC ";
-
-                    DB::query($sql, 2);
-                    $row_b = DB::fetch_row(2);
-                    $html->setvar("photo_id", $row_b['photo_id']);
-                    $html->setvar("main_photo_name", $row_b['photo_name']);
-                    $html->setvar("main_description_short", neat_trim(strip_tags($row_b['description']), 95));
-                    $html->setvar("main_description", htmlspecialchars(strip_tags($row_b['description'])));
-                    $html->setvar("main_numer", 1);
-                    $html->setvar("main_photo_b", User::getPrivatePhotoFile($row_b, "b", $row_user['gender']));
-                    if ($g_user['user_id'] == $row_b['user_id']) {
-                        $html->parse("photo_edit", true);
-                    }
-                }
-
-                $html->setvar("size_x", 400);
-                $html->setvar("size_y", 400);
-
-                $item = $i % 3 + 1;
-                $html->setvar("item", $item);
-
-                $html->setvar("numer", $i);
-                $html->setvar("photo_name", strip_tags($row['photo_name']));
-                $html->setvar("description", strip_tags($row['description']));
-                $html->setvar("photo_name_js", str_replace("'", "\'", strip_tags($row['photo_name'])));
-                $html->setvar("description_js", str_replace("'", "\'", str_replace("\n", " '", str_replace("\r", "'", strip_tags($row['description'])))));
-                $photoMain = User::getPrivatePhotoFile($row, "b", $row_user['gender']);
-                $html->setvar("private_photo_b", $photoMain);
-                $html->parse("private_photo_b", true);
-
-                if($html->varExists('photo_bm')) {
-                    $html->setvar('photo_bm', User::getPrivatePhotoFile($row, 'bm', $row_user['gender']));
-                }
-
-                $html->setvar("photo_offset", $i);
-
-                if ($html->varExists('photo_r')) {
-                    $html->setvar('photo_r', User::getPrivatePhotoFile($row, "r", $row_user['gender']));
-                }
-                $html->setvar("private_photo_s", User::getPrivatePhotoFile($row, "s", $row_user['gender']));
-                $html->parse("private_photo_s", true);
-				$i++;
-                /* Encounters && Rate people */
-                if ($displayParams == 'encounters' || $displayParams == 'rate_people') {
-                    $html->setvar('report_user', $isUserReport);
-                    $html->setvar('reports', $row['users_reports']);
-                    $html->setvar('photo_item_id', $row['photo_id']);
-                    $html->setvar('photo_private', $row['private']);
-                    if ($i == 1) {
-                        $photoWidth = Common::getOption('profile_photo_w', 'template_options');
-                        if ($photoWidth) {
-
-                            $photoFileSizes = array($photoWidth, $photoWidth);
-/*
-                            if($row['width'] == 0 || $row['height'] == 0) {
-                                $tmpPhotoPath = explode('?', $photoMain);
-                                $filePhoto = $g['path']['dir_files'] . $tmpPhotoPath[0];
-                                if(file_exists($filePhoto)) {
-                                    $infoPhoto = @getimagesize($filePhoto);
-                                    if(isset($infoPhoto[1])) {
-                                        $photoFileSizes = array($infoPhoto[0], $infoPhoto[1]);
-                                        DB::update('photo', array('width' => $infoPhoto[0], 'height' =>  $infoPhoto[1]), 'photo_id = ' . to_sql($row['photo_id']));
-                                    }
-                                }
-                            } else {
-                                $photoFileSizes = array($row['width'], $row['height']);
-                            }
-*/
-                            $photoFileSizes = CProfilePhoto::getAndUpdatePhotoSize($row, $photoMain, $photoWidth);
-
-                            $html->setvar('photo_width', $photoFileSizes[0]);
-                            $html->setvar('photo_height', $photoFileSizes[1]);
-                        }
-                    } else {
-                        $html->parse('photo_big_item_hide', false);
-                    }
-                    $html->parse('photo_big_item', true);
-                    if ($html->blockExists('photo_carousel_item')) {
-                        $html->parse('photo_carousel_item', true);
-                    }
-                    if ($i == 3) {
-                       break;
-                    }
-
-                }
-                /* Encounters && Rate people */
-            }
-             /* Encounters && Rate people */
-            if ($html->blockExists('photo_carousel') && $i > 1) {
-                if ($isAjaxRequest) {
-                    $html->parse('photo_carousel_hide');
-                }
-                $html->parse('photo_carousel');
-            }
-
-            if ($html->blockExists('photo_big') && $i > 0) {
-
-                if ($isAjaxRequest && $html->blockExists('update_counter_mutual')) {
-                    $html->setvar('counter_mutual', MutualAttractions::getNumberMutualAttractions());
-                    $html->parse('update_counter_mutual');
-                }
-                $html->setvar('param_uid', get_param('uid', 0));
-                $html->parse('photo_big');
-                $html->parse('encounters');
-
-                if ($displayParams == 'rate_people') {
-                    if ($isAjaxRequest) {
-                        $sql = 'SELECT `rated_photos`, `last_photo_visible_rated`
-                                  FROM `user` WHERE `user_id` = ' . to_sql($g_user['user_id'], 'Number');
-                        $userInfo = DB::row($sql);
-                        $userLastVisibleRated = $userInfo['last_photo_visible_rated'];
-                        $userRatedPhotos = $userInfo['rated_photos'];
-                    } else {
-                        $userLastVisibleRated = $g_user['last_photo_visible_rated'];
-                        $userRatedPhotos = $g_user['rated_photos'];
-                    }
-                    $sql = 'SELECT * FROM `photo`
-                             WHERE `user_id` = ' . to_sql($g_user['user_id'], 'Number') .
-                             ' AND `photo_id` > ' . to_sql($userLastVisibleRated, 'Number') .
-                             ' AND `average` > 0
-                             ORDER BY RAND(), photo_id LIMIT 1';
-                    $randPhoto = DB::row($sql);
-                    $randPhotoId = 0;
-                    if (!empty($randPhoto)) {
-                        $randPhotoId = $randPhoto['photo_id'];
-                        $randPhotoAverage = $randPhoto['average'];
-                    }
-
-                    $vars = array();
-                    $nextStep = intval(Common::getOption('rate_see_my_photo_rating'));
-                    if ($randPhotoId && $nextStep) {
-                        $scale = 100/$nextStep;
-                        $countNextSee = $nextStep - $userRatedPhotos;
-                        $countNextSeeSl = $userRatedPhotos*$scale;
-                        $userRatedPhotos = User::getInfoBasic($g_user['user_id'], 'rated_photos');
-                        $vars = array('next_see' => $countNextSee,
-                                      'next_slider' => $countNextSeeSl);
-                    }
-                    if ($isAjaxRequest) {
-                        $html->setvar('rating_info', json_encode($vars));
-                        $html->parse('rating_info');
-                    } else {
-                        $blockRatePeople = 'rate_people';
-                        if ($randPhotoId && $nextStep) {
-                            $blockRating = $blockRatePeople . '_rating';
-                            $randPhotoUrl = User::getPhotoFile($randPhoto, "r", $g_user['gender']);
-                            $html->setvar($blockRating . '_photo', $randPhotoUrl);
-                            $html->setvar($blockRating . '_photo_id', $randPhotoId);
-                            $html->setvar('hidden_average', ratingFloatToStrTwoDecimalPoint($randPhotoAverage));
-                            $vars = array('count' => $countNextSee);
-                            $html->setvar($blockRating . '_next_see', lSetVars('rate_more_photos_see_the_rating_on_your_photo', $vars));
-                            $html->setvar($blockRating . '_next_see_slider', $countNextSeeSl);
-                            $html->setvar($blockRating . '_next_see_count', $countNextSee);
-                            $html->parse($blockRating);
-                        }
-                        $html->parse($blockRatePeople);
-                    }
-                }
-            }
-            if ($html->blockExists('show_btn_rate_people')) {
-                $html->parse('show_btn_rate_people', false);
-                $html->parse('not_show_no_one_found', false);
-            }
-             /* Encounters && Rate people */
-            // SHOW NOTHING BLOCKS
-            $add = (3 - $item) % 3;
-            if ($add > 0) {
-                for ($n = 0; $n < $add; $n++) {
-                    $html->setvar("item", $item + 1 + $n);
-                    $html->parse("photo_no", true);
-                }
-            }
-            // SHOW NOTHING BLOCKS
-
-            // COMMENTS
-            if (($displayParams != 'encounters' && $displayParams != 'rate_people') && ($private_photo == 'N'
-                    || User::isFriend(guid(), $row_user['user_id'])
-                    || $row_user['user_id'] == guid())) {
-
-            $where = ($optionTmplSet == 'urban') ? '' : ' AND `system` = 0';
-            DB::query("SELECT * FROM photo_comments WHERE photo_id=" . $photo_id . $where . " ORDER BY id DESC");
-            $count = DB::num_rows();
-
-            $html->setvar("num_comments", $count);
-            for ($i = 0; $i < $count; $i++) {
-                if ($row = DB::fetch_row()) {
-                    $row['user_id'] = intval($row['user_id']);
-                    $row_user = User::getInfoBasic($row['user_id'], false, 2);
-
-                    if (!$row_user) {
-                        continue;
-                    }
-
-                    $name = $row_user['name'];
-
-                    $user_photo = User::getPhotoDefault($row['user_id'], "r", false, $row_user['gender']);
-                    $html->setvar("photo", $user_photo);
-
-                    $html->setvar("date", Common::dateFormat($row['date'], 'users_photo_date'));
-                    $html->setvar("comment_text", to_html(Common::parseLinksSmile($row['comment']), true, true));
-                    $html->setvar("user_name", $name);
-                    $html->setvar("cid", $row['id']);
-                    $html->setvar("pid", $photo_id);
-
-                    if ((intval($row['user_id']) === intval($g_user['user_id'])) or (intval($author_photo) === intval($g_user['user_id']))){
-                        $html->parse("delete_comment",False);
-                    } else {
-                        $html->setblockvar('delete_comment', '');
-                    }
-                    $html->setvar("user_photo", $user_photo);
-
-                    if ($name == "") {
-                        $html->parse("anonim_comment", false);
-                        $html->setblockvar("user_comment", "");
-                    } else {
-                        $html->parse("user_comment", false);
-                        $html->setblockvar("anonim_comment", "");
-                    }
-
-                    $html->setvar("num", $i);
-                    $html->setvar("user_age", $row_user['age']);
-                    $html->setvar("user_country_sub", $row_user['country']);
-                    $html->parse("show_info", true);
-                    $html->parse("comment", true);
-                }
-            }
-            $html->parse("comment_form", true);
-            // COMMENTS
-            }
-            if ($num_photo > 1) {
-                $html->parse("photo_link");
-                $html->parse("photo_link_2");
-            }
-
-            $fileTop = Common::getOption('main', 'tmpl') . '_top5user.png';
-            if (!Common::isOptionActive('restore_upload_image_top_five_button')
-                && Common::isOptionActive('top_five_button', 'template_options')
-                && isUsersFileExists('tmpl', $fileTop)) {
-                $html->setvar('top_five_file', $fileTop);
-            } else {
-                $html->setvar('top_five_file', 'top5.png');
-            }
-
-            $html->setvar('name_profile', lSetVars('name_profile', array('name' => $row_user_src['name'])));
-            $html->parse("yes_private_photo", true);
-        } else {
-            if (isset($row['name'])) {
-                $html->setvar('has_no_photos', lSetVars('has_no_photos', array('name' => $row_user_src['name'])));
-            }
-            $html->parse("no_private_photo", true);
-
-            if ($row_user['user_id'] == guid()) {
-                redirect('profile_photo.php');
-            }
-        }
-		//eric-cuigao-20201125-end
         if ($optionTmplName == 'urban_mobile') {
             $prf = Common::getOption('custom_profile_html', 'template_options');
             $profileHtml = new CUsersProfileHtml($prf, null, false, false, true);

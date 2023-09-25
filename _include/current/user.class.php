@@ -369,7 +369,7 @@ Class User {
             $defaultOrientation = self::getDefaultOrientation();
             set_session('j_orientation', $defaultOrientation);
         }
-
+		$couple_type = get_session('j_couple_type');
         $sql = "INSERT IGNORE INTO user SET
 			partner=" . $partner . ",
 			" . $sql_pay . "
@@ -382,6 +382,7 @@ Class User {
 			country_id=" . to_sql(get_session("j_country"), "Number") . ",
 			state_id=" . to_sql(get_session("j_state"), "Number") . ",
 			city_id=" . to_sql($cityId, "Number") . ",
+			partner_type=" . to_sql($couple_type, "Text") . ",
 			country=" . to_sql($country, "Text") . ",
 			state=" . to_sql($state, "Text") . ",
 			city=" . to_sql($city, "Text") . ",
@@ -418,7 +419,18 @@ Class User {
         }
         $g_user['user_id'] = $uid;
         $g_user['name'] = $userName;
-
+		//syart-nnsscc-diamond-20200205
+		$nsc_couple_id = $uid+1;
+		//to do
+		if($orientation==5){
+			self::addNewCouple($uid,$userName);
+			DB::execute("
+					UPDATE user SET					
+					nsc_couple_id='" . $nsc_couple_id . "'
+					WHERE user_id=" . $uid . ";
+			");
+		}
+		//end-nnsscc-diamond-20200205
         self::addToPartner($partner);
         self::emailAdd($email);
 
@@ -678,6 +690,9 @@ static function profileComplite() {
             $com_count = $personalcount + $partnercount + $basiccount;
             $complite = $basic + $partnerc + $personalc;
             $complite = ceil($complite / $com_count * 100);
+			if($complite>93 && sizeOf($g_user['checkbox'])){//nnsscc-diamond-20200503
+				$complite = 100; //todo
+			}
         } else {
             $complite = 0;
         }
@@ -689,6 +704,9 @@ static function profileComplite() {
         }
         if($personal == "Y" && $personalcount != 0) {
             $personalc = ceil($personalc / $personalcount * 100);
+			if($personalc>89 && sizeOf($g_user['checkbox'])){//nnsscc-diamond-20200503
+				$personalc = 100; //todo
+			}
         }
         $return = array(
             'completed' => $complite,
@@ -1007,7 +1025,8 @@ static function profileComplite() {
             $photoPath = "{$templatePrefix}private_photo{$templatePrefixGroup}_{$size}.{$ext}";
             $noVisPrivatePhoto = true;
             // photo owner and friend can see photo
-            if ($photo['user_id'] == $g_user['user_id'] || self::isFriend($g_user['user_id'], $photo['user_id'], $dbIndex)) {
+            //eric-cuigao-nsc-20201125-end
+			if ($photo['user_id'] == $g_user['user_id'] || self::isFriend($g_user['user_id'], $photo['user_id'], $dbIndex) || self::isInvitedPrivate($g_user['user_id'], $photo['user_id'], $dbIndex) || self::isInvitedPrivateGroup($g_user['user_id'],$photo['user_id'])) { //eric-cuigao-nsc-20201203
                 $photoPath = self::photoFileCheck($photo, $size, $gender, true, false, '', $groupId);
                 $noVisPrivatePhoto = false;
             }
@@ -1018,7 +1037,47 @@ static function profileComplite() {
         Cache::add($key, $noVisPrivatePhoto);
         return $photoPath;
     }
+	//eric-cuigao-20201125-start
+    static function getPrivatePhotoFile($photo, $size, $gender, $dbIndex = DB_MAX_INDEX, $cityUserVisitor = false, $groupId = 0)
+    {
+        global $g_user;
 
+        $templatePrefix = '';
+        if(Common::isOptionActive('private_photo_by_template', 'template_options')) {
+            $templatePrefix = Common::getOption('name', 'template_options') . '_';
+        }
+        $templatePrefixGroup = '';
+        if ($groupId) {
+            $templatePrefixGroup = '_group';
+        }
+
+        $noVisPrivatePhoto = true;
+        /*
+        $noPrivatePhoto = false;//Common::isOptionActiveTemplate('no_private_photos');
+        if (isset($photo['private']) && $photo['private'] == 'Y' && !$noPrivatePhoto) {
+            // path to photo if user have no access to view
+            $ext = 'png';
+            $extTmpl = Common::getOption('private_photo_ext', 'template_options');
+            if ($extTmpl) {
+                $ext = $extTmpl;
+            }
+            $photoPath = "{$templatePrefix}private_photo{$templatePrefixGroup}_{$size}.{$ext}";
+            $noVisPrivatePhoto = true;
+            // photo owner and friend can see photo
+            if ($photo['user_id'] == $g_user['user_id'] || self::isFriend($g_user['user_id'], $photo['user_id'], $dbIndex)) {
+                $photoPath = self::photoFileCheck($photo, $size, $gender, true, false, '', $groupId);
+                $noVisPrivatePhoto = false;
+            }
+        } else {
+            $photoPath = self::photoFileCheck($photo, $size, $gender, true, $cityUserVisitor, '', $groupId);
+        }
+        */
+        $photoPath = self::photoFileCheck($photo, $size, $gender, true, $cityUserVisitor, '', $groupId);
+        $key = "no_vis_private_photo_{$photo['user_id']}_{$photo['photo_id']}_{$groupId}";
+        Cache::add($key, $noVisPrivatePhoto);
+        return $photoPath;
+    }
+    //eric-cuigao-20201125-end
 // CHECK photo file
     static function photoFileCheck($photo, $size, $gender = '', $version = true, $cityUserVisitor = false, $prfPhoto = '', $groupId = 0)
     {
@@ -1176,7 +1235,42 @@ static function profileComplite() {
         }
         return $file;
     }
+	//eric-cuigao-nsc-20201203-start
+	static function isInvitedPrivate($from, $to, $dbIndex = DB_MAX_INDEX, $useCache = true)
+    {
+        if($from == 0 || $to == 0 || $from == $to) {
+            return false;
+        }
 
+        $sql = 'SELECT user_id
+            FROM invited_private
+            WHERE accepted = 1
+                AND user_id = '.$to.'
+                AND friend_id = '.$from;
+        return DB::result($sql, 0, $dbIndex, $useCache);
+    }
+	static function isInvitedPrivateGroup($from, $to)
+    {
+        //start gregory mann modified 7/13/2023 
+        $inviteCouples = User::getInfoBasic($to,'set_photo_couples');
+		$inviteMales = User::getInfoBasic($to,'set_photo_males');
+		$inviteFemales = User::getInfoBasic($to,'set_photo_females');
+        //end gregory mann modified 7/13/2023 
+
+		$orientation = User::getInfoBasic($from,'orientation');
+		$show_private_state = false;			
+		if($orientation==5 && $inviteCouples==1){
+			$show_private_state = true;
+		}
+		else if($orientation==1 && $inviteMales==1){
+			$show_private_state = true;
+		}
+		else if($orientation==2 && $inviteFemales==1){
+			$show_private_state = true;
+		}	
+		return $show_private_state;
+    }
+	//eric-cuigao-nsc-20201203-end
     static function isFriend($from, $to, $dbIndex = DB_MAX_INDEX, $useCache = true)
     {
         if($from == 0 || $to == 0 || $from == $to) {
@@ -1296,11 +1390,25 @@ static function profileComplite() {
 
     static function updateLastVisit($uid)
     {
+        $user1 = DB::row("SELECT * FROM user WHERE user_id = " .$uid . ";");
+        
         $sql = 'UPDATE user
             SET last_ip = ' . to_sql(IP::getIp(), 'Text') . ',
                 last_visit = ' . to_sql(date('Y-m-d H:i:s'), 'Text') . '
             WHERE user_id = ' . to_sql($uid, 'Number');
         DB::execute($sql);
+        if($user1['login_type'] == '5') {
+            $nsc_new_couple_row = DB::row('SELECT * FROM user WHERE user_id = ' . to_sql($uid, 'Number'), 1);
+            if($nsc_new_couple_row['orientation']=="5"){
+                if($nsc_new_couple_row['nsc_couple_id']>0){
+                    $sql = 'UPDATE user
+                        SET last_ip = ' . to_sql(IP::getIp(), 'Text') . ',
+                            last_visit = ' . to_sql(date('Y-m-d H:i:s'), 'Text') . '
+                        WHERE user_id = ' . to_sql($nsc_new_couple_row['nsc_couple_id'], 'Number');
+                    DB::execute($sql);
+                }
+            }
+        }
     }
 
     static function usersNew($city = false)
@@ -1586,7 +1694,19 @@ static function profileComplite() {
 
 		CProfilePhoto::removeRelationUnfriendFaceDetect($uid, $fid);
     }
+    
+//eric-cuigao-20201207-start
+    static function privateUserDelete($uid, $fid)
+    {
+		// accepted = 1 AND
+        $sql = 'DELETE FROM invited_private
+			     WHERE  user_id =' . to_sql($uid, 'Number') . '
+                   AND friend_id =' . to_sql($fid, 'Number');
+        DB::execute($sql);
 
+        //Wall::remove('private invite', $uid, $fid);
+    }
+//eric-cuigao-20201207-end
     static function friendApprove($uid, $fid, $isSendMail = true, $isWallAdd = true)
     {
         $result = false;
@@ -5657,6 +5777,7 @@ static function profileComplite() {
             }
         }
         $guserInfo = self::getInfoFull($guid, DB_MAX_INDEX);
+        $guserFilterInfo = json_decode($guserInfo['user_search_filters'], true);
         $userInfo = self::getInfoFull($uid, DB_MAX_INDEX);
 
         $block = 'chart_item';
@@ -5679,28 +5800,52 @@ static function profileComplite() {
                     $type = $field['type_field'];
                     $name = $field['name'];
                     if ($type == 'checkbox') {
-                        if (isset($guserInfo['checkbox'][$field['id']])) {
+                        if (isset($guserFilterInfo[$name])) {
+                            $guserValues = $guserFilterInfo[$name]['value'];
+                        } elseif (isset($guserInfo['checkbox'][$field['id']])) {
                             $guserValues = $guserInfo['checkbox'][$field['id']];
                         }
                         if (isset($userInfo['checkbox'][$field['id']])) {
                             $userValues = $userInfo['checkbox'][$field['id']];
                         }
-                    } elseif ($type == 'selection' || $type == 'checks') {
+                    } elseif ($type == 'selection') {
+                        if (isset($guserFilterInfo['p_' . $name])) {
+                            $guserValues = $guserFilterInfo['p_' . $name]['value'];
+                        } elseif (isset($guserInfo[$name])) {
+                            $guserValues = array($guserInfo[$name]);
+                        }
                         if ($name == 'star_sign') {
-                            $guserValues = array($guserInfo['horoscope']);
                             $userValues = array($userInfo['horoscope']);
-                        } else {
-                            if (isset($guserInfo[$name]) && $guserInfo[$name]) {
-                                $guserValues = array($guserInfo[$name]);
-                            }
-                            if(isset($userInfo[$name]) && $userInfo[$name]) {
-                                $userValues = array($userInfo[$name]);
-                            }
+                        } elseif(isset($userInfo[$name])) {
+                            $userValues = array($userInfo[$name]);
+                        }
+                    } elseif ($type == 'checks') {
+                        if (isset($guserFilterInfo['p_' . $name . '_to'])) {
+                            $guserValues = array($guserFilterInfo['p_' . $name . '_to']['values']['p_' . $name . '_from'], $guserFilterInfo['p_' . $name . '_to']['values']['p_' . $name . '_to']);
+                        } elseif (isset($guserInfo[$name])) {
+                            $guserValues = array($guserInfo[$name], $guserInfo[$name]);
+                        }
+                        if (isset($userInfo[$name])) {
+                            $userValues = $userInfo[$name];
                         }
                     }
                     if ($userValues && $guserValues) {
-                        $matches += count(array_intersect($userValues, $guserValues));
-                        $count += count($guserValues);
+                        if ($type == 'checks') {
+                            if ($guserValues[0] == $guserValues[1] && $userValues == $guserValues[0]) {
+                                $matches += 1;
+                            } elseif (!$guserValues[0] && $userValues <= $guserValues[1]) {
+                                $matches += 1;
+                            } elseif (!$guserValues[1] && $userValues >= $guserValues[0]) {
+                                $matches += 1;
+                            } elseif ($userValues >= $guserValues[0] && $userValues <= $guserValues[1]) {
+                                $matches += 1;
+                            }
+                            $count += 1;
+
+                        } else {
+                            $matches += count(array_intersect($userValues, $guserValues));
+                            $count += count($guserValues);
+                        }
                     }
                 }
                 if ($matches) {
@@ -6250,7 +6395,15 @@ static function profileComplite() {
         $guid = guid();
         $guidSql = to_sql($guid);
 
+        $sql_groups_subscribers = "";
+        if (!$groupId) {
+            $sql_groups_subscribers =
+                "(SELECT COUNT(*)
+                   FROM `groups_social_subscribers`
+                  WHERE " . ($all ? '' : 'is_new = 1 AND ') . "user_id = {$guidSql} AND group_user_id != {$guidSql} AND group_private = 'Y' AND accepted = 1) + ";
+        }
         $sql = "SELECT
+                {$sql_groups_subscribers}
                 (SELECT COUNT(*)
                    FROM `vids_comments_likes` AS VL
                    LEFT JOIN `vids_video` AS VV ON VV.id = VL.video_id
@@ -7370,5 +7523,210 @@ static function profileComplite() {
 		return true;
 	}
 	/* Cover profile bg */
+	
+	static function addNewCouple($uid, $userName){//start-nnsscc-diamond-20200205
+		global $g;
+        global $g_user;
+		$admin = false;
+        $optionSet = Common::getOption('set', 'template_options');
+
+        $userName = $userName."2 ";
+        $email = get_session('j_mail')."_";
+
+        if (!trim($userName) || !trim($email)) {
+            return 0;
+        }
+
+        //set_session('j_captcha', false);
+
+        $partner = (int) get_session('partner');
+		$nsc_couple_type = get_session('j_nsc_couple_type');
+
+        $birth = get_session('j_nsc_couple_year') . '-' . get_session('j_nsc_couple_month') . '-' . get_session('j_nsc_couple_day');
+
+        $city = Common::getLocationTitle('city', get_session('j_city_couple'));
+        $state = Common::getLocationTitle('state', get_session('j_state_couple'));
+        $country = Common::getLocationTitle('country', get_session('j_country'));
+
+        if ((IS_DEMO || $admin) && $optionSet != 'urban') {
+            $sql_pay = "gold_days=9999, type='platinum',";
+        } else {
+            $sql_pay = "gold_days=0, type='none',";
+
+            if($g['trial']['days'] > 0) {
+                $sql_pay = 'gold_days = ' . to_sql($g['trial']['days'], 'Number') . ',
+                    type = ' . to_sql($g['trial']['type'], 'Text') . ',';
+            }
+
+            if($g['trial']['credits'] > 0) {
+                $sql_pay .=  'credits = ' . to_sql($g['trial']['credits'], 'Text') . ',';
+        }
+        }
+       
+		$isUserApproval = ($admin) ? false : Common::isOptionActive('manual_user_approval');
+        $approval = 1;
+        $hideTime = 0;
+        if ($isUserApproval) {
+            $approval = 0;
+            $hideTime = 1;
+        }
+        // URBAN 
+        //$looking = get_param('looking', 1);
+        //$defaultOnlineView = array(1 => 'B', 2 => 'M', 3 => 'F');
+        //default_online_view=" . to_sql($defaultOnlineView[$looking]) . ",
+
+        $bg = '';
+        if ($optionSet == 'urban') {
+            $bg = Common::getOption('default_profile_background');
+        }
+
+        $socialIDQuery='';
+        $socialType=get_session('social_type');
+        if($socialType){
+            $socialID=get_session($socialType.'_id');
+            if($socialID){
+                $socialIDQuery=", ".$socialType."_id = ".to_sql($socialID,'Text');
+            }
+        }
+
+
+        $cityId = get_session("j_city_couple");
+        $geoPosition = self::getGeoPosition($cityId);
+        $geoPositionSql = '';
+        if ($geoPosition !== false) {
+            foreach ($geoPosition as $key => $value) {
+                $geoPositionSql .= ", `{$key}` = " . to_sql($value);
+            }
+        }
+		
+        $orientation = intval(get_session('j_orientation'));
+        if(!$orientation) {
+            $defaultOrientation = DB::result('SELECT `id` FROM `const_orientation` ORDER BY `default` DESC, `id` ASC LIMIT 1');
+            set_session('j_orientation', $defaultOrientation);
+        }
+		$g_user['nsc_couple_user_id'] = $uid+1;
+        $g_user['nsc_couple_name'] = $userName;
+		$g_user['nsc_couple_country'] = $country;
+        $g_user['nsc_couple_state'] = $state;
+        $g_user['nsc_couple_city'] = $city;		
+		
+        $sql = "INSERT IGNORE INTO user SET
+			partner=" . $partner . ",
+			" . $sql_pay . "
+			name=" . to_sql($userName, "Text") . ",
+			orientation=" . to_sql(get_session("j_orientation"), "Number") . ",
+			p_orientation=" . to_sql(DB::result("SELECT search FROM const_orientation WHERE id=" . to_sql(get_session("j_orientation"), "Number")), "Number") . ",
+			gender=" . to_sql(DB::result("SELECT gender FROM const_orientation WHERE id=" . to_sql(get_session("j_orientation"), "Number")), "Text") . ",
+			mail=" . to_sql($email, 'Text') . ",
+			password=" . to_sql($g['options']['md5'] == "Y" && !$admin ? md5(get_session("j_password")) : get_session("j_password"), "Text") . ",
+			country_id=" . to_sql(get_session("j_country"), "Number") . ",
+			state_id=" . to_sql(get_session("j_state_couple"), "Number") . ",
+			city_id=" . to_sql($cityId, "Number") . ",
+			nsc_couple_id=".$uid.",
+			partner_type=" . to_sql($nsc_couple_type, "Text") . ",
+			country=" . to_sql($country, "Text") . ",
+			state=" . to_sql($state, "Text") . ",
+			city=" . to_sql($city, "Text") . ",
+			birth=" . to_sql($birth, 'Text') . ",
+			p_age_from=" . to_sql(get_session("j_partner_age_from"), "Number") . ",
+			p_age_to=" . to_sql(get_session("j_partner_age_to"), "Number") . ",
+			horoscope=" . to_sql(zodiac($birth), "Number") . ",
+			p_horoscope=0,
+			active=" . to_sql($approval) . ",
+			hide_time=" . to_sql($hideTime) . ",
+			register='" . date('Y-m-d H:i:s') . "',
+			last_visit='" . date('Y-m-d H:i:s') . "',
+			last_ip=" . to_sql(IP::getIp(), 'Text') . ",
+			set_email_mail='1',
+			set_email_interest='1',
+            profile_bg=" . to_sql($bg) . ",
+			relation=" . to_sql(get_session("j_relation"), "Number") . ",
+			auth_key=" . to_sql(md5(IP::getIp() . rand() . microtime() . rand() . $userName . rand() . $email)) . ",
+			lang=" . to_sql($g['main']['lang_loaded']) . ",
+            i_am_here_to=" . to_sql(intval(DB::result('SELECT MIN(id) FROM `const_i_am_here_to`')))
+            . $geoPositionSql
+            . $socialIDQuery;
+
+        DB::execute($sql);
+		
+		$userinfoNumbers = '';
+        $userinfoTexts = '';
+        foreach ($g['user_var'] as $k => $v) {
+            $k = to_sql($k, 'Plain');
+            $key = 'j_couple_' . $k;
+            $value = get_session($key);
+            delses($key);
+
+            if (substr($k, 0, 2) != 'p_') {
+                /*if ($v[0] == 'text' && $value != '') {
+                    $userinfoTexts .= $k . ' = ' . to_sql(Common::filterProfileText($value), 'Text') . ', ';
+                } elseif ($v[0] == 'textarea' && $value != '') {
+                    $userinfoTexts .= $k . ' = ' . to_sql(Common::filterProfileText($value), 'Text') . ', ';
+                } elseif ($v[0] == 'from_table') {
+                    if ($v[1] == 'int') {
+                        $userinfoNumbers .= $k . ' = ' . to_sql($value, 'Number') . ', ';
+                    } elseif ($v[1] == 'checks') {
+                        $userinfoNumbers .= $k . ' = ' . to_sql($value, 'Number') . ', ';
+                    }
+                }*/
+
+                if ($v['type'] == 'text' && $value != '') {
+                    $userinfoTexts .= $k . ' = ' . to_sql(Common::filterProfileText($value), 'Text') . ', ';
+                } elseif ($v['type'] == 'textarea' && $value != '') {
+                    $userinfoTexts .= $k . ' = ' . to_sql(Common::filterProfileText($value), 'Text') . ', ';
+                } elseif ($v['type'] == 'int') {
+                    $userinfoNumbers .= $k . ' = ' . to_sql($value, 'Number') . ', ';
+                } elseif ($v['type'] == 'checks') {
+                    $userinfoNumbers .= $k . ' = ' . to_sql($value, 'Number') . ', ';
+                }
+            }
+        }
+        $userinfoNumbers = trim(trim($userinfoNumbers), ',');
+        $userinfoTexts = trim(trim($userinfoTexts), ',');
+
+        if ($userinfoNumbers != '') {
+            $sql = 'INSERT INTO userinfo
+                SET user_id = ' . $g_user['nsc_couple_user_id'] . ', ' . $userinfoNumbers;
+        } else {
+            $sql = 'INSERT INTO userinfo SET user_id = ' . $g_user['nsc_couple_user_id'];
+        }
+
+        DB::execute($sql);
+
+        if ($userinfoTexts != '') {
+            if ($g['options']['texts_approval'] == 'N') {
+                $sql = 'UPDATE userinfo
+                    SET ' . $userinfoTexts . '
+                    WHERE user_id = ' . $g_user['nsc_couple_user_id'];
+            } else {
+                $sql = 'INSERT INTO texts
+                    SET user_id = ' . $g_user['nsc_couple_user_id'] . ', ' . $userinfoTexts;
+            }
+            DB::execute($sql);
+            if ($g['options']['texts_approval'] == 'Y'){
+                if(Common::isEnabledAutoMail('approve_text_admin')){
+                    $vars = array(
+                        'name'  => User::getInfoBasic($g_user['nsc_couple_user_id'],'name'),
+                    );
+                    Common::sendAutomail(Common::getOption('administration', 'lang_value'), Common::getOption('info_mail', 'main'), 'approve_text_admin', $vars); //ccssnn
+                }
+
+            }
+        }
+
+        if ($optionSet == 'urban') {
+            $isCustomRegister = Common::isOptionActive('custom_user_registration', 'template_options');
+            $usersLike = get_param_array('users_like');
+            if ($usersLike) {
+                foreach ($usersLike as $uidLike => $userLike) {
+                    MutualAttractions::setWantToMeet($uidLike, 'Y');
+                }
+            }
+            self::setDefaultParamsFilterUser($g_user['nsc_couple_user_id'], true, $isCustomRegister);
+        }
+        Wall::setUid($g_user['nsc_couple_user_id']);
+        Wall::add('comment', 0, $g_user['nsc_couple_user_id'], 'joined the website');
+	}
+
 
 }

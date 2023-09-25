@@ -101,6 +101,7 @@ class UserFields extends CHtmlBlock
     public $cityInfo = null;
 
     static $parseTextDescrption = false;
+	private $setAdminAboutProfile = false;
 
     function __construct($name, $html_path, $isTextTemplate = false, $textTemplate = false, $noTemplate = false, $typeParse = false, $uid = false)
     {
@@ -131,11 +132,14 @@ class UserFields extends CHtmlBlock
             $option = 'fields_not_available_admin';
             $this->selectionFields['admin'] = array('text', 'textarea', 'int', 'const', 'checkbox');
             if ($this->name == 'edge') {
-                $this->selectionFields['admin'] = array('text', 'textarea', 'const');
+                //$this->selectionFields['admin'] = array('text', 'textarea', 'const');
             }
         }
         if ($this->name == 'edge') {
-            $this->selectionFields['update_admin_urban'] = array('text', 'textarea', 'const');
+            //$this->selectionFields['update_admin_urban'] = array('text', 'textarea', 'const');
+            if($this->typeParse == 'personal_edit_urban_mobile' || $this->typeParse == 'birthday') {
+                unset($g['user_var']['star_sign']);
+            }
         }
         if ($this->set == 'urban'
             && ($this->typeParse == 'personal_edit_urban' || $this->typeParse == 'personal_edit_urban_mobile')) {
@@ -145,9 +149,6 @@ class UserFields extends CHtmlBlock
         //We must move in the condition below - is not enough id in each field (from Urbana already recorded in the id)
         self::removeUnavailableField($option);
         $this->gFields = $g['user_var'];
-
-        // var_dump($g['user_var']) ;
-        // die();
 
         //Sorted into groups - is part isAllowed postponed
         $guid = guid();
@@ -185,9 +186,9 @@ class UserFields extends CHtmlBlock
         if ($this->set == 'urban'
             && ($this->m_name == 'profile_html_urban' || in_array($this->typeParse, array('profile_html_urban', 'admin')))) {
             if(isset($this->gUser['horoscope'])) {
-            $this->gUser['star_sign'] = $this->gUser['horoscope'];
+                $this->gUser['star_sign'] = $this->gUser['horoscope'];
+            }
         }
-    }
 
         $this->setValueTexts();
     }
@@ -359,7 +360,7 @@ class UserFields extends CHtmlBlock
                 $lVal = "field_description_{$name}";
                 $desc = l($lVal);
                 if ($desc != $lVal){
-                    if (!self::$parseTextDescrption){
+                    if (!self::$parseTextDescrption && $this->name !== 'edge'){
                         $this->gUser[$name] = $desc;
                     }
                     $description = toAttrL($lVal);
@@ -368,7 +369,8 @@ class UserFields extends CHtmlBlock
                 $this->gUser[$name] = User::getLookingFor($this->userId);
             }*/
         }
-		$html->setvar('field_description', $description);
+
+        $html->setvar('field_description', $description);
         $html->setvar('maxlen', $data['length']);
         if($this->gUserNscCoupleId==0)
 			$value = $this->formatValue($this->getParam($name));
@@ -407,14 +409,27 @@ class UserFields extends CHtmlBlock
         } else {
             $html->clean('forced_show_more');
         }
-		$html->setvar('value', $value);
-        if ($html->varExists('value_entities')) {
+
+        if($this->name === 'edge' && $this->mode === 'view' && $value === '') {
+            // hide empty fields in the right side column
+            return;
+        }
+
+        $html->setvar('value', $value);
+
+        if ($html->varExists('value_input')) {
+            $valueInput = heEmoji($this->getParam($name));
+            $html->setvar('value_input', $valueInput);
+        }
+	
+	if ($html->varExists('value_entities')) {
             if($this->gUserNscCoupleId==0)
 				$valueEntities = he_decode($this->getParam($name));
 			else
 				$valueEntities = he_decode($this->getParamNscCouple($name));
             $html->setvar('value_entities', htmlentities($valueEntities, ENT_COMPAT, 'UTF-8'));
         }
+
         $html->setvar('type', $data['type']);
         $this->parseField($html, $name, $data, $isGroup, false, $parse_js, $block);
         $noBlock = ($data['type'] == 'text') ? $this->block['textarea'] : $this->block['text'];//Не надо?
@@ -625,6 +640,9 @@ class UserFields extends CHtmlBlock
             }
             $html->setvar('id', $key);
             $html->setvar('num', $i);
+			if ($html->varExists('value_selected')) {
+				$html->setvar('value_selected', $value);
+			}
             //var_dump($value);
             $html->setvar('options', DB::db_options("SELECT id, title FROM " . $data['table']
                                                      . " ORDER BY id ASC", $value));
@@ -1820,6 +1838,9 @@ class UserFields extends CHtmlBlock
 
         $html->setvar('value_no_format', $value);
         $html->setvar('value', nl2br($value));
+        if ($html->varExists('value_input')) {
+            $html->setvar('value_input', heEmoji($value));
+        }
         $html->setvar('type', 'textarea');
         $html->setvar('private_note_user_id', $this->userId);
         $this->parseField($html, $name, $data, false, false, true, $this->block['private_note']);
@@ -1857,7 +1878,9 @@ class UserFields extends CHtmlBlock
                 $desc = '';
             } else {
                 $desc = implode(l('profile_appearance_delimiter'), $desc);
-                $desc = mb_ucfirst(mb_strtolower($desc, 'UTF-8'), 'UTF-8');
+                if (l('profile_personal_group_fields_allow_ucfirst') == 'Y') {
+                    $desc = mb_ucfirst(mb_strtolower($desc, 'UTF-8'), 'UTF-8');
+                }
             }
             $html->setvar('value', $desc);
             $html->parse($block, $parse);
@@ -1912,9 +1935,16 @@ class UserFields extends CHtmlBlock
 
     public function parseDate($html, $year = '', $month = '', $day = '', $first = '', $last = '', $default = '', $formatMonth = 'F')
     {
+        if (User::isDisabledBirthday()) {
+            return false;
+        }
         $this->parseDay($html, $year, $month, $day);
         $this->parseMonth($html, $month, $formatMonth);
         $this->parseYear($html, $first, $last, $default);
+
+        if ($html->blockExists('field_birthday_bl')) {
+            $html->parse('field_birthday_bl', false);
+        }
     }
 
     public function parseMonth($html, $month = '', $format = 'F')
@@ -2089,13 +2119,24 @@ class UserFields extends CHtmlBlock
 
     public function parseOrientationForAction($html)
     {
-        if (self::isActiveOrientation()) {
+        $isParseBlock = false;
+        if(Common::isEdgeLmsMode()) {
+            $orientation = DB::result("SELECT title FROM const_lms_user_types WHERE id = " . to_sql($this->gUser['lms_user_type']));
+            $html->setvar('field_orientation_value', l($orientation));
+            $html->parse('field_orientation_edit_off', false);
+            $isParseBlock = true;
+        } elseif (self::isActiveOrientation()) {
             $html->setvar('orientation_options', DB::db_options("SELECT id, title FROM const_orientation", $this->gUser['orientation']));
             $html->parse('field_orientation_edit_on', false);
-        } else {
+            $isParseBlock = true;
+        } elseif (self::isActive('orientation')) {
             $orientation = DB::result("SELECT title FROM const_orientation WHERE id = " . to_sql($this->gUser['orientation']));
             $html->setvar('field_orientation_value', l($orientation));
             $html->parse('field_orientation_edit_off', false);
+            $isParseBlock = true;
+        }
+        if ($isParseBlock && $html->blockExists('field_orientation_edit_bl')) {
+            $html->parse('field_orientation_edit_bl', false);
         }
     }
 
@@ -2224,7 +2265,7 @@ class UserFields extends CHtmlBlock
             $this->parseAge($html);
         }
 
-        if (self::isActive('orientation')) {
+        if (self::isActive('orientation') && !Common::isEdgeLmsMode()) {
             $numColumn = 1;
             $this->parseChecks($html, 'p_orientation', $g['user_var']['orientation'], $numColumn, 0, false, 'p_orientation', true, null, 'filter');
         }
@@ -2308,7 +2349,7 @@ class UserFields extends CHtmlBlock
             $html->parse('field_i_am_here_to_off');
         }
 
-        if ($this->name == 'impact' || $this->name == 'impact_mobile') {
+        if ($this->name == 'impact' || $this->name == 'impact_mobile' || $this->name == 'edge') {
             /*if (self::isActiveSexuality()) {
                 $values = array();
                 if ($uid) {
@@ -2320,6 +2361,9 @@ class UserFields extends CHtmlBlock
             if (User::isSearchNearMe()) {
                 $html->parse('field_near_me_checked');
             }
+			if($this->name !== 'edge' || Common::isOptionActive('location_enabled', 'edge_join_page_settings')) {
+				$html->parse('field_near_me');
+			}
         }
 
         $isOrientation = false;
@@ -2379,7 +2423,7 @@ class UserFields extends CHtmlBlock
         $data = array();
 
         $optionTmplName = Common::getOption('name', 'template_options');
-        $isImpactSet = $optionTmplName == 'impact' || $optionTmplName == 'impact_mobile';
+        $isImpactSet = ($optionTmplName == 'impact' || $optionTmplName == 'impact_mobile' || $optionTmplName == 'edge');
         $titleAges = '';
         if (self::isActive('age_range')) {
             $data['p_age_from'] = get_param('p_age_from');
@@ -2441,6 +2485,8 @@ class UserFields extends CHtmlBlock
             if ($setRadius) {
                 $_GET['radius'] = $setRadius;
                 User::updateFilterAll(null, array('radius'));
+                Cache::delete('search_near_me_' . $user_id);
+                Cache::delete('search_near_me_title_' . $user_id);
             }
         }
         if (User::noYourOrientationSearch()) {
@@ -2487,8 +2533,7 @@ class UserFields extends CHtmlBlock
 
     public function updateCustomCheckbox($field)
     {
-		$options = get_param_array($field);
-
+        $options = get_param_array($field);
         $id = $this->gFields[$field]['id'];
 
         $sql = 'DELETE FROM `users_checkbox`
@@ -2697,7 +2742,6 @@ class UserFields extends CHtmlBlock
 
     public function parseTypeSections($html, $name, $data)
     {
-        
         $type = $data['type'];
         switch ($type) {
             case 'text':
@@ -2717,16 +2761,14 @@ class UserFields extends CHtmlBlock
 				}
             break;
         }
-        
-      
         $this->$parseMethod($html, $name, $data);
-
     }
 
     public function parseFieldsAll(&$html, $type = 'profile', $init = true, $nsc_id = 0)
     {
-        
-		$this->currentTypeParse = $type;
+        global $g_user;
+
+        $this->currentTypeParse = $type;
         if($init) {
             $this->init();
         }
@@ -2737,7 +2779,6 @@ class UserFields extends CHtmlBlock
             $countFieldGroup = count($group);
             foreach ($group as $name => $data)
             {
-
                 $countFieldGroup --;
                 if ($this->isAllowed($data, $type, $name))
                 {
@@ -2760,6 +2801,9 @@ class UserFields extends CHtmlBlock
                                 if ($data['group'] == 1) {
                                     $isParse = $this->parseInt($html, $name, $data, true, false,false);
                                 } else {
+                                    if($this->set == 'urban' && $data['group'] == 3) {
+                                        break;
+                                    }
                                     $this->parseInt($html, $name, $data);
                                 }
                             } elseif ($data['type'] == 'const'){
@@ -2818,14 +2862,14 @@ class UserFields extends CHtmlBlock
                             break;
 
                         case 'profile_html_urban':
-                            if ($num == 2) {
+                            if ($num == 2 || ($num == 3 && $data['type'] != 'private_note')) {
                                 break;
                             }
                             $isParseGeneralBlock = true;
                             if ($data['type'] == 'text' || $data['type'] == 'textarea') {
-                                if ($this->gUser[$name] != ''
+                                if (!($this->name === 'edge' && $this->gUser[$name] == '') && ( $this->gUser[$name] != ''
                                     || ($this->name != 'urban_mobile' && $num != 1
-                                        && ($this->userId == guid() /*|| ($this->userId != guid() && $name == 'interested_in')*/))) {
+                                        && ($this->userId == guid() /*|| ($this->userId != guid() && $name == 'interested_in')*/)))) {
                                     $this->parseText($html, $name, $data, true, false, 'basic', true);
                                 } else {
                                     $this->cleanBlocks($html, 'basic');//???
@@ -2939,10 +2983,10 @@ class UserFields extends CHtmlBlock
                             $isParse = true;
                         }
                         $blockGeneral = 'personal';
-                        if ($this->name == 'impact') {
+                        if ($this->name == 'impact' || $this->name == 'edge') {
                             $blockGeneral = 'personal_impact';
                         }
-                        if ($this->countShowGroupInt[1] || $isParse) {
+                        if ( $this->countShowGroupInt[1] || ($this->name !== 'edge' && $isParse)) {
                             $html->parse($blockGeneral, false);
                         }
                         $this->cleanBlocks($html, $blockGeneral);
@@ -3116,17 +3160,21 @@ class UserFields extends CHtmlBlock
                 if ($this->set != 'urban') {
                     $this->parseType($html);
                 }
+
+				$isParseModernPersonal = false;
                 $range = false;
                 if ($this->set == 'urban') {
-                    if ($this->name != 'edge') {
+                    if ($this->name != 'edge_OFF') {
                         $isParse = $this->parseLookingFor($html);
                         if ($isParse) {
                             $html->parse('edit_looking');
+							$isParseModernPersonal = true;
                         }
                     }
                 } else {
                     if (User::noYourOrientationSearch()) {
                         $this->parseChecks($html, 'p_orientation', $this->gFields['orientation'], 2, 0, false, 'p_orientation', true);
+						$isParseModernPersonal = true;
                         $html->parse('edit_looking');
                     }
                     if (self::isActive('age_range')) {
@@ -3140,7 +3188,16 @@ class UserFields extends CHtmlBlock
                         $html->parse('partner_enabled');
                     }
                 }
+
+				if ($this->setAdminAboutProfile) {
+					$isParseModernPersonal = true;
+					$html->parse('personal_fields_text', false);
+				}
+
                 if ($isPersonal) {
+					if ($isParseModernPersonal) {
+						$html->parse('personal_text_and_looking');
+					}
                     if ($this->isVisualGroup('Int')) {
                         $this->parseSections($html, 'Int', 'personal_fields');
                     }
@@ -3156,10 +3213,17 @@ class UserFields extends CHtmlBlock
                     $html->parse('fields_criteria', false);
                 }
                 if (self::isActive('relation')) {
-                    $this->parseChecks($html, 'p_relation', $this->gFields['income'], 3, 0, false, 'p_relation', false);//nnsscc-diamond-20200309
+                    $this->parseChecks($html, 'p_relation', $this->gFields['relation'], 2, 0, false, 'p_relation', false);
                 }
+
                 if (User::noYourOrientationSearch()) {
-                    $this->parseChecks($html, 'p_orientation', $this->gFields['orientation'], 1, 0, false, 'p_orientation', false);//nnsscc-diamond-20200309
+                    $this->parseChecks($html, 'p_orientation', $this->gFields['orientation'], 2, 0, false, 'p_orientation', false);
+                }
+
+                if (UserFields::isActive('orientation') && Common::isOptionActive('your_orientation')) {
+                    if (isset($g_user['p_orientation']) && $g_user['p_orientation']) {
+                        CSearch::parseChecks($html, "orientation", "SELECT id, title FROM const_orientation ORDER BY id ASC", $g_user['p_orientation'], 2, 0, true, 'orientation_search');
+                    }
                 }
 
                 $sql = 'SELECT `register`
@@ -3190,7 +3254,6 @@ class UserFields extends CHtmlBlock
 
             case 'profile_html':
                 $html->setvar('user_name', $this->gUser['name']);
-                // echo $this->gUser['name']; die();
                 if ($this->countShow > 0) {
                     $html->parse('fields_essay', false);
                 }
@@ -3579,10 +3642,18 @@ class UserFields extends CHtmlBlock
         global $g;
 
         $availableField = Common::getOption($option, 'template_options');
+        if($option === 'fields_not_available' || $option === 'fields_not_available_admin') {
+            if(Common::isEdgeLmsMode()) {
+                $availableField[] = 347;
+            } else {
+                $availableField[] = 171;
+            }
+        }
+        $tmplSet = Common::getTmplSet();
 
         if (isset($g['user_var']) && is_array($availableField)){
             foreach ($g['user_var'] as $key => $field) {
-                if (in_array($field['id'], $availableField)) {
+                if (in_array($field['id'], $availableField) || ($tmplSet === 'old' && $field['type'] === 'checkbox')) {
                     unset($g['user_var'][$key]);
                 }
             }

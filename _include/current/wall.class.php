@@ -1,6 +1,5 @@
 <?php
-
-/* (C) Websplosion LTD., 2001-2014
+/* (C) Websplosion LLC, 2001-2021
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -25,6 +24,7 @@ class Wall {
     static $templatesUsername = array();
     static $templatesUsernameS = array();
     static $templatesUsernameLike = array();
+    static $templatesGroupTitle = array();
     static $infoPhotoBigLimit = 3;
     static $infoPhotoBigLimitMobile = 2;
     //const URL_PROFILE = '<strong><a href="{url_main}search_results.php?display={display_profile}&name={name}">{name}</a></strong>';
@@ -90,6 +90,10 @@ class Wall {
     static $commentReplyCustomClass = '';
     static $commentsReplyParse = array();
     static $isShowPostInput = false;
+    static $isParseCommentsBlog = false;
+    static $classOutsideImage = '';
+	static $admin = false;
+	static $tempNameFileBase = '';
 
     static function getIsMobile()
     {
@@ -247,6 +251,11 @@ class Wall {
         self::$singleItemMode = $mode;
     }
 
+    static function getSingleItemMode()
+    {
+        return self::$singleItemMode;
+    }
+
     static function isSingleItemMode()
     {
         return self::$singleItemMode;
@@ -278,7 +287,6 @@ class Wall {
         return self::$siteSectionItemId;
     }
 
-
     static function setUid($uid)
     {
         self::$uid = $uid;
@@ -306,6 +314,16 @@ class Wall {
     static function isGroup()
     {
         return self::getGroupId();
+    }
+
+	static function setAdmin($admin)
+    {
+        self::$admin = $admin;
+    }
+
+    static function isAdmin()
+    {
+        return self::$admin;
     }
 
     static function prepareUrlSection($section, $vars)
@@ -357,7 +375,7 @@ class Wall {
         return $type;
     }
 
-    static function wallItemTitleTemplate($typeSection, $gender = '')
+    static function wallItemTitleTemplate($typeSection, $gender = '', $groupId = 0)
     {
         global $l;
         if ($gender != '') {
@@ -366,9 +384,13 @@ class Wall {
         $shareTemplate = '';
         if(self::isShareItem()) {
             $shareTemplate = 'share_';
+            if ($groupId) {
+                $shareTemplate .= 'group_';
+            }
         }
         //Redo for lCascade()
         $type = self::getTypePrfLang('wall_item_title_template_' . $shareTemplate . $typeSection . $gender);
+
         if (!isset($l['all'][$type])) {
             $type = self::getTypePrfLang('wall_item_title_template_' . $shareTemplate . $typeSection);
             if ($gender == '' && !isset($l['all'][$type])) {
@@ -431,7 +453,7 @@ class Wall {
         return self::$templatesUsernameS[$name];
     }
 
-    static function getTemplateUsername($name, $uid, $groupId = 0)
+    static function getTemplateUsername($name, $uid, $groupId = 0, $row = null)
     {
         global $g;
 
@@ -442,11 +464,25 @@ class Wall {
                 //'display_profile' => self::displayProfile($uid),
             );
 
+            $urlProfile = '';
             if ($groupId) {
-                $vars['url_profile'] = Groups::url($groupId);
-            } else {
-                $vars['url_profile'] = User::url($uid);
+                $groupInfo = Groups::getInfoBasic($groupId);
+                $isGroup = $groupInfo['page'];
+                if ($row !== null && !$isGroup && isset($row['parent_user_id'])) {
+                    $isGroup = $row['section'] == 'pics'
+                            && $row['parent_user_id']
+                            && $row['parent_user_id'] != $groupInfo['user_id'];
+                }
+                if ($isGroup) {
+                    $urlProfile = Groups::url($groupId);
+                }
             }
+            if (!$urlProfile) {
+                $urlProfile = User::url($uid);
+            }
+
+            $vars['url_profile'] = $urlProfile;
+
             self::$templatesUsername[$name] = Common::replaceByVars(self::URL_PROFILE, $vars);
         }
 
@@ -465,11 +501,19 @@ class Wall {
                 //'display_profile' => self::displayProfile($uid),
             );
 
+            $urlProfile = '';
             if ($groupId) {
-                $vars['url_profile'] = Groups::url($groupId);
-            } else {
-                $vars['url_profile'] = User::url($uid);
+                $groupPage = Groups::getInfoBasic($groupId, 'page');
+                if ($groupPage) {
+                    $urlProfile = Groups::url($groupId);
+                }
             }
+            if (!$urlProfile) {
+                $urlProfile = User::url($uid);
+            }
+
+            $vars['url_profile'] = $urlProfile;
+
             self::$templatesUsernameS[$name] = Common::replaceByVars(self::URL_PROFILE_S, $vars);
 
         }
@@ -490,6 +534,27 @@ class Wall {
 
         }
         return self::$templatesUsernameLike[$name];
+    }
+
+    static function getTemplateGroupTitle($groupId = 0)
+    {
+        global $g;
+
+        if (!$groupId) {
+            return '';
+        }
+        if(!isset(self::$templatesGroupTitle[$groupId])) {
+            $groupInfo = Groups::getInfoBasic($groupId);
+            $vars = array(
+                'name' => $groupInfo['title'],
+                'url_main' => $g['path']['url_main'],
+                'url_profile' => Groups::url($groupId)
+            );
+
+            self::$templatesGroupTitle[$groupId] = Common::replaceByVars(self::URL_PROFILE, $vars);
+        }
+
+        return self::$templatesGroupTitle[$groupId];
     }
 
     static function setDbIndex($dbIndex)
@@ -751,6 +816,11 @@ class Wall {
         DB::execute($sql);
 
         $id = DB::insert_id();
+
+        if($id && $groupId) {
+            Groups::updateCountPosts($groupId);
+        }
+
         if ($section == 'share' && $item) {
             self::updateItem($item, false, false, true);
         }
@@ -1018,10 +1088,11 @@ class Wall {
     static function removeByParams($section, $item, $params, $uid = false)
     {
         $info = self::getItemInfoByParams($section, $item, $params, $uid);
-
         // photo_default = item_id and params are equal
         // remove changes of photo from wall
-        self::removeById($info['id']);
+        if($info) {
+            self::removeById($info['id']);
+        }
     }
 
     static function removeById($id)
@@ -1049,7 +1120,12 @@ class Wall {
             $params = $itemData['params'];
             if($params) {
                 OutsideImages::on_delete($params);
+
+                OutsideImages::deleteMetaLinks($params);
+
                 self::deleteImage($id);
+
+
             }
             if ($itemData['section'] != 'share') {
                 $sql = 'SELECT `id` FROM wall
@@ -1076,6 +1152,11 @@ class Wall {
 
         if ($itemData && $itemData['section'] == 'share' && $itemData['item_id']) {
             self::updateItem($itemData['item_id'], false, false, true);
+        }
+
+        if($itemData['group_id']) {
+            Groups::updateCountPosts($itemData['group_id']);
+            Groups::updateCountComments($itemData['group_id']);
         }
     }
 
@@ -1129,7 +1210,24 @@ class Wall {
             WHERE id IN(' . $ids . ')';
         DB::execute($sql);
 
+        if(!$groupId) {
+            $commentLikes = DB::select('wall_comments_likes', '`user_id` = ' . to_sql($uid));
+            if($commentLikes) {
+                $getSrc = $_GET;
+                foreach($commentLikes as $commentLike) {
+                    $_GET = array(
+                        'id' => $commentLike['wall_item_id'],
+                        'cid' => $commentLike['cid'],
+                    );
+                    Wall::updateLikeComment();
+                }
+                $_GET = $getSrc;
+            }
+        }
+
         self::deleteItemForUserByUid($uid, $groupId);
+
+        DB::delete('wall_comments_viewed', '`user_id` = ' . to_sql($uid));
 
         /**/
     }
@@ -1218,12 +1316,28 @@ class Wall {
 
         $groupId = $row['group_id'];
         $vars['item_group_id'] = $groupId;
+        $isGroup = false;
+        $isGroupPage = false;
         if ($groupId) {
             $row['age'] = '';
             $groupInfo = Groups::getInfoBasic($groupId);
-            $row['name'] = $groupInfo['title'];
+            if ($groupInfo) {
+                if ($groupInfo['page']) {
+                    $row['age'] = '';
+                    $row['name'] = $groupInfo['title'];
+                    $isGroup = true;
+                    $vars['item_real_group_id'] = $groupId;
+                    $vars['item_real_group_user_id'] = $groupInfo['user_id'];
+                    $isGroupPage = true;
+                } elseif ($row['section'] == 'pics'
+                            && $row['parent_user_id']
+                            && $row['parent_user_id'] != $groupInfo['user_id']) {
+                    $row['age'] = '';
+                    $row['name'] = $groupInfo['title'];
+                    $isGroup = true;
+                }
+            }
         }
-
         $itemSectionReal = $row['section_real'];
         if ($row['section'] == 'photo' && !$row['item_id']) {
             $itemSectionReal = 'photos';
@@ -1235,25 +1349,28 @@ class Wall {
         $refUid = $row['item_user_id'];
         $prfTitle = '';
         $isVisitorLoadTimeLine = self::isVisitorLoadPicsInTimeLine($row);
+
         if ($isVisitorLoadTimeLine) {
             $refUid = $row['comment_user_id'];
             if ($refUid != $row['user_id']) {
                 $groupId = 0;
             }
             $row['user_id'] = $row['comment_user_id'];
-
             $user = User::getInfoBasic($refUid);
             $vars['name_user_item'] = $row['name'];
             $row['name'] = $user['name'];
             $row['gender'] = $user['gender'];
             $row['age'] = $user['age'];
             $prfTitle = '_visitor';
+            if (self::$typeWall == 'edge' && $row['section_real'] == 'share') {
+                $refUid = $row['item_user_id'];
+            }
         }
 
         if ($p != 'wall.php') {
             $vars['url_profile_link_param'] .= '&ref_uid=' . $refUid;
         }
-        if ($groupId) {
+        if ($isGroupPage) {
             $vars['url_profile_link'] = Groups::url($groupId, $groupInfo);
         } else {
             $vars['url_profile_link'] = User::url($refUid);
@@ -1261,7 +1378,7 @@ class Wall {
 
         $vars['age'] = $row['age'];
 
-
+        $isGroupParam = $isGroup ? $groupId : 0;
         if(isset($row['item_name'])) {
             $vars['item_name'] = $row['item_name'];
             $vars['item_name_user_id'] = $row['item_name_user_id'];
@@ -1269,7 +1386,7 @@ class Wall {
             $vars['share_name'] = $row['name'];
             $vars['photo'] = $row['item_photo'];
             //$vars['share_photo'] = User::getPhotoDefault($row['user_id'], 'r');
-            $vars['share_photo'] = self::getPhotoUserItem($row, 'r', $groupId);
+            $vars['share_photo'] = self::getPhotoUserItem($row, 'r', $isGroupParam);
 
             $vars['time_ago'] = timeAgo($row['item_date'], 'now', 'string', 60, 'second');
             $vars['time_photo_date'] = toAttr(Common::dateFormat($row['item_date'], 'photo_date'));
@@ -1280,7 +1397,7 @@ class Wall {
             }
 
             //$vars['photo'] = User::getPhotoDefault($row['user_id'], $sizePhoto, false, $row['gender']);
-            $vars['photo'] = self::getPhotoUserItem($row, $sizePhoto, $groupId);
+            $vars['photo'] = self::getPhotoUserItem($row, $sizePhoto, $isGroupParam);
 
             $vars['item_user_id'] = $row['user_id'];
 
@@ -1293,11 +1410,12 @@ class Wall {
 
         $vars['url_main'] = $g['path']['url_main'];
 
-        $vars['wall_item_title_template'] = self::wallItemTitleTemplate($row['section'] . $prfTitle, $row['gender']);
+        $vars['wall_item_title_template'] = self::wallItemTitleTemplate($row['section'] . $prfTitle, $row['gender'], $isGroupParam);
+
         return $vars;
     }
 
-    static function parseLikes(&$html, $id, $likes, $index = 2, $row = null)
+    static function parseLikes(&$html, $id, $likes, $index = 2, $row = null, $isMarkRead = false)
     {
         $uids = User::getFriendsList(guid());
 
@@ -1310,7 +1428,7 @@ class Wall {
         $listLikesUserPhoto = array();
         if ($likes) {
             $cmd = get_param('cmd');
-            if ($cmd == 'like' || $cmd == 'unlike' && $html->varExists('wall_last_action_like_update')) {
+            if ($cmd == 'like' || $cmd == 'unlike' && $html->varExists('wall_last_action_like_update')) {//NOT USED ALL TEMPLATES
                 $sql = 'SELECT `last_action_like` FROM `wall` WHERE id = ' . to_sql($id);
                 $html->setvar('wall_last_action_like_update', DB::result($sql));
             }
@@ -1451,7 +1569,7 @@ class Wall {
                         if ($templateGroupsSocial) {
                             $groupId = $row['group_id'];
                             $groupInfo = Groups::getInfoBasic($groupId);
-                            if ($groupInfo) {
+                            if ($groupInfo && $groupInfo['page']) {
                                 $groupUserId = $groupInfo['user_id'];
                             } else {
                                 $groupId = 0;
@@ -1493,7 +1611,7 @@ class Wall {
                             if (!$groupId && $templateGroupsSocial) {
                                 $groupId = $row['group_id'];
                                 $groupInfo = Groups::getInfoBasic($groupId);
-                                if ($groupInfo) {
+                                if ($groupInfo && $groupInfo['page']) {
                                     $groupUserId = $groupInfo['user_id'];
                                 } else {
                                     $groupId = 0;
@@ -1554,6 +1672,9 @@ class Wall {
                 } elseif ($likes > 1) {
                     $html->parse('wall_like_names', true);
                 }
+            }
+
+            if ($isMarkRead) {
             }
         }
 
@@ -1623,7 +1744,7 @@ class Wall {
             $embedVideoCommentWidth = 800;
 			$pretag = '<div class="wall_video_one_post">';
 			$posttag = '</div>';
-            if ($isGallery) {
+            if ($isGallery && !self::$isParseCommentsBlog) {
                 $pretag = '<div class="gallery_video_one_post">';
             }
         }
@@ -1635,11 +1756,25 @@ class Wall {
 
         $comment = VideoHosts::filterFromDb($comment, $pretag, $posttag, $embedVideoCommentWidth);
 
-        $comment = OutsideImages::filter_to_html($comment, '<div class="image_comment">', '</div>', 'timeline_photo_comment', '', false, 'comment_');
+
+		$comment = OutsideImages::filter_meta_link_to_html($comment);
+
+        $tmplWallType = Common::getOptionTemplate('wall_type');
+        $isEdgeWall = $tmplWallType == 'edge';
+
+        if ($isEdgeWall) {
+            $outsideImageClass = 'timeline_photo_comment';
+        } else {
+            $outsideImageClass = 'lightbox';
+        }
+
+        $comment = OutsideImages::filter_to_html($comment, '<div class="image_comment">', '</div>', $outsideImageClass, '', false, 'comment_', false, true);
 
         VideoHosts::setEmbedUrlShow(false);
 
-        if (stristr($comment, '{user:') !== false) {
+		$replies = self::checkRepliesUserComment($comment, false);
+		$comment = $replies['comment'];
+        /*if (stristr($comment, '{user:') !== false) {
             $user = grabs($comment, '{user:', '}');
             if (isset($user[0])) {
                 $uid = $user[0];
@@ -1657,7 +1792,7 @@ class Wall {
                 $groupUrl = Common::getLinkHtml($groupUrl, false, array('class' => 'comment_link_name')) . $groupInfo['title'] . '</a>';
                 $comment = str_replace("{group:{$groupId}}", $groupUrl, $comment);
             }
-        }
+        }*/
 
         $comment = nl2br($comment);
 
@@ -1670,7 +1805,6 @@ class Wall {
         global $g_user;
 
         if (!empty($comment)) {
-
             if ($block == 'comments_reply_item' && self::$commentReplyCustomClass == 'comment_attach_reply_one_add') {//Update wall - download instead of remote
                 if (isset(self::$commentsReplyParse[$comment['id']])) {
                     return;
@@ -1680,7 +1814,12 @@ class Wall {
             $guid = guid();
             self::markReadCommentAndLikeOne($comment);
 
-            $commentText = self::prepareComment($comment['comment']);
+			if (self::parseCommentImg($comment)){
+				$commentText = $comment['comment'];
+			} else {
+				$commentText = self::prepareComment($comment['comment']);
+			}
+
             $html->setvar("{$block}_text", $commentText);
 
             $html->setvar("{$block}_user_id", $comment['user_id']);
@@ -1732,6 +1871,8 @@ class Wall {
                 $html->setvar("{$block}_count_like_users", $countLikesUsers);
             }
 
+			self::parseCommentAudioMsg($html, $comment, $block);
+
             self::parseCommentDelete($html, $comment, "{$block}_delete");
 
             if ($block == 'comments_reply_item' && self::$commentReplyCustomClass == 'comment_attach_reply_one') {//Update wall
@@ -1780,6 +1921,9 @@ class Wall {
         $commentInfo['item_group_id'] = $comment['item_group_id'];
         $commentInfo['comm_user_group_owner'] = $comment['comm_user_group_owner'];
 
+		$commentInfo['audio_message_id'] = isset($comment['audio_message_id']) ? $comment['audio_message_id'] : 0;
+		$commentInfo['users_reports_comment'] = isset($comment['users_reports_comment']) ? $comment['users_reports_comment'] : '';
+
         return $commentInfo;
     }
 
@@ -1799,7 +1943,7 @@ class Wall {
         $html->clean("{$block}_load_number");
         $html->clean($block);
 
-        if (!$numberReplies) {
+		if (!$numberReplies) {
             return false;
         }
 
@@ -1905,6 +2049,7 @@ class Wall {
                 }
                 self::parseComment($html, $commentInfoReply, 'comments_reply_item');
             }
+
             $html->parse($block, false);
         }
 
@@ -1925,6 +2070,106 @@ class Wall {
         $urlAlias = $media ? $media : 'wall';
         return Common::getOption('url_main', 'path') . Common::pageUrl("{$urlAlias}_liked_comment", null, $id);
     }
+
+
+	static function checkRepliesUserComment($comment, $clear = true)
+	{
+        $result = array(
+			'tag' => '',
+			'comment' => '',
+			'user_href' => ''
+		);
+		$userUrl = '';
+		if (stristr($comment, '{user:') !== false) {
+			$user = grabs($comment, '{user:', '}');
+			if (isset($user[0])) {
+				$uid = $user[0];
+				$result['tag'] = "{user:{$uid}}";
+				if (!$clear) {
+					$userInfo = User::getInfoBasic($uid, false, DB_MAX_INDEX);
+					$userUrl = User::url($uid, $userInfo);
+					$userUrl = Common::getLinkHtml($userUrl, false, array('class' => 'comment_link_name')) . $userInfo['name'] . '</a>';
+				}
+			}
+		} elseif (stristr($comment, '{group:') !== false) {
+			$group = grabs($comment, '{group:', '}');
+			if (isset($group[0])) {
+				$groupId = $group[0];
+				$result['tag'] = "{group:{$groupId}}";
+				if (!$clear) {
+					$groupInfo = Groups::getInfoBasic($groupId, false, DB_MAX_INDEX);
+					$userUrl = Groups::url($groupId, $groupInfo);
+					$userUrl = Common::getLinkHtml($userUrl, false, array('class' => 'comment_link_name')) . $groupInfo['title'] . '</a>';
+				}
+			}
+		}
+
+		if ($result['tag']) {
+			$comment = str_replace($result['tag'], $userUrl, $comment);
+		}
+		$result['user_href'] = $userUrl;
+		$result['comment'] = $comment;
+
+		return $result;
+
+	}
+
+	static function parseCommentImg(&$comment)
+	{
+		global $g;
+		global $sitePart;
+
+		$img = grabs($comment['comment'], '{img_upload:', '}');
+		if (isset($img[0])) {
+
+			$sql = "SELECT i.*, i.id as image_id, i.desc as img_desc, a.folder FROM (gallery_images AS i LEFT JOIN gallery_albums AS a ON i.albumid=a.id) WHERE i.id = " . to_sql($img[0]);
+			$image = DB::row($sql, DB_MAX_INDEX);
+			if (!$image) return false;
+
+			$urlFiles = $g['path']['url_files'];
+            $imageUrlBig = $urlFiles . 'gallery/images/' . $image['user_id'] . '/' . $image['folder'] . '/' . $image['filename'];
+
+			$tagId = 'outside_img_upload_comment_' . $img[0];
+			$description = $image['desc'];
+
+			if ($description) {
+				$description = '<div class="txt_comment">' . Common::parseLinksSmile($description) . '</div>';
+			}
+
+			$replies = self::checkRepliesUserComment($comment['comment'], false);
+			$userUrl = $replies['user_href'];
+
+            $tagHtml = $userUrl .
+						'<div class="image_comment">' .
+                            '<a data-id="' . $tagId . '" class="timeline_photo_comment lightbox ' . $tagId . '" href="' . $imageUrlBig . '">' .
+								'<img src="' . $imageUrlBig . '" alt=""/>' .
+                            '</a>' .
+						'</div>'. $description;
+
+            if (self::checkTypeWall('edge') && $sitePart != 'administration') {
+                $tagHtml .= "<script class=\"init_show_load_img\">onLoadImgTimeLine('" . $tagId . "');</script>";
+            }
+
+			$comment['comment'] = $tagHtml;
+
+			return true;
+		}
+		return false;
+	}
+
+	static function parseCommentAudioMsg(&$html, $comment, $block = 'wall_item_comment')
+	{
+		if (!$html->blockExists("{$block}_audio")) {
+			return;
+		}
+		if(isset($comment['audio_message_id']) && $comment['audio_message_id']) {
+			$html->setvar("{$block}_audio_id", $comment['audio_message_id']);
+			$html->setvar("{$block}_audio_file", ImAudioMessage::getUrl($comment['audio_message_id']));
+			$html->parse("{$block}_audio", false);
+		} else {
+			$html->clean("{$block}_audio", false);
+		}
+	}
 
     static function parseComments(&$html, $id, $index = 2, $start = 0, $limit = 3, $cid = 0, $where = '', $row = false)
     {
@@ -1958,9 +2203,13 @@ class Wall {
             $limit = 1;
         }
 
+		$whereParent = '';
         if ($isEdgeWall) {
             $alwaysViewReplies = false;
-            $where .= ' AND c.parent_id = 0';
+			if (!self::isAdmin()) {
+				$where .= ' AND c.parent_id = 0';
+				$whereParent = ' AND c.parent_id = 0';
+			}
             if (($cmd == 'comments_load' && $cid)
                  || ($cmd == 'comment' && $rcid)
                  || ($cmd == 'comment_delete' && get_param_int('cid_parent'))) {
@@ -1992,6 +2241,7 @@ class Wall {
         $mediaSection = '';
         $commentsLikes = array();
         if ($isEdgeWall && $row['section_real'] != 'share') {
+			 $where .= $whereParent;
             if ($row === false) {
                 $row = DB::row('SELECT * FROM `wall` WHERE `id` = ' . to_sql($id));
             }
@@ -2003,7 +2253,6 @@ class Wall {
                               LEFT JOIN user AS u ON u.user_id = c.user_id
                               JOIN wall AS w ON w.id = " . to_sql($row['id']) . "
                              WHERE c.video_id = " . to_sql($row['item_id'])
-                           . " AND c.parent_id = 0"
                                . $where
                          . " ORDER BY c.id " . $order;
                 $mediaSection = 'video';
@@ -2015,7 +2264,6 @@ class Wall {
                           LEFT JOIN user AS u ON u.user_id = c.user_id
                           JOIN wall AS w ON w.id = " . to_sql($row['id']) . "
                          WHERE c.photo_id = " . to_sql($row['item_id'])
-                       . " AND c.parent_id = 0"
                        . " AND c.system = 0 " . $where
                      . " ORDER BY c.id " . $order;
                 $mediaSection = 'photo';
@@ -2045,11 +2293,15 @@ class Wall {
         if ($limit) {
             $sql .=' LIMIT ' . $limit;
         }
-        //print_r_pre($sql);
+        //print_r_pre($sql, true);
         //print_r_pre(DB::all($sql));
 
         //DB::query($sql, $index);
-        $commentsAll = DB::all($sql, $index);
+		$commentsAll = DB::all($sql, $index);
+
+        if ($html->blockExists('feed_comment_top_show')) {
+            $html->subcond(!count($commentsAll), 'feed_comment_top_show');
+        }
         if ($isEdgeWall && $cmd != 'comments_load' && $cmd != 'update') {
             krsort($commentsAll);
         }
@@ -2073,6 +2325,10 @@ class Wall {
         //while ($comment = DB::fetch_row($index)) {
         $comment = NULL;
         foreach ($commentsAll as $key => $comment) {
+            if (self::isAdmin() || $comment['parent_id']) {
+                $res = self::checkRepliesUserComment($comment['comment'], true);
+				$comment['comment'] = $res['comment'];
+			}
             $parsed = true;
             if ($indexLine == 1) {
                 $indexLine = 2;
@@ -2110,20 +2366,33 @@ class Wall {
 				$posttag = '</div>';
 			}
 
-            $commentText = VideoHosts::filterFromDb($comment['comment'], $pretag, $posttag, $embedVideoCommentWidth);
+			if (self::parseCommentImg($comment)){
+				$commentText = $comment['comment'];
+			} else {
 
-            if ($isEdgeWall) {
-                $commentText = OutsideImages::filter_to_html($commentText, '<div class="image_comment">', '</div>', 'timeline_photo_comment', '', false, 'comment_');
-            }else{
-                $commentText = OutsideImages::filter_to_html($commentText, '<div class="image_comment">', '</div>', 'lightbox');
-                //$commentText = replaceSmile($commentText);
-            }
+				/* Fix old */
+				$comment['comment'] = ImAudioMessage::getHtmlPlayer($comment, $comment['id'],  'wall_comment_audio_',  Common::isMobile()) . $comment['comment'];
+				/* Fix old */
+				$commentText = VideoHosts::filterFromDb($comment['comment'], $pretag, $posttag, $embedVideoCommentWidth);
 
-            VideoHosts::setEmbedUrlShow(false);
+				$commentText = OutsideImages::filter_meta_link_to_html($commentText);
 
-            $commentText = nl2br($commentText);
+				if ($isEdgeWall) {
+					$commentText = OutsideImages::filter_to_html($commentText, '<div class="image_comment">', '</div>', 'timeline_photo_comment', '', false, 'comment_', false, true);
+				}else{
+					$commentText = OutsideImages::filter_to_html($commentText, '<div class="image_comment">', '</div>', 'lightbox', '', false, '', false, true);
+					//$commentText = replaceSmile($commentText);
+				}
+
+
+				VideoHosts::setEmbedUrlShow(false);
+
+				$commentText = nl2br($commentText);
+			}
 
             self::prepareCommentInfo($comment);
+
+			self::parseCommentAudioMsg($html, $comment);
 
             $vars = array(
                     'display_profile' => self::displayProfile($comment['user_id']),
@@ -2145,6 +2414,12 @@ class Wall {
                     'user_group_owner' => $comment['comm_user_group_owner']
             );
             $html->assign('wall_item_comment', $vars);
+
+			$feedAudioMsg = "comment_reply_audio";
+			if ($html->blockExists($feedAudioMsg)) {
+				$html->clean($feedAudioMsg);
+				ImAudioMessage::parseControlAudioComment($html, $feedAudioMsg);
+			}
 
             self::parseCommentDelete($html, $comment, 'wall_comment_delete');
 
@@ -2231,8 +2506,12 @@ class Wall {
             }
             if ($commentsCount > $numberCommentsFrmShow) {
                 $html->parse($blockFeedBottomFrm, false);
-            }
+            } else {
+				$html->clean($blockFeedBottomFrm);
+			}
         }
+
+		ImAudioMessage::parseControlAudioCommentPost($html);
 
         $block = 'wall_load_more_comments';
         if ($cid == 0 && (self::getCountComments($comment) > $limit || $start != 0) && $parsed) {
@@ -2320,10 +2599,12 @@ class Wall {
             $class = (Common::isMobile()) ? 'image_comment' : 'feed_img_photo_single';
             $isCalcMaxWidth = false;
         }
+
+        $comment = OutsideImages::filter_meta_link_to_html($comment);
         if ($optionNameTemplate == 'edge') {
-            $comment = OutsideImages::filter_to_html($comment, '<div class="' . $class . '">', '</div>', 'timeline_photo');
+            $comment = OutsideImages::filter_to_html($comment, '<div class="' . $class . ' {start_additional_class}">', '</div>', 'timeline_photo', '_blank', false, '', false, true);
         } else {
-            $comment = OutsideImages::filter_to_html($comment, '<div class="' . $class . '">', '</div>', 'lightbox', '_blank', $isCalcMaxWidth);
+            $comment = OutsideImages::filter_to_html($comment, '<div class="' . $class . ' {start_additional_class}">', '</div>', 'lightbox', '_blank', $isCalcMaxWidth, '', false, true);
         }
 
         VideoHosts::setEmbedUrlShow(false);
@@ -2339,11 +2620,11 @@ class Wall {
             $vars['url_profile_link'] = User::url($row['comment_user_id']);
             $vars['age'] = User::getInfoBasic($row['comment_user_id'], 'age');
 
-            if ($isEdgeWall && ($row['user_id'] != self::getUid() || $p == 'wall.php')) {
+            if ($isEdgeWall && ($row['user_id'] != self::getUid() || $p == 'wall.php') && !$row['group_id']) {
                 $userName = $row['name'];
-                if ($row['group_id']) {
+                /*if ($row['group_id']) {
                     $userName = Groups::getInfoBasic($row['group_id'], 'title');
-                }
+                }*/
                 $urlProfile = self::getTemplateUsername($userName, $row['user_id'], $row['group_id']);
                 $lTitle = self::wallItemTitleTemplate('shared_a_post', $row['gender']);
                 $vars['wall_item_title_info'] = Common::replaceByVars($lTitle, array('profile_s' => $urlProfile));
@@ -2439,6 +2720,13 @@ class Wall {
             WHERE id = ' . to_sql($row['item_id']);
         $comment = DB::row($sql, 2);
 
+		/* Fix old */
+		$comment['text'] = ImAudioMessage::getHtmlPlayer($comment, $comment['id'],  'wall_video_comment_audio_', true) . $comment['text'];
+
+		$replies = self::checkRepliesUserComment($comment['text'], true);
+		$comment['text'] = $replies['comment'];
+		/* Fix old */
+
         include_once(self::includePath() . '_include/current/video_hosts.php');
         include_once(self::includePath() . '_include/current/vids/tools.php');
 
@@ -2481,12 +2769,45 @@ class Wall {
         }
 
         $vars['item_html_code'] = $htmlCode;
+        $vars['item_video_live_id'] = 0;
+        $vars['item_video_active'] = 0;
+        $vars['item_video_live_title'] = '';
 
         if (self::$typeWall == 'edge') {
+            $isLiveVideo = $video['live_id'];
+            $isLiveVideoNoActive = false;
+            if ($isLiveVideo) {
+                $liveInfo = LiveStreaming::getInfoLive($video['live_id']);
+                if ($liveInfo) {
+                    $isLiveVideoNoActive = $video['live_id'] && $video['active'] == 2;
+
+                    $vars['item_video_live_id'] = $video['live_id'];
+                    $vars['item_video_active'] = $video['active'];
+
+                    if ($row['vids_no_load'] == 1) {//liveInfo['status'] && //Live now
+                        $vars['item_video_live_title'] = 'live_now';
+                        $vars['item_video_live_url'] = Common::pageUrl('live_id', $video['user_id'], $video['live_id']);
+                    } else {//recently
+                        $vars['item_video_live_title'] = ((guid() == $row['user_id']) && ($row['user_id'] == $video['user_id'])) ? 'live_my_recently' : 'live_recently';
+                        $vars['item_video_live_url'] = '';
+                        //$vars['item_video_live_url'] = Common::pageUrl('live_id', $video['user_id'], $video['live_id']);
+                    }
+                } else {
+                    $isLiveVideo = 0;
+                }
+            }
+
             $wallPlayVideo = Common::getOption('wall_play_video', self::$tmplName . '_wall_settings');
+
+            if ($isLiveVideoNoActive) {
+                $wallPlayVideo = 'popup';
+            }
             if ($wallPlayVideo == 'popup') {
-                $vars['item_image_src'] = User::getVideoFile($video, 'src', '');
-                $vars['item_html_code'] = '';
+                $size = $isLiveVideo ? 'bm' : 'src';
+                $vars['item_image_src'] = User::getVideoFile($video, $size, '');
+				if (!self::isAdmin()) {
+					$vars['item_html_code'] = '';
+				}
                 $info = CProfileVideo::getVideosList('', 1, $video['user_id'], false, true, $video['id'], '', $row['group_id']);
                 if ($info && isset($info['v_' . $video['id']])) {
                     $info = $info['v_' . $video['id']];
@@ -2505,12 +2826,35 @@ class Wall {
 WHERE song_id = ' . to_sql($row['item_id']);
         $song = DB::row($sql, 2);
 
-        $vars['song'] = $song['song_title'];
-        $vars['song_about'] = trim($song['song_about']);
+        $vars['song'] = strip_tags($song['song_title']);//Fix old template
+        $kAbout = 'song_about';
+        if (self::$typeWall == 'edge') {
+            $kAbout = 'song_title';
+        }
+        $vars['song_about'] = trim(strip_tags($song[$kAbout]));//Fix old template
 
         if($vars['song_about'] != '') {
+			$html->setvar('song_about_js', toJs($vars['song_about']));
             $html->setvar('song_about', nl2br(Common::parseLinksSmile($vars['song_about'])));
+
+            if (self::$typeWall == 'edge') {
+                $html->setvar('song_about_js', toJs($vars['song_about']));
+                $html->setvar('song_about_attribute', toAttr($vars['song_about']));
+            }
+
             $html->parse('wall_song_about', false);
+        }
+
+        if (self::$typeWall == 'edge') {
+            $html->setvar('wall_song_id', $row['item_id']);
+
+            $image = Songs::getImageDefault($row['item_id']);
+
+            $html->setvar('wall_song_no_image', Songs::isNoImage($image) ? 'song_no_image': '');
+
+            $html->setvar('wall_song_image', $image);
+
+            $html->setvar('wall_song_mp3', Songs::getFile($row['item_id']));
         }
 
         $sql = 'SELECT musician_name FROM music_musician
@@ -2535,7 +2879,7 @@ WHERE musician_id = ' . to_sql($song['musician_id']);
 WHERE song_id = ' . to_sql($row['item_id']);
         $song = DB::row($sql, 2);
 
-        $vars['song'] = $song['song_title'];
+        $vars['song'] = strip_tags($song['song_title']);//Fix old template;
         $sql = 'SELECT musician_name FROM music_musician
 WHERE musician_id = ' . to_sql($song['musician_id']);
         $musician = DB::result($sql, 0, 2);
@@ -2574,7 +2918,7 @@ WHERE comment_id = ' . to_sql($row['item_id']);
 WHERE song_id = ' . to_sql($comment['song_id']);
         $song = DB::row($sql, 2);
 
-        $vars['song_title'] = $song['song_title'];
+        $vars['song_title'] = strip_tags($song['song_title']);//Fix old template;
         $vars['song_id'] = $song['song_id'];
         $sql = 'SELECT musician_name FROM music_musician
 WHERE musician_id = ' . to_sql($song['musician_id']);
@@ -3180,7 +3524,7 @@ AND created_at = ' . to_sql($row['params'], 'Text') . ' ORDER BY image_id DESC';
     static function addInfoPlacesReview(&$html, &$vars, $row)
     {
         $sql = 'SELECT * FROM places_review
-        WHERE id = ' . to_sql($row['item_id']);
+WHERE id = ' . to_sql($row['item_id']);
         $review = DB::row($sql, 2);
         $place = DB::row('SELECT * FROM places_place WHERE id=' . to_sql($review['place_id'], 'Number') . ' LIMIT 1', 2);
 
@@ -3209,8 +3553,8 @@ AND created_at = ' . to_sql($row['params'], 'Text') . ' ORDER BY image_id DESC';
         $vars['place_id'] = $place['id'];
 
         $sql = 'SELECT * FROM places_place_image
-            WHERE place_id = ' . to_sql($row['item_id']) . '
-            AND created_at = ' . to_sql($row['params'], 'Text');
+WHERE place_id = ' . to_sql($row['item_id']) . '
+AND created_at = ' . to_sql($row['params'], 'Text');
         $rows = DB::rows($sql, 2);
         $vars['photo_count'] = count($rows);
         foreach ($rows as $image) {
@@ -3226,11 +3570,12 @@ AND created_at = ' . to_sql($row['params'], 'Text') . ' ORDER BY image_id DESC';
         $groupInfo = Groups::getInfoBasic($row['item_id']);
         $prf = $groupInfo['page'] ? 'page' : 'group';
         $lTitle = self::wallItemTitleTemplate("group_social_{$prf}_created", $row['gender']);
-        $vars['wall_item_title_template'] = $lTitle;
+
         $vars['group_title'] = $groupInfo['title'];
 
-        $urlGroup = Groups::url($row['item_id']);
-        $vars['item_link_start'] = '<a href="' . $g['path']['url_main'] . $urlGroup . '">';
+        $urlGroup = $g['path']['url_main'] . Groups::url($row['item_id']);
+        $vars['wall_group_social_url'] = $urlGroup;
+        $vars['item_link_start'] = '<a class="wall_link_to_go" href="' . $urlGroup . '">';
         $vars['item_link_end'] = '</a>';
 
         if ($row['section_real'] == 'share') {
@@ -3239,9 +3584,9 @@ AND created_at = ' . to_sql($row['params'], 'Text') . ' ORDER BY image_id DESC';
         $title = Common::replaceByVars($lTitle, $vars);
 
         $vars['wall_group_social_title'] = $title;
+        $vars['wall_item_title_template'] = $title;
         $vars['wall_item_title_info'] = $title;
         $vars['wall_group_social_description'] = $groupInfo['description'];
-
 
         $photoUrl = GroupsPhoto::getPhotoDefault($row['user_id'], $row['item_id'], 'bm');
         $vars['wall_group_social_photo_url'] = $photoUrl;
@@ -3449,7 +3794,30 @@ WHERE forum_id = ' . $comment['forum_id'];
 
     static function addInfoBlogPost(&$html, &$vars, $row)
     {
+        global $g;
+
         require_once(self::includePath() . "_include/current/blogs/tools.php");
+
+        if (self::$typeWall == 'edge') {
+            $blogsInfo = Blogs::getInfo($row['item_id']);
+            $blogsTitle = $blogsInfo['subject'];
+            $lTitle = self::wallItemTitleTemplate('blog_post_created', $row['gender']);
+            $vars['blog_post_title'] = $blogsTitle;
+
+            $urlBlogs = $g['path']['url_main'] . Blogs::url($row['item_id']);
+            $vars['wall_blog_post_url'] = $urlBlogs;
+            $vars['item_link_start'] = '<a class="wall_link_to_go" href="' . $urlBlogs . '">';
+            $vars['item_link_end'] = '</a>';
+
+            $title = Common::replaceByVars($lTitle, $vars);
+            $vars['wall_item_title_info'] = $title;
+            $vars['wall_item_title_template'] = $title;
+
+            $image = Blogs::getImageDefault($row['item_id'], 'bm', $blogsInfo);
+            $vars['wall_blog_post_photo_url'] = $image['image'];
+            return;
+        }
+
 
         CBlogsTools::$videoWidth = self::EMBED_VIDEO_WIDTH;
         CBlogsTools::$parseSmile = true;
@@ -3654,24 +4022,24 @@ WHERE forum_id = ' . $comment['forum_id'];
         $guid = guid();
         $groupId = $row['group_id'];
 
-        $optionTemplateName = Common::getOptionTemplate('name');
+		$isWallEdge = self::$typeWall == 'edge';
 
         $limit = 5;
         $order = '`photo_id` DESC';
         $where = ' AND `wall_id` = ' . to_sql($row['id']);
         $wherePrf = ' AND PH.wall_id = ' . to_sql($row['id']);
-        if ($optionTemplateName == 'edge' && $row['section_real'] == 'share') {
+        if ($isWallEdge && $row['section_real'] == 'share') {
             $wherePrf = ' AND `wall_id` = ' . to_sql($row['real_wall_id']);
         }
 
         if ($row['access'] == 'public' && $row['user_id'] != $guid && !User::isFriend($guid, $row['user_id'])) {
             $where .= " AND private = 'N' ";
             $wherePrf .= " AND PH.private = 'N' ";
-            if ($optionTemplateName != 'edge') {
+            if (!$isWallEdge) {
                 User::setNoPhotoPprivateInOffset();
             }
         }
-        if ($optionTemplateName == 'edge') {
+        if ($isWallEdge) {
             $where = $wherePrf;
             $order = 'PH.photo_id DESC';
             $limit = 6;
@@ -3682,33 +4050,51 @@ WHERE forum_id = ' . $comment['forum_id'];
         $rows = CProfilePhoto::preparePhotoList($row['user_id'], $order, $where, $limit, true, false, false, $groupId);
         CProfilePhoto::clearPhotoList();
 
-        if ($optionTemplateName == 'edge') {
+        if ($isWallEdge) {
             CProfilePhoto::$isGetDataWithFilter = $defaultDataFilter;
         }
 
+		$vars['item_face_detec_title'] = '';
         if ($rows) {
             $vars['photo_count'] = count($rows);
 
             if ($html->varExists('wall_photo_images_count')) {
                 $html->setvar('wall_photo_images_count', $vars['photo_count']);
-                if ($vars['photo_count'] == 6) {
+                if ($vars['photo_count'] > 1) {
                     $sql = "SELECT COUNT(PH.photo_id)
                               FROM `photo` AS PH
                              WHERE  PH.visible != 'P'  AND PH.user_id = " . to_sql($row['user_id']) . $where . ' ORDER BY ' .  $order;
                     $countPhotos = DB::result($sql, 0, DB_MAX_INDEX);
-                    if ($countPhotos > 6) {
-                        $vars['photo_count_all'] = $countPhotos;
-                    }
+                    $vars['photo_count_all'] = $countPhotos;
                 }
             }
-            if ($optionTemplateName == 'edge') {
+            if ($isWallEdge) {
                 $size = 'bm';
             } else {
                 $size = $vars['photo_count'] == 1 ? 'b' : 'm';
             }
             $gender = mb_strtolower(User::getInfoBasic($row['user_id'], 'gender'), 'UTF-8');
             $i = 0;
+			$faceUsers = array();
+			$faceDetectionImage = array();
             foreach ($rows as $image) {
+				/* Face detection */
+				if (isset($image['face_detect_data']) && isset($image['face_detect_data']['face'])) {
+					$faceDetection = $image['face_detect_data']['face'];
+					$faceDetectionImage[$image['photo_id']] = array();
+					foreach ($faceDetection as $i => $data) {
+						if (isset($data['uid']) && $data['uid'] && !isset($faceUsers[$data['uid']])) {
+							$uid = $data['uid'];
+							$userinfo = User::getInfoBasic($data['uid']);
+							$url = User::url($data['uid'], $userinfo);
+							$faceDetectionImage[$image['photo_id']][$data['uid']] =  '<a data-box="' . $i . '" href="'. $url . '">' . User::nameShort($userinfo['name']) . '</a>';
+						}
+					}
+					if ($vars['photo_count'] == 1) {
+						$faceUsers = $faceDetectionImage[$image['photo_id']];
+					}
+				}
+				/* Face detection */
                 $i++;
                 $html->setvar('wall_photo_user_gender', $gender);
                 $html->setvar('wall_photo_access', $image['private'] == 'Y' ? 'private' : 'public');
@@ -3720,6 +4106,22 @@ WHERE forum_id = ' . $comment['forum_id'];
                 $html->setvar('wall_photo_description', $image['description']);
                 $html->parse('wall_photo_image');
             }
+			/* Face detection */
+			if ($vars['photo_count'] > 1 && $faceDetectionImage && count($faceDetectionImage) > 1) {
+				$faceUsers = call_user_func_array('array_intersect', $faceDetectionImage);
+			}
+
+			if ($faceUsers) {
+				$countFace = count($faceUsers);
+				$faceDetectTitle = implode(', ', $faceUsers);
+				$varsL = array('friends' => $faceDetectTitle);
+				$faceDetectTitle = lSetVars('user_face_with', $varsL);
+				if ($countFace > 1) {
+					$faceDetectTitle = substr_replace($faceDetectTitle, ' ' . l('and'), strrpos($faceDetectTitle, ','), 1);
+				}
+				$vars['item_face_detec_title'] = ' ' . $faceDetectTitle;
+			}
+			/* Face detection */
         } else {
             //Fix for old data
             $vars['no_parse_item'] = 1;
@@ -3732,6 +4134,13 @@ WHERE forum_id = ' . $comment['forum_id'];
         $sql = 'SELECT * FROM photo_comments
                     WHERE id = ' . to_sql($row['item_id']);
         $comment = DB::row($sql, 2);
+
+		/* Fix old */
+		$comment['comment'] = ImAudioMessage::getHtmlPlayer($comment, $comment['id'],  'wall_photo_comment_audio_', true) . $comment['comment'];
+
+		$replies = self::checkRepliesUserComment($comment['comment'], true);
+		$comment['comment'] = $replies['comment'];
+		/* Fix old */
 
         $sql = 'SELECT user_id FROM photo
                     WHERE photo_id = ' . to_sql($comment['photo_id']);
@@ -3756,14 +4165,14 @@ WHERE forum_id = ' . $comment['forum_id'];
         if (self::$typeWall == 'edge') {
 
             $gender = $row['gender'];
-            $prf = '';
+            /*$prf = '';
             if ($row['group_id']) {
                 $groupInfo = Groups::getInfoBasic($row['group_id']);
                 $prf = $groupInfo['page'] ? '_page' : '_group';
                 $gender = '';
             }
             $lTitle = self::wallItemTitleTemplate("photo_default{$prf}", $gender);
-            $vars['wall_item_title_info'] = $lTitle;
+            $vars['wall_item_title_info'] = $lTitle;*/
 
             $photoId = $row['item_id'];
             $vars['wall_photo_default_photo_id'] = $photoId;
@@ -3785,8 +4194,8 @@ WHERE forum_id = ' . $comment['forum_id'];
             $vars['url_profile_photo_new_b'] = User::getPhotoProfile($row['item_id'], 'b', $row['gender']);
             $vars['profile_photo_offset'] = User::photoOffset($row['user_id'], $row['item_id']);
             $vars['user_id'] = $row['user_id'];
-            $imageUrlBig = $g['path']['dir_files'] . $vars['url_profile_photo_new_b'];
-            $html->setvar('wall_photo_width', self::calcImageWidth($imageUrlBig, 240));
+            $imageUrlBigPathParts = explode('?', $g['path']['dir_files'] . $vars['url_profile_photo_new_b']);
+            $html->setvar('wall_photo_width', self::calcImageWidth($imageUrlBigPathParts[0], 240));
         }
     }
 
@@ -3815,8 +4224,8 @@ WHERE forum_id = ' . $comment['forum_id'];
             $imageUrl = $imageUrl . '?id=' . $image['id'];
             $imageUrlBig = $urlFiles . 'gallery/images/' . $image['user_id'] . '/' . $image['folder'] . '/' . $image['filename'];
             $imageFileBig = $g['path']['dir_files'] . 'gallery/images/' . $image['user_id'] . '/' . $image['folder'] . '/' . $image['filename'];
-            $fileName = explode('.', $image['filename']);
-            $imageUrlSrc = "{$urlFiles}gallery/images/{$image['user_id']}/{$image['folder']}/{$fileName[0]}_src.jpg";
+			$fileName = explode('.', $image['filename']);
+            $imageUrlSrc = "{$urlFiles}gallery/images/{$image['user_id']}/{$image['folder']}/{$fileName[0]}_src.{$fileName[1]}";
             if (!file_exists($imageUrlSrc)) {
                 $imageUrlSrc = $imageUrlBig;
             }
@@ -3828,12 +4237,16 @@ WHERE forum_id = ' . $comment['forum_id'];
             $vars['album_title'] = $image['album'];
 
             $html->setvar('wall_image_id', $image['id']);
-            if (trim($image['album_desc']) != ''
+            if (Common::getOption('set', 'template_options') != 'urban'
+                && trim($image['album_desc']) != ''
                     && ($vars['photo_count'] != 1 || (trim($image['desc']) == '' && $vars['photo_count'] == 1))) {
-                $html->setvar('wall_album_desc', Common::parseLinksSmile($image['album_desc']));
+
+                $descAlbum = nl2br(Common::parseLinksSmile($image['album_desc']));
+                $html->setvar('wall_album_desc', $descAlbum);
                 $html->parse('wall_album_desc', false);
             }
             $html->setvar('wall_pics_image', $imageUrl);
+
             $html->setvar('wall_pics_image_big', $imageUrlBig);
             if ($html->varExists('wall_pics_image_src')) {
                 $html->setvar('wall_pics_image_src', $imageUrlSrc);
@@ -3851,7 +4264,8 @@ WHERE forum_id = ' . $comment['forum_id'];
                 if ($html->varExists('wall_album_desc_orig')) {
                     $html->setvar('wall_album_desc_orig', $image['desc']);
                 }
-                $html->setvar('wall_album_desc', Common::parseLinksSmile($image['desc']));
+                $descAlbum = nl2br(Common::parseLinksSmile($image['desc']));
+                $html->setvar('wall_album_desc', $descAlbum);
                 $html->parse('wall_album_desc', false);
             }
             $html->setvar('wall_pics_width', self::calcImageWidth($imageFileBig, false, $image['width']));
@@ -3976,10 +4390,21 @@ WHERE forum_id = ' . $comment['forum_id'];
         return $count;
     }
 
+	static function directLinkPopupPost(&$html, $row){
+		if ($html->varExists('direct_link_popup_post_url')) {
+			$urlDirect = Common::pageUrl('wall') . '?item=' . $row['id'] . '&uid=' . $row['user_id'];
+			if ($row['group_id']) {
+				$urlDirect .= '&group_id=' . $row['group_id'];
+			}
+			$html->setvar('direct_link_popup_post_url', $urlDirect);
+		}
+		$html->parse('direct_link_popup_post', false);
+	}
+
     /*
      * $isNumberPostsUser - number of posts on the wall
      **/
-    static function parseItems(&$html, $id = false, $oneOnly = false, $newOnly = false, $isNumberPostsUser = false, $groupId = null)
+    static function parseItems(&$html, $id = false, $oneOnly = false, $newOnly = false, $isNumberPostsUser = false, $groupId = null, $admin = false)
     {
         global $p;
         global $g;
@@ -3995,10 +4420,13 @@ WHERE forum_id = ' . $comment['forum_id'];
         $uid = self::getUid();
         $guid = guid();
 
+		self::setAdmin($admin);
+
         $cmd = get_param('cmd');
         $changeModeWall = intval(get_param('change_mode'));
         $optionTemplateSet = Common::getTmplSet();
         self::$tmplName = Common::getTmplName();
+
         $sectionsOnly = self::getSiteSectionsOnly();
 
         $modWall = self::getChangeMode($changeModeWall);
@@ -4010,6 +4438,8 @@ WHERE forum_id = ' . $comment['forum_id'];
                 $groupId = Groups::getParamId();
             }
             self::setGroupId($groupId);
+        } else {
+            $groupId = 0;
         }
 
         $isWallInProfile = false;
@@ -4096,15 +4526,22 @@ WHERE forum_id = ' . $comment['forum_id'];
         if ($optionTemplateSet == 'urban') {
             $whereInterests = '';
             if (self::$typeWall == 'edge') {
-                $whereInterests = ' OR w.section = "share" OR w.section = "group_social_created" OR w.section = "photo_default"';
+                $whereInterests = ' OR w.section = "share" OR w.section = "group_social_created" '
+                                . ' OR w.section = "photo_default" OR w.section = "blog_post" OR w.section = "music"';
             } else {
                 if (in_array('interests', $sectionsOnly)) {
                     $whereInterests = ' OR w.section = "interests" ';
                 }
             }
+            $vidsWhere = ' AND w.vids_no_load != "1"';
+            if (self::$typeWall == 'edge') {
+				if (LiveStreaming::isAviableLiveStreaming()) {
+					$vidsWhere = '';
+				}
+            }
             $where .= ' AND (w.section = "comment"
                             ' . $whereInterests . '
-                             OR (w.section = "vids" AND w.params != "0")
+                             OR (w.section = "vids" AND w.params != "0" ' . $vidsWhere . ')
                              OR (w.section = "photo" AND w.params != 0)
                              OR (w.section = "pics" AND w.params_section = "timeline"))';
         } elseif (!$guid) {
@@ -4185,11 +4622,13 @@ WHERE forum_id = ' . $comment['forum_id'];
                                       OR (
                                            w.group_id != 0 AND
                                            (
-                                                (w.comment_user_id = ' . to_sql($uid) . ' AND  w.group_id IN(' . $groupsSubscribersListWallUid . '))
-                                             OR (w.section = "share")
+                                                ((w.comment_user_id = ' . to_sql($uid) . ' OR w.user_id = ' . to_sql($uid) . ')
+                                                  AND  w.group_id IN(' . $groupsSubscribersListWallUid . '))
+                                             OR (w.section = "share" AND  w.user_id = ' . to_sql($uid) . ')
                                             )
                                           )
                                         ) ';
+
                     }
                 } elseif ($uid == $guid) {
                     $whereFriends = '';
@@ -4276,6 +4715,8 @@ WHERE forum_id = ' . $comment['forum_id'];
             } else {
                 $where = ' (w.user_id = ' . to_sql(guid(), 'Number') . ' OR fr1.user_id IS NOT NULL OR fr2.user_id IS NOT NULL OR fr3.user_id IS NOT NULL OR fr4.user_id IS NOT NULL) ' . $whereFriends . $where;
             }
+            //Hide live old
+            $where .= ' AND ((w.section = "vids" AND w.vids_no_load != "1") OR w.section != "vids")';
         }
 
         /*
@@ -4285,6 +4726,7 @@ WHERE forum_id = ' . $comment['forum_id'];
          * WHERE wi.item_id NOT NULL OR w.section IN ();
          *
          */
+		$whereSectionOnly = '';
         if ($sectionsOnly) {
             $sectionsOnlyList = '';
             $delimiter = '';
@@ -4292,24 +4734,27 @@ WHERE forum_id = ' . $comment['forum_id'];
                 $sectionsOnlyList .= $delimiter . to_sql($sectionOnly, 'Text');
                 $delimiter = ',';
             }
-            $where .= ' AND (w.section IN (' . $sectionsOnlyList . ')
+			$whereSectionOnly = ' AND (w.section IN (' . $sectionsOnlyList . ')
                 OR (w.section = "share" AND (SELECT id FROM wall
                     WHERE wall.id = w.item_id AND wall.section IN (' . $sectionsOnlyList . ')) IS NOT NULL )
                 )';
+			$where .= $whereSectionOnly;
         }
 
         $sectionsHidden = self::getSectionsHidden();
-        //var_dump_pre($sectionsHidden);
+		$whereSectionHidden = '';
+        //var_dump_pre($sectionsHidden, true);
         if ($sectionsHidden) {
             $sectionsHiddenList = to_sql('share', 'Text');
             $delimiter = ',';
             foreach($sectionsHidden as $sectionHidden) {
                 $sectionsHiddenList .= $delimiter . to_sql($sectionHidden, 'Text');
             }
-            $where .= ' AND (w.section NOT IN (' . $sectionsHiddenList . ')
+			$whereSectionHidden = ' AND (w.section NOT IN (' . $sectionsHiddenList . ')
                 OR (w.section = "share" AND (SELECT id FROM wall
                     WHERE wall.id = w.item_id AND wall.section NOT IN (' . $sectionsHiddenList . ')) IS NOT NULL )
                 )';
+			$where .= $whereSectionHidden;
         }
 
         $sqlBase = "FROM wall AS w
@@ -4336,6 +4781,7 @@ WHERE forum_id = ' . $comment['forum_id'];
         $sqlBase .= $fromGroup;
         //$sqlLastItem .= $fromGroup;
         // it is for wall owner only
+        //var_dump_pre($uid, true);
         if($uid == guid() && $optionTemplateSet != 'urban') {
             //Нужно разобрраться почему так сделано и почему тут секции не отключаются
             $allowSection = '"photo_comment", "pics_comment", "group_join", "places_review", "event_member", "event_added", "blog_post", "forum_thread", "music", "vids"';
@@ -4368,6 +4814,12 @@ WHERE forum_id = ' . $comment['forum_id'];
 
         $sqlNumberItems = 'SELECT COUNT(w.id) ' . $sqlLastItem;
         //print_r_pre($sqlLastItem);
+		if ($admin) {
+			$sqlBase = 'FROM wall AS w
+                    LEFT JOIN user AS u ON u.user_id = w.user_id
+                   WHERE w.id = ' . to_sql($oneOnly) . ' AND `group_id` = ' . to_sql($groupId) . $whereSectionOnly . $whereSectionHidden;
+		}
+
         $sqlLastItem = 'SELECT MIN(w.id) ' . $sqlLastItem;
         $sqlInfo = "SELECT w.*, u.name, u.gender, DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(u.birth, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(u.birth, '00-%m-%d')) AS age "
                    . $sqlBase . ' ORDER BY id DESC ' .  $limitSql;
@@ -4383,6 +4835,9 @@ WHERE forum_id = ' . $comment['forum_id'];
 
         DB::query($sqlInfo, 3);
 
+		if ($admin && !DB::num_rows(3)) {
+			return false;
+		}
         //echo nl2br($sqlInfo);
         //exit();
         $wallItemClass = '';
@@ -4412,7 +4867,14 @@ WHERE forum_id = ' . $comment['forum_id'];
         $isMobileWall = self::getIsMobile();
 
         $isShareAvailableInTemplate = (Common::getTmplSet() == 'old') || self::$typeWall == 'edge';
-
+		if (IS_DEMO){
+			$isReportPostMenu = true;
+			$isReportPostBar = false;
+		} else {
+			$isReportPostMenu = Common::isOptionActive('wall_post_report_menu', 'edge_wall_settings');
+			$isReportPostBar = Common::isOptionActive('wall_post_report_bar', 'edge_wall_settings');
+		}
+		$isReportParse = $isReportPostMenu || $isReportPostBar;
         while ($row = DB::fetch_row(3)) {
 
             if($firstPostId == '') {
@@ -4421,6 +4883,9 @@ WHERE forum_id = ' . $comment['forum_id'];
 
             $html->setvar('id', $row['id']);
 
+			if ($admin) {
+				self::directLinkPopupPost($html, $row);
+			}
             if ($guid) {
                 if($row['user_id'] == $guid || $row['comment_user_id'] == $guid) {
                     $html->parse('wall_item_delete', false);
@@ -4439,15 +4904,16 @@ WHERE forum_id = ' . $comment['forum_id'];
                     $numAction = 0;
                     if ($oneOnly === false) {
                         $numAction++;
-
-                        if ($html->varExists('direct_link_popup_post_url')) {
+						self::directLinkPopupPost($html, $row);
+                        /*if ($html->varExists('direct_link_popup_post_url')) {
                             $urlDirect = Common::pageUrl('wall') . '?item=' . $row['id'] . '&uid=' . $row['user_id'];
-                            if ($groupId) {
-                                $urlDirect .= '&group_id=' . $groupId;
+
+                            if ($row['group_id']) {
+                                $urlDirect .= '&group_id=' . $row['group_id'];
                             }
                             $html->setvar('direct_link_popup_post_url', $urlDirect);
                         }
-                        $html->parse('direct_link_popup_post', false);
+                        $html->parse('direct_link_popup_post', false);*/
                     }
                     if (self::$typeWall != 'edge' && $friendPost) {
                         $numAction++;
@@ -4457,6 +4923,8 @@ WHERE forum_id = ' . $comment['forum_id'];
                     } else {
                         $html->setblockvar('unfriend_popup_post', '');
                     }
+
+
                     if ($guid == $row['user_id']
                         || ($row['section'] == 'comment' && $guid == $row['comment_user_id'])
                         || (self::isVisitorLoadPicsInTimeLine($row) && $row['comment_user_id'] == $guid)
@@ -4464,9 +4932,27 @@ WHERE forum_id = ' . $comment['forum_id'];
                         //if (!$friendPost) {
                         $numAction++;
                         $html->parse('delete_popup_post', false);
+
+						if ($isReportPostMenu) {
+							$html->clean('report_post_menu');
+						}
+						if ($isReportPostBar) {
+							$html->clean('report_post');
+						}
                     } else {
                         $html->setblockvar('delete_popup_post', '');
+						if ($isReportParse && !in_array($guid, explode(',', $row['users_reports']))) {
+							$postUid = $row['section'] == 'comment' ? $row['comment_user_id'] : $row['user_id'];
+							$html->setvar('report_post_user_id', $postUid);
+							if ($isReportPostMenu) {
+								$html->parse('report_post_menu', false);
+							}
+							if ($isReportPostBar) {
+								$html->parse('report_post', false);
+							}
+						}
                     }
+
                     if ($numAction > 0) {
                         $html->parse('wall_item_block_action', false);
                     }
@@ -4485,6 +4971,14 @@ WHERE forum_id = ' . $comment['forum_id'];
             $rowSource = $row;
             $row['real_wall_id'] = $row['id'];
 
+            $groupInfoItem = array();
+            $isPageGroupItem = false;
+            if ($row['group_id']) {
+                $groupInfoItem = Groups::getInfoBasic($row['group_id']);
+                if ($groupInfoItem && $groupInfoItem['page']) {
+                    $isPageGroupItem = true;
+                }
+            }
             // SHARE - select main item info
             if($row['section'] == 'share') {
                 self::setShareItem(true);
@@ -4508,7 +5002,7 @@ WHERE forum_id = ' . $comment['forum_id'];
                 $row['item_date'] = $rowSource['date'];
                 $row['item_name'] = $rowSource['name'];
                 $row['item_photo'] = User::getPhotoDefault($rowSource['user_id'], 'r');
-                if (!$row['group_id']) {
+                if (!$isPageGroupItem) {
                     $row['gender'] = User::getInfoBasic($row['item_user_id'], 'gender');
                 }
                 //echo '<pre>';
@@ -4518,7 +5012,7 @@ WHERE forum_id = ' . $comment['forum_id'];
                 self::setShareItem(false);
             }
 
-            if ($row['group_id']) {
+            if ($isPageGroupItem) {
                 $row['gender'] = '';
             }
 
@@ -4556,6 +5050,7 @@ WHERE forum_id = ' . $comment['forum_id'];
             //    echo "addInfoBySection AFTER > {$vars['item_name']} > {$vars['item_name_user_id']}<br>";
             //}
 
+            $groupIdTitle = isset($vars['item_real_group_id']) ? 0 : $row['group_id'];
             if(isset($row['item_photo'])) {
                $vars['photo'] = $row['item_photo'];
             }
@@ -4563,16 +5058,16 @@ WHERE forum_id = ' . $comment['forum_id'];
                 $vars['wall_item_title_template'] = self::wallItemTitleTemplate($row['section'], $row['gender']);
             }
 
+            //var_dump_pre($row['section'] . '-' . $row['id'] . '-' . (isset($vars['photo_count']) ? $vars['photo_count'] : 0) . '<br>');
             if(isset($vars['photo_count']) && $vars['photo_count'] > 1 && in_array('wall_item_title_template_' . $row['section'], $titlesMultiPhoto)) {
                 $titleTemplate = $row['section'] . 's';
                 //if($row['section'] == 'pics') {
                     //$titleTemplate = $titleTemplate . '_' . strtolower($row['gender']);
                 //}
-                $vars['wall_item_title_template'] = self::wallItemTitleTemplate($titleTemplate, $row['gender']);
+                $vars['wall_item_title_template'] = self::wallItemTitleTemplate($titleTemplate, $row['gender'], $groupIdTitle);
             }
 
             if( ($row['section'] == 'photo_comment' || $row['section'] == 'pics_comment')) {
-
                 if($row['section'] == 'photo_comment') {
                     $vars['wall_item_title_template'] = self::wallItemTitleTemplate($row['section'] . '_other', $row['gender']);
                 }
@@ -4582,7 +5077,6 @@ WHERE forum_id = ' . $comment['forum_id'];
                 } elseif(guser('name') == $vars['name_uploader']) {
                     $vars['wall_item_title_template'] = self::wallItemTitleTemplate($row['section'] . '_my', $row['gender']);
                 }
-
             }
 
             if($row['section'] == 'blog_comment' && $vars['name_blog_owner'] == guser('name')) {
@@ -4591,9 +5085,8 @@ WHERE forum_id = ' . $comment['forum_id'];
 
             // self comment on own wall
             if($row['section'] == 'comment' && $row['user_id'] != guid() && $row['comment_user_id'] == $row['user_id']) {
-                 $vars['wall_item_title_template'] = self::wallItemTitleTemplate($row['section'], $row['gender']);
+                 $vars['wall_item_title_template'] = self::wallItemTitleTemplate($row['section'], $row['gender'], $groupIdTitle);
             }
-
 
             if ($row['section'] == 'comment') {
                 if ($row['user_id'] != $row['comment_user_id']
@@ -4699,24 +5192,30 @@ WHERE forum_id = ' . $comment['forum_id'];
                 $uidProfile = $row['user_id'];
             }
             //echo ':::::: ' . $vars['id'] . '/' . $vars['name'] . '/' . $uidProfile . '<br>';
-            $vars['profile'] = self::getTemplateUsername($vars['name'], $uidProfile, $row['group_id']);
-            $varsName = $vars['name'];
-            if (self::isVisitorLoadPicsInTimeLine($row)) {
-                $varsName = $vars['name_user_item'];
-            }
+            $vars['profile'] = self::getTemplateUsername($vars['name'], $uidProfile, $row['group_id'], $row);
+
             $uidProfileS = $vars['item_user_id'];
             if (isset($row['item_name'])) {
                 $uidProfileS = $row['user_id'];
             }
-            //echo '!!!!!!: ' . $varsName . '/' . $uidProfileS . '<br>';
 
-            $vars['profile_s'] = self::getTemplateUsername($varsName, $uidProfileS, $row['group_id']);//self::getTemplateUsernameS($varsName, $uidProfileS);
+            $varsName = $vars['name'];
+            if (self::isVisitorLoadPicsInTimeLine($row)) {
+                $varsName = $vars['name_user_item'];
+                $uidProfileS = $row['user_id'];
+            }
+
+            //echo '!!!!!!: ' . $varsName . '/' . $uidProfileS . '<br>';
+            //var_dump_pre($uidProfileS);// var_dump_pre($groupInfo['user_id']);
+            $vars['profile_s'] = self::getTemplateUsername($varsName, $uidProfileS, $row['group_id'], $row);//self::getTemplateUsernameS($varsName, $uidProfileS);
 
             $vars['item_profile'] = self::getTemplateUsername($vars['item_name'], $vars['item_name_user_id']);
 
+            $vars['item_group_link'] = self::getTemplateGroupTitle($row['group_id']);
+
             $urlSection = 'url' . $sectionPreparedName;
 
-#            $vars['display_profile'] = '';
+            //print_r_pre($vars, true);
 
             if($isMobileWall && $row['section'] != 'comment' && $row['section'] != 'photo_comment') {
                 $vars['item_link_start'] = '';
@@ -4732,11 +5231,45 @@ WHERE forum_id = ' . $comment['forum_id'];
                 $vars['item_link_start'] = '<a href="#" onclick="onClickWallComments('.$row['item_id'].', '.$row['user_id'].', '.$row['id'].'); return false;">';
             }
 
+            if (!isset($vars['wall_item_title_info'])) {
+                $vars['wall_item_title_info'] = '';
+            }
+
             if (self::$typeWall == 'edge') {
-                if ($row['section_real'] == 'share') {
+
+                $prfTitle = '';
+                if (!$isPageGroupItem && $groupInfoItem && $groupId != $row['group_id']) {
+                    $prfTitle = '_in_group';
+                }
+
+                if ($row['section_real'] == 'share' || $row['section'] == 'pics') {
                     $vars['wall_item_title'] = $vars['wall_item_title_template'];
-                } elseif (isset($vars['photo_count']) && isset($vars['photo_count_all'])) {
-                    $vars['wall_item_title'] = self::wallItemTitleTemplate('add_photos', $row['gender']);
+                } elseif ($row['section_real'] == 'vids') {
+                    $keyTitle = 'add_video' . $prfTitle;
+                    if (isset($vars['item_video_live_title']) && $vars['item_video_live_title']) {
+                        $keyTitle = $vars['item_video_live_title'];
+                    }
+                    $vars['wall_item_title'] = self::wallItemTitleTemplate($keyTitle, $row['gender']);
+
+                } elseif ($row['section_real'] == 'music') {
+                    $keyTitle = 'add_song' . $prfTitle;
+                    $vars['wall_item_title'] = self::wallItemTitleTemplate($keyTitle, $row['gender']);
+                } elseif (isset($vars['wall_photo_default_photo_id'])) {//Set profile photo
+                    /*$prf = '';
+                    if ($row['group_id']) {
+                        $groupInfo = Groups::getInfoBasic($row['group_id']);
+                        $prf = $groupInfo['page'] ? '_page' : '_group';
+                        $gender = '';
+                    }*/
+                    $vars['wall_item_title'] = self::wallItemTitleTemplate('photo_default' . $prfTitle, $row['gender']);
+                } elseif (isset($vars['photo_count']) && $row['section'] != 'pics') {//Upload photos
+                    if (isset($vars['photo_count_all'])) {
+                        $prfTitle = 's' . $prfTitle;
+                    }
+                    $vars['wall_item_title'] = self::wallItemTitleTemplate('add_photo' . $prfTitle, $row['gender']);
+					if (isset($vars['item_face_detec_title']) && $vars['item_face_detec_title']) {
+						$vars['wall_item_title'] .= $vars['item_face_detec_title'];
+					}
                 } else {
                     $vars['wall_item_title'] = '';
                 }
@@ -4860,6 +5393,9 @@ WHERE forum_id = ' . $comment['forum_id'];
             /* Vids */
             if (self::$typeWall == 'edge' && $row['section'] == 'vids') {
                 $wallPlayVideo = Common::getOption('wall_play_video', self::$tmplName . '_wall_settings');
+                if ($vars['item_video_live_id'] && $vars['item_video_active'] == 2){
+                    $wallPlayVideo = 'popup';
+                }
                 if ($wallPlayVideo == 'popup') {
                     $html->parse('wall_vids_image', false);
                 }
@@ -4875,60 +5411,79 @@ WHERE forum_id = ' . $comment['forum_id'];
                 $html->parse('wall_ico_post', false);
                 $preloadCount = self::getCommentsPreloadCount();
             }
-            #if ($row['section'] != 'friends') {
-            Wall::parseLikes($html, $id, $rowSource['likes'], 2, $row);
-            Wall::parseComments($html, $id, 1, 0, $preloadCount, 0, '', $row);
-            #}
 
-            $html->setvar('real_wall_id', $row['real_wall_id']);
+			if (!$admin) {
+				#if ($row['section'] != 'friends') {
+				$rowLikesCount = $rowSource['likes'];
+				$rowLikesAction = $rowSource['last_action_like'];
+				if (self::$typeWall == 'edge' && ($row['section'] == 'vids' || $row['section'] == 'photo') && $row['item_id']) {
+					$rowLikesCount = $rowSource['likes_media'];
+					$rowLikesAction = $rowSource['last_action_like_media'];
+				}
+				Wall::parseLikes($html, $id, $rowLikesCount, 2, $row, true);
+				Wall::parseComments($html, $id, 1, 0, $preloadCount, 0, '', $row);
+				#}
 
-            $html->setvar('wall_last_action_like', $rowSource['last_action_like']);
-            $html->setvar('wall_last_action_comment', $rowSource['last_action_comment']);
+				$html->setvar('real_wall_id', $row['real_wall_id']);
 
-            if ($tmplWallType == 'edge') {
-                $sourceSection = '';
-                if (($rowSource['section'] == 'photo' && $rowSource['item_id']) || $rowSource['section'] == 'vids') {
-                    $sourceSection = $rowSource['section'];
-                }
-                $html->setvar('wall_item_last_action_comment_like', $row['last_action_comment_like']);
-                $html->setvar('wall_item_section', $sourceSection);
-                $html->setvar('wall_item_access', $rowSource['access']);
-            }
+				$html->setvar('wall_last_action_like', $rowLikesAction);
+				$html->setvar('wall_last_action_comment', $rowSource['last_action_comment']);
 
-            if($isShareAvailableInTemplate) {
-                if(self::isShareAble($row, $rowSource)) {
-                    self::parseShareModule($html, $row, $rowSource);
-                } else {
-                    $html->setvar('wall_item_class_shared', '');
-                }
-            }
 
-            $countComments = self::getCountComments($rowSource);
-            $html->setvar('wall_comments_count', $countComments);
+				if ($tmplWallType == 'edge') {
+					$sourceSection = '';
+					if (($rowSource['section'] == 'photo' && $rowSource['item_id']) || $rowSource['section'] == 'vids') {
+						$sourceSection = $rowSource['section'];
+					}
+					$html->setvar('wall_item_last_action_comment_like', $row['last_action_comment_like']);
+					$html->setvar('wall_item_section', $sourceSection);
+					$html->setvar('wall_item_access', $rowSource['access']);
+				}
 
-            if ($html->blockExists('wall_comments_count_title_hide')) {
-                $lVar = 'wall_comments_count';
-                if ($countComments == 1) {
-                    $lVar = 'wall_comments_one_count';
-                }
-                $html->setvar('wall_comments_count_title', lSetVars($lVar, array('comments_count' => $countComments)));
-                $html->subcond(!$countComments, 'wall_comments_count_title_hide');
-            }
+				if($isShareAvailableInTemplate) {
+					if(self::isShareAble($row, $rowSource)) {
+						self::parseShareModule($html, $row, $rowSource);
+					} else {
+						/*if($html->blockExists('wall_module_access_bl_hide')){
+							$html->parse('wall_module_access_bl_hide', false);
+						}*/
+						$html->setvar('wall_item_class_shared', '');
+					}
+				}
 
-            if(self::isShareItem()) {
-                $imUid = $rowSource['user_id'];
-            } else {
-                $imUid = $vars['item_user_id'];
-            }
+				$countComments = self::getCountComments($rowSource);
+				$html->setvar('wall_comments_count', $countComments);
 
-            $rowUserInfo = User::getInfoBasic($imUid);
-            $rowUserInfo = User::freeAccessApply($rowUserInfo);
+				if ($html->blockExists('wall_comments_count_title_hide')) {
+					$lVar = 'wall_comments_count';
+					if ($countComments == 1) {
+						$lVar = 'wall_comments_one_count';
+					}
+					$html->setvar('wall_comments_count_title', lSetVars($lVar, array('comments_count' => $countComments)));
+					$html->subcond(!$countComments, 'wall_comments_count_title_hide');
+				}
 
-            Encounters::parseLikeToMeet($html, $rowUserInfo['user_id'], $rowUserInfo['is_photo_public']);
-            User::parseImLink($html, $rowUserInfo['user_id'], $rowUserInfo['type'], $rowUserInfo['gold_days']);
+				if(self::isShareItem()) {
+					$imUid = $rowSource['user_id'];
+				} else {
+					$imUid = $vars['item_user_id'];
+				}
 
+				$rowUserInfo = User::getInfoBasic($imUid);
+				$rowUserInfo = User::freeAccessApply($rowUserInfo);
+
+				Encounters::parseLikeToMeet($html, $rowUserInfo['user_id'], $rowUserInfo['is_photo_public']);
+				User::parseImLink($html, $rowUserInfo['user_id'], $rowUserInfo['type'], $rowUserInfo['gold_days']);
+			}
             //Fix for old data for photo item
             if (!isset($vars['no_parse_item'])) {
+
+				if ($admin) {
+					if (Common::getTmplName() == 'urban') {
+						$html->parse('wall_item_title_urban', false);
+					}
+				}
+
                 $html->parse('wall_items', true);
             }
 
@@ -4977,8 +5532,10 @@ WHERE forum_id = ' . $comment['forum_id'];
                 'wall_module_comment',
                 'wall_module_like',
                 'wall_module_share',
-                'wall_module_access_bl',
+
                 'wall_module_access',
+                'wall_module_access_bl',
+                'wall_module_access_bl_hide',
                 'wall_module_access_disabled',
                 'wall_module_access_public',
                 'wall_module_access_friends',
@@ -4991,7 +5548,8 @@ WHERE forum_id = ' . $comment['forum_id'];
                 'wall_load_more_comments',
                 'wall_load_more_comments_show',
                 'wall_load_more_comments_new',
-                'wall_feed_comment_bottom_frm_show',
+                'feed_comment_audio_top',
+				'feed_comment_audio_bottom',
                 'wall_items_info_set',
                 'wall_shared_item_start',
                 'wall_shared_item_end',
@@ -5061,8 +5619,9 @@ WHERE forum_id = ' . $comment['forum_id'];
             $html->parse('wall_items_script_actions');
         }
 
-
-
+		if ($admin) {
+			return true;
+		}
     }
 
     static function cleanTags($text)
@@ -5080,15 +5639,18 @@ WHERE forum_id = ' . $comment['forum_id'];
 
         $postInfo = DB::row('SELECT * FROM `wall` WHERE `id` = ' . to_sql($id));
         $groupId = 0;
+        $itemUserId = 0;
         if ($postInfo) {
             $groupId = $postInfo['group_id'];
+            $itemUserId = $postInfo['user_id'];
         }
 
         $sql = 'INSERT IGNORE INTO wall_likes
-            SET user_id = ' . to_sql($uid, 'Number') . ',
-                wall_item_id = ' . to_sql($id, 'Number') . ',
-                group_id = ' . to_sql($groupId, 'Number') . ',
-                date = ' . to_sql(self::currentDateTime(), 'Text');
+                   SET user_id = ' . to_sql($uid, 'Number') . ',
+                       wall_item_id = ' . to_sql($id, 'Number') . ',
+                       wall_item_user_id = ' . to_sql($itemUserId, 'Number') . ',
+                       group_id = ' . to_sql($groupId, 'Number') . ',
+                       date = ' . to_sql(self::currentDateTime(), 'Text');
         DB::execute($sql);
 
         self::updateItem($id, true);
@@ -5196,6 +5758,29 @@ WHERE forum_id = ' . $comment['forum_id'];
         return array_flip($commentsLikes);
     }
 
+	static function addCommentPrepare($comment, $wall = true)
+    {
+		$imageUpload = get_param_int('image_upload');
+		if ($imageUpload) {
+			$replies = self::checkRepliesUserComment($comment);
+			$comment = $replies['comment'];
+            $imgId = Gallery::uploadIm($comment, 'tmp_wall');
+            if ($imgId) {
+                $comment = $replies['tag'] . ' ' . '{img_upload:' . $imgId . '}';
+            }
+		} else {
+			if ($wall && self::$typeWall != 'edge') {
+				$comment = Common::newLinesLimit($comment, 2);
+				$comment = "\n" . $comment;
+			}
+			if ($wall || (!$wall && Common::isOptionActiveTemplate('gallery_comment_parse_media'))) {
+				$comment = OutsideImages::filter_to_db($comment, null, true);
+				$comment = VideoHosts::textUrlToVideoCode($comment);
+			}
+		}
+		return $comment;
+	}
+
     static function addComment($id, $uid = false)
     {
         if($uid === false) {
@@ -5205,19 +5790,12 @@ WHERE forum_id = ' . $comment['forum_id'];
         $cid = 0;
 
         $comment = trim(strip_tags(get_param('comment')));
+		$audioMessageId = get_param_int('audio_message_id');
+		$imageUpload = get_param_int('image_upload');
 
-        if($comment != '') {
-            $comment = Common::newLinesLimit($comment, 2);
+        if($comment != '' || $audioMessageId || $imageUpload) {
+			$comment = self::addCommentPrepare($comment);
 
-            #if(strstr($comment, "\n")) {
-            #    $comment = "\n" . $comment;
-            #}
-
-            $comment = "\n" . $comment;
-
-            $comment = OutsideImages::filter_to_db($comment);
-
-            $comment = VideoHosts::textUrlToVideoCode($comment);
             $send = get_param('send');
             $parentId = get_param_int('reply_id');
             $postInfo = DB::row('SELECT * FROM `wall` WHERE `id` = ' . to_sql($id));
@@ -5247,6 +5825,8 @@ WHERE forum_id = ' . $comment['forum_id'];
                 $isNew = intval($postUserId != $uid);
             }
 
+			Common::updatePopularitySticker();
+
             $sql = 'INSERT INTO wall_comments
                 SET wall_item_id = ' . to_sql($id, 'Number') . ',
                     wall_item_user_id = ' . to_sql($postUserId, 'Number') . ',
@@ -5259,12 +5839,23 @@ WHERE forum_id = ' . $comment['forum_id'];
                     send = ' . to_sql($send)  . ',
                     group_user_id = ' . to_sql($groupUserId)  . ',
                     group_id = ' . to_sql($groupId);
+
+			if($audioMessageId) {
+				$sql .= ', `audio_message_id` = ' . to_sql($audioMessageId);
+			}
+
             DB::execute($sql);
 
             $cid = DB::insert_id();
 
+			ImAudioMessage::updateImMsgId($audioMessageId, $cid, 'wall_comment_id');
+
             if ($parentId) {
                 self::updateCountCommentReplies($parentId);
+            }
+
+            if($cid && $groupId) {
+                Groups::updateCountComments($groupId);
             }
 
             $sql = 'SELECT `user_id` FROM `wall` WHERE `id` = ' . to_sql($id, 'Number');
@@ -5326,6 +5917,18 @@ WHERE forum_id = ' . $comment['forum_id'];
         return DB::row($sql, $index);
     }
 
+	static function removeImgComment($comment)
+    {
+		$img = grabs($comment, '{img_upload:', '}');
+		if (isset($img[0])) {
+            $sql = "SELECT * FROM gallery_images WHERE id = " . to_sql($img[0]);
+            $image = DB::row($sql, DB_MAX_INDEX);
+            if ($image) {
+                Gallery::imageDelete($img[0], $image['user_id'], false);
+            }
+		}
+	}
+
     static function removeComment($id, $checkOwner = true)
     {
         $sql = 'SELECT wall_item_id
@@ -5347,14 +5950,30 @@ WHERE forum_id = ' . $comment['forum_id'];
                  WHERE ' . $whereComments . $where;
         DB::query($sql, self::getDbIndex());
 
+        $groupId = 0;
         $commentParentId = 0;
         while($row = DB::fetch_row(self::getDbIndex())) {
+			self::removeImgComment($row['comment']);
+
+			ImAudioMessage::delete($row['id'], $row['user_id'], 'wall_comment_id');
+
             OutsideImages::on_delete($row['comment']);
+
+			OutsideImages::deleteMetaLinks($row['comment']);
+
             $commentParentId = $row['parent_id'];
             DB::delete('wall_comments_likes', '`cid` = ' . to_sql($row['id']));
             if(!$commentParentId) {
                 DB::delete('wall_comments_likes', '`parent_id` = ' . to_sql($row['id']));
+
+                $comments = DB::select('wall_comments', '`parent_id` = ' . to_sql($row['id']));
+                if($comments) {
+                    foreach($comments as $comment) {
+                        self::removeComment($comment['id'], false);
+                    }
+                }
             }
+            $groupId = $row['group_id'];
         }
 
         if($commentParentId) {
@@ -5375,6 +5994,10 @@ WHERE forum_id = ' . $comment['forum_id'];
         $parentId = get_param_int('cid_parent', $commentParentId);
         if ($parentId) {
             self::updateCountCommentReplies($parentId);
+        }
+
+        if($groupId) {
+            Groups::updateCountComments($groupId);
         }
 
         self::updateItem($wid, false, true);
@@ -5507,6 +6130,10 @@ WHERE forum_id = ' . $comment['forum_id'];
 
     static function sendAlert($type, $item, $senderId, $dbIndex = DB_MAX_INDEX, $cid = 0)
     {
+        if(!Common::isOptionActive('wall_enabled')) {
+            return;
+        }
+
         $alertType = 'wall_alert_' . $type;
 
         if(!Common::isOptionActive('wall_like_comment_alert')) {
@@ -5953,7 +6580,6 @@ WHERE forum_id = ' . $comment['forum_id'];
             'friends',
             'field_status',
             'group_join',
-            'photo_default',
             'pics_comment',
             'photo_comment',
         );
@@ -5962,6 +6588,7 @@ WHERE forum_id = ' . $comment['forum_id'];
         $isParse = false;
         if (self::$typeWall != 'edge') {
             $isParse = $rowSource['user_id'] == guid() || $row['user_id'] == guid() || $row['comment_user_id'] == guid();
+            $sectionsNoShare[] = 'photo_default';
         }
         if ($isParse || in_array($row['section'], $sectionsNoShare)) {
             $isShareAble = false;
@@ -5971,6 +6598,15 @@ WHERE forum_id = ' . $comment['forum_id'];
         }
 
         return $isShareAble;
+    }
+
+    static function parseDisabledAccess(&$html, $friendsAccessTitle)
+    {
+        $blockAccess = 'wall_module_access';
+        $html->setvar("{$blockAccess}_friends", $friendsAccessTitle);
+        $html->parse("{$blockAccess}_disabled", false);
+        $html->clean($blockAccess);
+        $html->parse("{$blockAccess}_bl", false);
     }
 
     static function parseShareModule(&$html, $row, $rowSource)
@@ -5984,7 +6620,20 @@ WHERE forum_id = ' . $comment['forum_id'];
         if (self::$typeWall == 'edge') {
             $guid = guid();
             $html->setvar('wall_module_share_user_id', $guid);
+
+            $blockAccess = 'wall_module_access';
+            $isPrivateGroup = false;
+            $isPage = false;
+            $friendsAccessTitle = l('wall_post_access_friends');
+            if ($row['group_id']) {
+                $groupInfo = Groups::getInfoBasic($row['group_id'], false, DB_MAX_INDEX);
+                $isPrivateGroup = $groupInfo['private'] == 'Y';
+                $friendsAccessTitle = $groupInfo['page'] ? l('wall_post_access_like_page') : l('wall_post_access_subscribed_group');
+            }
+
             if ($rowSource['section'] == 'share') {
+                self::parseDisabledAccess($html, $friendsAccessTitle);
+
                 $html->setvar('wall_item_shared_id', $checkItemId);
                 $html->setvar('wall_item_shares_count', 0);
                 $html->setvar('wall_last_action_shares', '');
@@ -6008,8 +6657,11 @@ WHERE forum_id = ' . $comment['forum_id'];
 
             if ($noParseModuleShare) {
                 $html->clean('wall_module_share');
-                if (!$isPrivateGroup) {
-                    if (($row['comment_user_id'] == $guid || $row['comment_user_id'] == 0)) {// && !$row['group_id']
+                if ($isPrivateGroup) {
+                    self::parseDisabledAccess($html, $friendsAccessTitle);
+                } else {
+                    $isParseBlockAccess = $row['comment_user_id'] == $guid || $row['comment_user_id'] == 0;
+                    if ($isParseBlockAccess) {// && !$row['group_id']
                         $html->setvar("{$blockAccess}_friends", $friendsAccessTitle);
                         $html->parse("{$blockAccess}_" . $row['access'], false);
                         $html->parse($blockAccess, false);
@@ -6017,9 +6669,6 @@ WHERE forum_id = ' . $comment['forum_id'];
                         $html->parse("{$blockAccess}_disabled", false);
                     }
                     $html->parse("{$blockAccess}_bl", false);
-                } else {
-                    $html->setvar("{$blockAccess}_bl_class", 'private_group_access');
-                    $html->clean("{$blockAccess}_bl");
                 }
             } else {
                 $moduleClass = 'share';
@@ -6029,23 +6678,16 @@ WHERE forum_id = ' . $comment['forum_id'];
                     $moduleClass = 'unshare';
                     $moduleTitle = l('unshare');
                 }
-                //if ($row['group_id'] && !self::getGroupId()) {
-                    //$html->clean('wall_module_share');
-                //} else {
-                    $html->setvar('wall_module_share_class', $moduleClass);
-                    $html->setvar('wall_module_share_title', $moduleTitle);
-                    $html->parse('wall_module_share', false);
-                //}
 
+                $html->setvar('wall_module_share_class', $moduleClass);
+                $html->setvar('wall_module_share_title', $moduleTitle);
+                $html->parse('wall_module_share', false);
 
-                if ($isPrivateGroup) {
+                if ($isPrivateGroup && false) {
                     $html->setvar("{$blockAccess}_bl_class", 'private_group_access');
                     $html->clean("{$blockAccess}_bl");
                 } else {
-                    $html->setvar("{$blockAccess}_friends", $friendsAccessTitle);
-                    $html->parse("{$blockAccess}_disabled", false);
-                    $html->clean($blockAccess);
-                    $html->parse("{$blockAccess}_bl", false);
+                    self::parseDisabledAccess($html, $friendsAccessTitle);
                 }
             }
 
@@ -6415,9 +7057,12 @@ WHERE forum_id = ' . $comment['forum_id'];
         return $failed;
     }
 
-    static public function getTempFileUploadImage()
+    static public function getTempFileUploadImage($ext = 'jpg')
     {
-        return Common::getOption('dir_files', 'path') . 'temp/tmp_wall_' . guid() . '.jpg';
+		$guid = guid();
+		self::$tempNameFileBase = 'temp/tmp_wall_' . $guid;
+
+        return Common::getOption('dir_files', 'path') . self::$tempNameFileBase . '.' . $ext;
     }
 
 
@@ -6439,6 +7084,10 @@ WHERE forum_id = ' . $comment['forum_id'];
         $prfId = '';
         if ($type == 'video' || $type == 'vids') {
             $prfId = '_v';
+        } elseif ($type == 'blogs_post') {
+            $prfId = '_b';
+        } elseif ($type == 'live') {
+            $prfId = '_ls';
         } elseif ($type == 'photo') {
             $prfId = '_p';
         }
@@ -6640,11 +7289,28 @@ WHERE forum_id = ' . $comment['forum_id'];
         $comment['comm_user_url'] = $data['url'];
         $comment['comm_user_photo_id'] = $data['photo_id'];
         $comment['comm_user_group_owner'] = $data['user_group_owner'];
+		$comment['users_reports_comment'] = isset($comment['users_reports_comment']) ? $comment['users_reports_comment'] : '';
     }
 
     static function parseCommentDelete(&$html, $comment, $blockDelete = 'wall_comment_delete'){
         $guid = guid();
+		$isParseBlockMenu = false;
+
+		$blockCommentReport = "{$blockDelete}_report";
+		if($comment['comment_user_id'] != $guid) {
+			if (!in_array($guid, explode(',', $comment['users_reports_comment']))) {
+				$html->setvar("{$blockCommentReport}_user_id", $comment['user_id']);
+				$isParseBlockMenu = true;
+				$html->parse($blockCommentReport, false);
+			} else {
+				$html->clean($blockCommentReport);
+			}
+		} else {
+			$html->clean($blockCommentReport);
+		}
+
         $blockUserBlocked = "{$blockDelete}_user_block";
+		$blockCommentDeleteLink = "{$blockDelete}_link";
         if($comment['wall_user_id'] == $guid || $comment['comment_user_id'] == $guid) {
             if (Common::isOptionActive('contact_blocking') && $comment['item_group_id'] && $comment['comment_user_id'] != $guid) {// || $row['section'] == 'group_social_created'
                 $isBlocked = Groups::isEntryBlocked($comment['item_group_id'], $comment['comment_user_id']);
@@ -6660,10 +7326,25 @@ WHERE forum_id = ' . $comment['forum_id'];
             } else {
                 $html->clean($blockUserBlocked);
             }
-            $html->parse($blockDelete, false);
+			$isParseBlockMenu = true;
+
+			$html->parse($blockCommentDeleteLink, false);
+		} else {
+			$html->clean($blockCommentDeleteLink);
+		}
+
+		if ($isParseBlockMenu) {
+			$html->parse($blockDelete, false);
         } else {
+			$html->clean($blockCommentReport);
             $html->clean($blockUserBlocked);
+			$html->clean($blockCommentDeleteLink);
             $html->clean($blockDelete);
         }
+
     }
+	static function checkTypeWall($type){
+		$tmplWallType = Common::getOptionTemplate('wall_type');
+        return $tmplWallType == $type;
+	}
 }

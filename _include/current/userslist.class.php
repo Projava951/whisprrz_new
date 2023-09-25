@@ -1,12 +1,11 @@
 <?php
+/* (C) Websplosion LLC, 2001-2021
 
-/* (C) Websplosion LTD., 2001-2014
+IMPORTANT: This is a commercial software product
+and any kind of using it must agree to the Websplosion's license agreement.
+It can be found at http://www.chameleonsocial.com/license.doc
 
-  IMPORTANT: This is a commercial software product
-  and any kind of using it must agree to the Websplosion's license agreement.
-  It can be found at http://www.chameleonsocial.com/license.doc
-
-  This notice may not be removed from the source code. */
+This notice may not be removed from the source code. */
 
 class Users_List {
 
@@ -190,7 +189,10 @@ class Users_List {
 
             $isAjaxRequest = (get_param('ajax') && Common::isOptionActive('list_users_info_ajax', 'template_options'));
             /* EDGE */
-            $isLikedShowList = in_array($show, array('wall_liked', 'wall_shared', 'wall_liked_comment', 'photo_liked', 'photo_liked_comment', 'video_liked', 'video_liked_comment'));
+            $isLikedShowList = in_array($show, array('wall_liked', 'wall_shared', 'wall_liked_comment',
+                                                     'photo_liked', 'photo_liked_comment',
+                                                     'video_liked', 'video_liked_comment',
+                                                     'blogs_post_liked', 'blogs_post_liked_comment'));
 
             if(!$isAjaxRequest) {
                 $page = new CProfilesPageBase('', $g['tmpl']['dir_tmpl_main'] . $template);
@@ -276,8 +278,11 @@ class Users_List {
                         }
                         $wallItemInfo = DB::one('wall', '`id` = ' . to_sql($wallLikesItemId) . ' AND `group_id` != 0');
                         if ($wallItemInfo) {
-                            TemplateEdge::$listUserGroupId = $wallItemInfo['group_id'];
-                            TemplateEdge::$listUserGroupUid = $wallItemInfo['user_id'];
+                            $isPageGroup = Groups::getInfoBasic($wallItemInfo['group_id'], 'page');
+                            if ($isPageGroup) {
+                                TemplateEdge::$listUserGroupId = $wallItemInfo['group_id'];
+                                TemplateEdge::$listUserGroupUid = $wallItemInfo['user_id'];
+                            }
                         }
                     } elseif(in_array($show, array('photo_liked', 'video_liked', 'wall_liked_comment', 'photo_liked_comment', 'video_liked_comment'))){
                         $dataInfo = array();
@@ -304,8 +309,11 @@ class Users_List {
                             }
                         }
                         if ($dataInfo) {
-                            TemplateEdge::$listUserGroupId = $dataInfo['group_id'];
-                            TemplateEdge::$listUserGroupUid = $dataInfo['group_user_id'];
+                            $isPageGroup = Groups::getInfoBasic($dataInfo['group_id'], 'page');
+                            if ($isPageGroup) {
+                                TemplateEdge::$listUserGroupId = $dataInfo['group_id'];
+                                TemplateEdge::$listUserGroupUid = $dataInfo['group_user_id'];
+                            }
                         }
                     }
                 }

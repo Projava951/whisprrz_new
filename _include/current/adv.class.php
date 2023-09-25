@@ -1,18 +1,17 @@
 <?php
+/* (C) Websplosion LLC, 2001-2021
 
-/* (C) Websplosion LTD., 2001-2014
+IMPORTANT: This is a commercial software product
+and any kind of using it must agree to the Websplosion's license agreement.
+It can be found at http://www.chameleonsocial.com/license.doc
 
-  IMPORTANT: This is a commercial software product
-  and any kind of using it must agree to the Websplosion's license agreement.
-  It can be found at http://www.chameleonsocial.com/license.doc
-
-  This notice may not be removed from the source code. */
+This notice may not be removed from the source code. */
 
 class CAdvTools {
 
     private static $prfImage = array('b.jpg', 'th.jpg', 'th_s.jpg', 'src.jpg');
 
-    public static function deleteAdv($cat = null, $id, $catId = null, $admin = false)
+    public static function deleteAdv($cat = null, $id = 0, $catId = null, $admin = false)
     {
         global $g_user;
 
@@ -31,7 +30,6 @@ class CAdvTools {
             if(!$adv) {
                 return;
             }
-
             $adv = $adv[0];
             if ($adv['user_id'] == $g_user['user_id'] || $admin) {
                 self::deleteOne($table, $adv['cat_id'], $id);

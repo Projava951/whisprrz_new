@@ -1,6 +1,5 @@
 <?php
-
-/* (C) Websplosion LTD., 2001-2014
+/* (C) Websplosion LLC, 2001-2021
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -123,9 +122,14 @@ Class Menu {
                 $setHomePageUrban = Common::getOption('set_home_page', 'edge');
                 $defaultProfileTab = Common::getOption('set_default_profile_tab', 'edge');
                 $profileUrl = 'profile_view';
+                if(IS_DEMO) {
+                    $profileUrl = '';
+                }
+                $prepareUrl = true;
                 if (guid()) {
                     if (Common::isOptionActive('seo_friendly_urls')) {
                         $profileUrl = User::url(guid());
+                        $prepareUrl = false;
                     }
                     if ($defaultProfileTab == 'menu_inner_videos_edge') {
                         $profileUrl = 'user_vids_list';
@@ -134,16 +138,24 @@ Class Menu {
                     } elseif ($defaultProfileTab == 'menu_inner_friends_edge') {
                         $profileUrl = 'user_friends_list';
                     }
+                    $pageURLs = ListBlocksOrder::getOrderItemsList('member_header_menu', true);
                 }
 
                 $pageURLs = ListBlocksOrder::getOrderItemsList('member_home_page', false);
                 $pageURLs['menu_profile_edge']['url'] = $profileUrl;
                 if ($setHomePageUrban && isset($pageURLs[$setHomePageUrban])) {
-                    $setHomePageUrban = $pageURLs[$setHomePageUrban]['url'];
+                    $prepareUrl = !isset($pageURLs[$setHomePageUrban]['url_real']);
+                    $setHomePageUrban = isset($pageURLs[$setHomePageUrban]['url_real']) ? $pageURLs[$setHomePageUrban]['url_real'] : $pageURLs[$setHomePageUrban]['url'];
                 } else {
                     $setHomePageUrban = $profileUrl;
                 }
-                return  Common::pageUrl($setHomePageUrban, $uid);
+
+                if ($prepareUrl) {
+                    $url = Common::pageUrl($setHomePageUrban, $uid);
+                } else {
+                    $url = $setHomePageUrban;
+                }
+                return  $url;
             }
 
             $viewHomePage = Common::getOption('view_home_page_urban');
@@ -180,6 +192,7 @@ Class Menu {
                         'profile_visitors' => Common::pageUrl('users_viewed_me'),
                         'game_choose' => Common::pageUrl('games')
                 );
+                $pageURLsTmpl = array();
                 if ($optionTmplName == 'impact_mobile') {
                     unset($pageURLs['photo_rating']);
                     unset($pageURLs['friends']);
@@ -195,24 +208,29 @@ Class Menu {
                         'boost' => Common::pageUrl('profile_boost'),
                         'upgrade' => Common::pageUrl('upgrade'),
                         'settings' => Common::pageUrl('profile_settings'),
-                        'live' => Common::pageUrl('live', guid()),
+						'live' => Common::pageUrl('live', guid()),
 						'live_list' => Common::pageUrl('live_list'),
 						'live_list_finished' => Common::pageUrl('live_list_finished')
                     );
 
-                    if (!User::accessCheckFeatureSuperPowers('live_streaming')) {
+					if (!User::accessCheckFeatureSuperPowers('live_streaming')) {
 						$pageURLsTmpl['live'] = Common::pageUrl('upgrade');
 					}
                 }
 
                 $pageURLs = array_merge($pageURLs, $pageURLsTmpl);
                 $setHomePageMobile = Common::getOption('set_home_page_mobile');
+
                 if (in_array($setHomePageMobile, array('3d_city', 'street_chat'))) {
                     if (!CityBase::isCityInTab()) {
                         $pageURLs['3d_city'] = City::url('city', false, false);
                         $pageURLs['street_chat'] = City::url('street_chat', false, false);
                     }
-                }
+				} elseif (in_array($setHomePageMobile, array('live_list', 'live_list_finished', 'live'))
+							&& !LiveStreaming::isAviableLiveStreaming()) {
+					$setHomePageMobile = 'profile_view';
+				}
+
                 if(isset($pageURLs[$setHomePageMobile])){
                     if($pageURLs[$setHomePageMobile] == 'upgrade' && Common::isOptionActive('free_site')) {
                         $pageURLs[$setHomePageMobile] = Common::pageUrl($viewHomePage);

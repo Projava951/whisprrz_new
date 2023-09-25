@@ -264,6 +264,8 @@ Class TemplateEdge {
 						$blockInfoHeaderLeayout = Common::getOption('info_block_leayout', 'edge_main_page_settings');
 						$html->parse($blockInfoHeaderLeayout, false);
 						if (Common::isOptionActive('info_block_header_show', 'edge_main_page_settings')) {
+                            $html->setvar('info_block_header_visitor_title', l(self::isModeLms() ? 'mode_lms_info_block_header_visitor_title' : 'are_you_social_enough'));
+                            $html->setvar('info_block_header_visitor_description', l(self::isModeLms() ? 'mode_lms_info_block_header_visitor_description' : 'the_social_network_you_were_dreaming_about_all_your_life'));
 							$html->parse($blockInfoHeader, false);
 						}
 					}
@@ -349,7 +351,7 @@ Class TemplateEdge {
                 $html->parse('app_ios_style', false);
             }
 
-            $varsHeader['user_allowed_feature'] = User::access��heckFeatureSuperPowersGetList();
+            $varsHeader['user_allowed_feature'] = User::accessСheckFeatureSuperPowersGetList();
 
             $isPlayerNative = $isCheckMobileDevice || Common::getOption('video_player_type') == 'player_native';
             $varsHeader['is_player_native_site'] = intval($isPlayerNative);
@@ -375,11 +377,11 @@ Class TemplateEdge {
                     $html->setvar('footer_verification_system_options', h_options($verificationSystemsData, ''));
                 }
 
-                if (Common::isAppIos() && Common::getAppIosApiVersion() >= 48) {
+                /*if (Common::isAppIos() && Common::getAppIosApiVersion() >= 48) {
                     $html->setvar('app_ios_auth_key', User::urlAddAutologin('', $g_user));
                     $html->parse('app_ios_image_editor');
                     //$html->parse('app_ios_video_editor');
-                }
+                }*/
                 if (!$isCheckMobileDevice) {
                     $html->parse('sound_silence_activate', false);
                 }
@@ -708,16 +710,22 @@ Class TemplateEdge {
             }
 
             //$photoMainId = User::getPhotoDefault($row['user_id'], $sizePhotoMain, true);
+            $blockCustom = 'header_custom';
 			if ($guid == $uid) {
-				$blockCustom = 'header_custom';
 				if (!$photoMainId) {
 					$html->parse("{$blockCustom}_empty_photo", false);
 					$html->parse("{$blockCustom}_empty_photo_title", false);
-					$html->parse("{$blockCustom}_upload_profile_photo_editor_hide", false);
 				}
+
+                if(!$photoMainId || (isset(CProfilePhoto::$allPhotoInfo[$photoMainId]['gif']) && !Common::isImageEditorEnabled(CProfilePhoto::$allPhotoInfo[$photoMainId]['gif'] ? 'gif' : ''))) {
+                    $html->parse("{$blockCustom}_upload_profile_photo_editor_hide", false);
+                }
+
 				$html->parse("{$blockCustom}_upload_profile_cover", false);
 				$html->parse("{$blockCustom}_upload_profile_photo", false);
-			}
+			} else {
+                $html->parse("{$blockCustom}_profile_view_button", false);
+            }
             $blockAdditionMenu = 'mn_circle';
             $numberItem = 6;
         } else {
@@ -1339,6 +1347,14 @@ Class TemplateEdge {
             if ($orientation) {
                 $orientationTitle = l($orientation['title']);
             }
+
+            if(self::isModeLms()) {
+                $lmsUserType = LMS::getUserTypeInfo($row['lms_user_type']);
+                if ($lmsUserType) {
+                    $orientationTitle = l($lmsUserType['title']);
+                }
+            }
+
             $infoColumn = array(
                 'name'  => $row['name'],
                 'birth' => $row['birth'],
@@ -1646,6 +1662,12 @@ Class TemplateEdge {
                         $html->parse("{$blockItem}_about_me_show", false);
                     }
                 }
+
+                if($uid && !$groupId && !$blogId) {
+                    $list = new CUsersProfile('', null, true, '');
+                    $list->onItem($html, $row, 0, 0);
+                }
+
             } elseif ($type == 'banner') {
                 $blockItem = 'right_banner';
                 CBanner::getBlock($html, 'right_column');
@@ -2312,8 +2334,10 @@ Class TemplateEdge {
                 $html->parse('app_ios_image_editor', false);
             }
 
+            $isImageEditorEnabed = Common::isImageEditorEnabled($row['gif'] ? 'gif' : '');
+
             $editorHideClass = '';
-            if($row['gif']) {
+            if(!$isImageEditorEnabed) {
                 $editorHideClass = 'hide';
             }
             $html->setvar('editor_hide_class', $editorHideClass);
@@ -2325,7 +2349,7 @@ Class TemplateEdge {
                 $keyDefault = $row['group_id'] ? 'default_group' : 'default';
                 $html->subcond($row[$keyDefault] == 'Y', "{$blockItemType}_profile_pic");
 
-				$html->subcond(!$row['gif'], "{$blockItemType}_editor");
+				$html->subcond($isImageEditorEnabed, "{$blockItemType}_editor");
 
                 $html->parse("{$blockItemType}_menu", false);
             } else {
@@ -2864,5 +2888,55 @@ Class TemplateEdge {
             $optionsKey = 'edge_groups_settings';
         }
         return $optionsKey;
+    }
+
+    static function getMode()
+    {
+        return 'default';
+        return 'mode_lms';
+    }
+
+    static function isModeLms()
+    {
+        return (self::getMode() === 'mode_lms');
+    }
+
+    static function isModeDefault()
+    {
+        return (self::getMode() === 'default');
+    }
+
+    static function setModeLmsLanguageWords()
+    {
+        global $l;
+
+        $modifyLanguageValues = array(
+            'all' => array(
+                'man',
+                'woman',
+                'edge_filter_orientation_man',
+                'edge_filter_orientation_woman',
+                'menu_people_edge',
+                'gender',
+            ),
+            'search_results.php' => array('page_title'),
+        );
+        foreach($modifyLanguageValues as $modifyLanguageValuesSection => $modifyLanguageValuesKeys) {
+            foreach($modifyLanguageValuesKeys as $modifyLanguageValuesKey) {
+                if(isset($l[$modifyLanguageValuesSection]['mode_lms_' . $modifyLanguageValuesKey])) {
+                    $l[$modifyLanguageValuesSection][$modifyLanguageValuesKey] = $l[$modifyLanguageValuesSection]['mode_lms_' . $modifyLanguageValuesKey];
+                }
+            }
+        }
+    }
+
+    static function getProfileInfoModule()
+    {
+        global $g;
+
+        $templateEdgeProfileInfo = new TemplateEdgeProfileInfo('', $g['tmpl']['dir_tmpl_main'] . '_profile_column_right.html');
+        $templateEdgeProfileInfo->init();
+        $tmp = null;
+        return $templateEdgeProfileInfo->parse($tmp, true);
     }
 }
