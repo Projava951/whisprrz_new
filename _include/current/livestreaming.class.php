@@ -183,11 +183,9 @@ class LiveStreaming extends CommentsBase
                     if (file_exists($file)) {
                         unlink($file);
                     }
-
                     if ($isPostWall) {
                         $wallId = Wall::add('vids', $videoId, false, '', false, 0, 'public', 0, '', 0, 1);
                         DB::update(self::$tableVideo, array('wall_id' => $wallId), '`id` = ' . to_sql($videoId));
-
                         DB::update(self::$table, array('is_upload_photo' => 1, 'wall_id' => $wallId), '`id` = ' . to_sql($liveId));
                     }
 
@@ -265,7 +263,6 @@ class LiveStreaming extends CommentsBase
             $time = 0;
         }
 
-        //var_dump_pre($time);
         return $time;
     }
 
@@ -643,7 +640,6 @@ class LiveStreaming extends CommentsBase
             'video_id' => $id
         );
         $html->assign('ls', $vars);
-
         if ($id) {
             $videoInfo = DB::one(self::$tableVideo, '`id` = ' . to_sql($id));
             if (!$videoInfo) {
@@ -693,6 +689,7 @@ class LiveStreaming extends CommentsBase
 
             $html->parse('ls_module_action', false);
         }
+
     }
 
     static function addComment()
@@ -1527,6 +1524,8 @@ class LiveStreaming extends CommentsBase
         // ios app only special version because need camera/audio permissions
         if(!Common::isOptionActive('live_streaming') || (Common::isAppIos() && !Common::isAppIosWebrtcAvailable())) {
             $isAvailable = false;
+            // var_dump(Common::isOptionActive('live_streaming')); die();
+
         }
 
         return $isAvailable;
@@ -1578,6 +1577,7 @@ class LiveStreaming extends CommentsBase
 	}
 
 	function parseBlock(&$html) {
+
 
 		global $g_user;
 

@@ -1,11 +1,12 @@
 <?php
-/* (C) Websplosion LLC, 2001-2021
 
-IMPORTANT: This is a commercial software product
-and any kind of using it must agree to the Websplosion's license agreement.
-It can be found at http://www.chameleonsocial.com/license.doc
+/* (C) Websplosion LTD., 2001-2014
 
-This notice may not be removed from the source code. */
+  IMPORTANT: This is a commercial software product
+  and any kind of using it must agree to the Websplosion's license agreement.
+  It can be found at http://www.chameleonsocial.com/license.doc
+
+  This notice may not be removed from the source code. */
 
 class CJoinPage extends CHtmlBlock {
 
@@ -49,7 +50,17 @@ class CJoinPage extends CHtmlBlock {
                     $whereLogin = '(name = ' . to_sql($login, 'Text') . ' OR mail = ' . to_sql($login, 'Text') . ')';
                 }*/
 
-                $user = User::getUserByLoginAndPassword($login, $password);
+                $sql = 'SELECT `user_id`, `active`, `ban_global` FROM user
+                     WHERE (name = ' . to_sql($login, 'Text') . ' OR mail = ' . to_sql($login, 'Text') . ')
+                       AND (password = ' . to_sql($password, 'Text') . ' OR password = ' . to_sql(md5($password), 'Text') . ')';
+                $user = DB::row($sql);
+
+                    if(get_param('login_type') == '2') {
+                        $user = DB::row("SELECT * FROM user WHERE user_id = '" . $user['user_id'] . "'");
+                        $user_couple = DB::row("SELECT * FROM user WHERE user_id ='" . to_sql($user['nsc_couple_id'], 'Number') . "'");
+                        $user = $user_couple;
+                    } 
+
                 $id = 0;
                 $userApproval = 0;
                 $userBan = 0;
@@ -59,7 +70,6 @@ class CJoinPage extends CHtmlBlock {
                 $id = $user['user_id'];
                 $userApproval = $user['active'];
                 $userBan = $user['ban_global'];
-                $password = $user['password'];
             }
 
             if ($id == 0) {
@@ -118,7 +128,14 @@ class CJoinPage extends CHtmlBlock {
                     set_cookie('c_password', '', -1);
                 }
 
-                User::updateLastVisit($id);
+                // if(get_param('login_type') == '2') {
+                //     $user = DB::row("SELECT * FROM user WHERE user_id = '" . $id . "'");
+                //     $user_couple = DB::row("SELECT * FROM user WHERE user_id ='" . to_sql($user['nsc_couple_id'], 'Number') . "'");
+                //     User::updateLastVisit($user_couple['user_id']);
+
+                // } else{
+                    User::updateLastVisit($id);
+                // }
 
                 CStatsTools::count('logins', $id);
                 if (!$ajax) {
@@ -135,8 +152,6 @@ class CJoinPage extends CHtmlBlock {
     function parseBlock(&$html)
     {
         global $g_info;
-
-        $cmd = get_param('cmd');
 
         /* URBAN */
         if ($html->varExists('is_ios')) {
@@ -208,10 +223,6 @@ class CJoinPage extends CHtmlBlock {
             $block = 'log_in_social';
         }
         Social::parse($html, $block);
-
-        if ($cmd == 'please_login') {
-            $html->parse('bl_link_join', false);
-        }
 
         parent::parseBlock($html);
     }

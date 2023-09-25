@@ -1,5 +1,6 @@
 <?php
-/* (C) Websplosion LLC, 2001-2021
+
+/* (C) Websplosion LTD., 2001-2014
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -75,10 +76,41 @@ Class Menu {
         return $isMenuAuthOnly;
     }
 
+    //gregory mann modified 7/14/2023
     static function menuItemUrl($menu)
     {
-        return isset(self::$itemUrl[$menu]) ? self::$itemUrl[$menu] : $menu . '.php';
+        //nnsscc-diamond-202002020307-start
+		$optionTmplSet = Common::getTmplSet();
+		if ($optionTmplSet == 'old' && $menu=='flashchat') {
+			//return "oryx_public_chat.php";
+			return "general_chat.php";
+		}
+		//nnsscc-diamond-202002020307-end
+		if($menu=='Party House') {//nnscc-diamond-20201028-start
+			global $g_user;
+			$mail = "";
+			$name = "";
+			if(isset($g_user['mail'])){
+				$mail = $g_user['mail'];
+			}
+			if(isset($g_user['name'])){
+				$name = $g_user['name'];
+			}
+			return "partyhouz.php";
+		}
+		if($menu=='LookingGlass') {
+			//return "VideoCall";
+		}
+
+        if ($menu=='live') {
+            return "live_streaming.php";
+        }
+		//nnscc-diamond-20201028-end
+		
+		return isset(self::$itemUrl[$menu]) ? self::$itemUrl[$menu] : $menu . '.php';
     }
+    //gregory mann modified 7/14/2023
+
 
     static function homePage($uid = null)
     {
@@ -91,14 +123,9 @@ Class Menu {
                 $setHomePageUrban = Common::getOption('set_home_page', 'edge');
                 $defaultProfileTab = Common::getOption('set_default_profile_tab', 'edge');
                 $profileUrl = 'profile_view';
-                if(IS_DEMO) {
-                    $profileUrl = '';
-                }
-                $prepareUrl = true;
                 if (guid()) {
                     if (Common::isOptionActive('seo_friendly_urls')) {
                         $profileUrl = User::url(guid());
-                        $prepareUrl = false;
                     }
                     if ($defaultProfileTab == 'menu_inner_videos_edge') {
                         $profileUrl = 'user_vids_list';
@@ -107,23 +134,16 @@ Class Menu {
                     } elseif ($defaultProfileTab == 'menu_inner_friends_edge') {
                         $profileUrl = 'user_friends_list';
                     }
-                    $pageURLs = ListBlocksOrder::getOrderItemsList('member_header_menu', true);
                 }
 
+                $pageURLs = ListBlocksOrder::getOrderItemsList('member_home_page', false);
                 $pageURLs['menu_profile_edge']['url'] = $profileUrl;
                 if ($setHomePageUrban && isset($pageURLs[$setHomePageUrban])) {
-                    $prepareUrl = !isset($pageURLs[$setHomePageUrban]['url_real']);
-                    $setHomePageUrban = isset($pageURLs[$setHomePageUrban]['url_real']) ? $pageURLs[$setHomePageUrban]['url_real'] : $pageURLs[$setHomePageUrban]['url'];
+                    $setHomePageUrban = $pageURLs[$setHomePageUrban]['url'];
                 } else {
                     $setHomePageUrban = $profileUrl;
                 }
-
-                if ($prepareUrl) {
-                    $url = Common::pageUrl($setHomePageUrban, $uid);
-                } else {
-                    $url = $setHomePageUrban;
-                }
-                return  $url;
+                return  Common::pageUrl($setHomePageUrban, $uid);
             }
 
             $viewHomePage = Common::getOption('view_home_page_urban');
@@ -160,7 +180,6 @@ Class Menu {
                         'profile_visitors' => Common::pageUrl('users_viewed_me'),
                         'game_choose' => Common::pageUrl('games')
                 );
-                $pageURLsTmpl = array();
                 if ($optionTmplName == 'impact_mobile') {
                     unset($pageURLs['photo_rating']);
                     unset($pageURLs['friends']);
@@ -176,29 +195,24 @@ Class Menu {
                         'boost' => Common::pageUrl('profile_boost'),
                         'upgrade' => Common::pageUrl('upgrade'),
                         'settings' => Common::pageUrl('profile_settings'),
-						'live' => Common::pageUrl('live', guid()),
+                        'live' => Common::pageUrl('live', guid()),
 						'live_list' => Common::pageUrl('live_list'),
 						'live_list_finished' => Common::pageUrl('live_list_finished')
                     );
 
-					if (!User::accessCheckFeatureSuperPowers('live_streaming')) {
+                    if (!User::accessCheckFeatureSuperPowers('live_streaming')) {
 						$pageURLsTmpl['live'] = Common::pageUrl('upgrade');
 					}
                 }
 
                 $pageURLs = array_merge($pageURLs, $pageURLsTmpl);
                 $setHomePageMobile = Common::getOption('set_home_page_mobile');
-
                 if (in_array($setHomePageMobile, array('3d_city', 'street_chat'))) {
                     if (!CityBase::isCityInTab()) {
                         $pageURLs['3d_city'] = City::url('city', false, false);
                         $pageURLs['street_chat'] = City::url('street_chat', false, false);
                     }
-				} elseif (in_array($setHomePageMobile, array('live_list', 'live_list_finished', 'live'))
-							&& !LiveStreaming::isAviableLiveStreaming()) {
-					$setHomePageMobile = 'profile_view';
-				}
-
+                }
                 if(isset($pageURLs[$setHomePageMobile])){
                     if($pageURLs[$setHomePageMobile] == 'upgrade' && Common::isOptionActive('free_site')) {
                         $pageURLs[$setHomePageMobile] = Common::pageUrl($viewHomePage);
@@ -359,7 +373,7 @@ Class Menu {
         $menuItemKeys = self::getMenuItemsKeys();
         $menuItemActive = self::getPageActive();
 
-        $menuLimit = isset($l['all']['menu_items']) ? $l['all']['menu_items'] : 16;
+        $menuLimit = isset($l['all']['menu_items']) ? $l['all']['menu_items']-1 : 16; //nnsscc-diamond
         $menuCounter = 0;
         $menuItemsCount = count($menuItems);
 
@@ -417,7 +431,34 @@ Class Menu {
 
             $html->parse($menuBlock);
         }
-
+		//nnsscc-diamond-2000229-start
+		$lang = loadLanguageAdmin();
+        DB::query("SELECT * FROM `pages` WHERE `set` = '' AND `lang` = 'default' AND `section` = 'narrow' ORDER BY position");
+        while ($row = DB::fetch_row()) {
+            $allowTmpls = explode(',', $row['set']);
+            if ($row['system'] && !in_array($optionTmplName, $allowTmpls)) {
+                continue;
+            }
+            if (isset($allowedPage[$row['menu_title']]) && !$allowedPage[$row['menu_title']]) {
+                continue;
+            }
+            $alias = $row['menu_title'];
+            $html->setvar('id', $row['id']);
+            $html->setvar('system', $row['system']);
+            $html->setvar('alias', $alias);
+            if ($row['system']) {
+                $row['menu_title'] = l($row['menu_title'], $lang);
+            }
+            $html->setvar('menu_title', $row['menu_title']);
+            $html->setvar('menu_item_title', $row['menu_title']);
+            $html->setvar('menu_item_page', 'nsc_club.php?id='.$row['id']);
+			if ($row['section']=="narrow") {                
+                $html->parse('menu_more_nsc_club_item');
+            } else {
+				$html->clean('menu_more_nsc_club_item');
+			}			
+		}
+		//nnsscc-diamond-2000229-end
         if ($menuCounter > $menuLimit) {
             $html->parse('menu_more');
         }

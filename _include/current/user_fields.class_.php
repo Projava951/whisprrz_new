@@ -3,7 +3,6 @@ class UserFields extends CHtmlBlock
 {
     private $set;
     private $gUser;
-	private $gUserNscCoupleId = 0;
     private $countShow = 0;
     private $countShowConst = 0;
     private $countShowGroupInt    = array('0' => 0, '1' => 0, '2' => 0, '3' => 0, '4' => 0);
@@ -13,7 +12,7 @@ class UserFields extends CHtmlBlock
     private $selectionFields = array ('admin'     => array('text', 'textarea', 'int', 'from', 'checks', 'const'),
                                       'profile'   => array('text', 'textarea', 'const'),
                                       'pr_check'  => array('text', 'textarea'),
-                                      'personal'  => array('int','checkbox'),//nnsscc-diamond-20200312
+                                      'personal'  => array('int'),
                                       'update_text'  => array('text'),
                                       'update_personal_urban'  => array('int', 'checkbox', 'group'),
                                       'personal_edit_urban'  => array('int', 'checkbox', 'group', 'text'),
@@ -24,7 +23,7 @@ class UserFields extends CHtmlBlock
                                       'join'      => array('text', 'textarea', 'int'),
                                       'update_admin_urban'  => array('text', 'textarea', 'int', 'checkbox'),
                                       'texts'     => array('text', 'textarea'),
-                                      'profile_html' => array('text', 'textarea', 'int', 'checkbox'),//20200214-nnsscc-diamond
+                                      'profile_html' => array('text', 'textarea', 'int'),
                                       'profile_html_urban' => array('text', 'textarea', 'int', 'map', 'location', 'interests', 'group', 'checkbox', 'private_note'),
                                       'profile_html_urban_mobile' => array('interests'),
                                       'birthday'  => array(),
@@ -146,9 +145,6 @@ class UserFields extends CHtmlBlock
         self::removeUnavailableField($option);
         $this->gFields = $g['user_var'];
 
-        // var_dump($g['user_var']) ;
-        // die();
-
         //Sorted into groups - is part isAllowed postponed
         $guid = guid();
         foreach ($this->gFields as $name => $field) {
@@ -248,24 +244,6 @@ class UserFields extends CHtmlBlock
     {
         return isset($this->gUser[$name]) ? $this->gUser[$name] : $default;
     }
-	//nnsscc-diamond-20200323-start
-	private function getParamNscCouple($name, $default = '')
-    {
-        $result = $this->getUserNscCouple($name, $default);
-        if($this->mode != 'view') {
-            //$result = getParamNscCouple($name, $result);
-        }
-
-        return $result;
-    }
-
-    private function getUserNscCouple($name, $default = '')
-    {
-        $nsc_couple_id = $this->gUserNscCoupleId; 		
-		$nsc_new_couple_row = DB::row('SELECT * FROM userinfo WHERE user_id = ' . $nsc_couple_id, 1);		
-		return isset($nsc_new_couple_row[$name]) ? $nsc_new_couple_row[$name] : $default;
-    }
-	//nnsscc-diamond-20200323-end
 
     public function setFormatValue($format)
     {
@@ -368,12 +346,12 @@ class UserFields extends CHtmlBlock
                 $this->gUser[$name] = User::getLookingFor($this->userId);
             }*/
         }
-		$html->setvar('field_description', $description);
+
+        $html->setvar('field_description', $description);
         $html->setvar('maxlen', $data['length']);
-        if($this->gUserNscCoupleId==0)
-			$value = $this->formatValue($this->getParam($name));
-		else
-			$value = $this->formatValue($this->getParamNscCouple($name));
+        $value = $this->formatValue($this->getParam($name));
+
+
         /* URBAN */
         $forcedOptionName='forced_user_about_me';
         if (!guid()
@@ -407,12 +385,9 @@ class UserFields extends CHtmlBlock
         } else {
             $html->clean('forced_show_more');
         }
-		$html->setvar('value', $value);
+        $html->setvar('value', $value);
         if ($html->varExists('value_entities')) {
-            if($this->gUserNscCoupleId==0)
-				$valueEntities = he_decode($this->getParam($name));
-			else
-				$valueEntities = he_decode($this->getParamNscCouple($name));
+            $valueEntities = he_decode($this->getParam($name));
             $html->setvar('value_entities', htmlentities($valueEntities, ENT_COMPAT, 'UTF-8'));
         }
         $html->setvar('type', $data['type']);
@@ -436,54 +411,11 @@ class UserFields extends CHtmlBlock
                                                   . " ORDER BY id ASC", $this->getParam($name)));
             }
             $fieldValue = $defaultValue;
-            
+
             if ($setTitle) {
                 $sql = "SELECT `title`
                           FROM " . $data['table']
                      . " WHERE `id` = " . to_sql($this->getParam($name), 'Number');
-                $value = DB::result($sql);
-                if ($value != '0') {
-                    $fieldValue = $this->formatValue(l($value));
-                }
-                /* URBAN */
-                $setFieldValue = $fieldValue;
-                if (!guid()
-                    &&Common::getOption('name', 'template_options') == 'urban'
-                    &&Common::isOptionActive('hide_profile_data_for_guests_urban')) {
-                    $setFieldValue = '';
-                }
-                /* URBAN */
-                $html->setvar('value', $setFieldValue);
-            }
-            $this->parseField($html, $name, $data, $isGroup, $parse, true, $block);
-            //$this->cleanBlocks($html, 'int');
-
-            //$html->parse($this->generalBlock['int'], true);
-            //$html->parse($this->generalBlock['module'], true);
-            $isParse = (empty($fieldValue)) ? false : true;
-        }
-        if ($isParse) {
-            $this->countShowGroupInt[$data['group']]++;
-        }
-        return $isParse;
-    }
-
-	public function parseIntNscCouple($html, $name, $data, $isGroup = true, $setTitle = false, $parse = true, $defaultValue = '-', $block = '')
-    {
-        $isParse = false;
-        if ($data['number_values'] > 0)
-        {	
-			if($this->mode == 'edit') {
-                $html->setvar('options', DB::db_options("SELECT id, title FROM " . $data['table']
-                                                  . " ORDER BY id ASC", $this->getParamNscCouple($name)));
-            }
-            $fieldValue = $defaultValue;
-			
-			
-            if ($setTitle) {
-                $sql = "SELECT `title`
-                          FROM " . $data['table']
-                     . " WHERE `id` = " . to_sql($this->getParamNscCouple($name), 'Number');
                 $value = DB::result($sql);
                 if ($value != '0') {
                     $fieldValue = $this->formatValue(l($value));
@@ -526,12 +458,8 @@ class UserFields extends CHtmlBlock
     }
 
     public function parseConst($html, $name, $data)
-    {   
-        // echo $name;
-        if($name == "relation") {
-            $this->parseSlides($html, $name, $data);
-            return false;
-        } else if ($data['table'] != '' && $data['number_values'] > 0)
+    {
+        if ($data['table'] != '' && $data['number_values'] > 0)
         {
             $html->setvar('options', DB::db_options("SELECT id, title FROM " . $data['table']
                                                  . " ORDER BY id ASC", $this->getParam($name)));
@@ -544,7 +472,6 @@ class UserFields extends CHtmlBlock
     public function parseFromTo($html, $name, $data, $isGroup = true, $parse = false, $from = '', $to = '')
     {   #$from = 'first', $to = 'last_option'
         if ($data['number_values'] > 0)
-        
         {
             $block = ($isGroup) ? $this->block['from_to'] . '_' . $data['group'] : $this->block['from_to'];
             $fieldTo = substr($name, 0, strlen($name) - 4) . "to";
@@ -582,12 +509,7 @@ class UserFields extends CHtmlBlock
     {
         $this->parseColums($html, $name, $data, $numColumns, $isGroup, $block, $option);
     }
-	//nnsscc-diamond-20200312-start
-	public function parseHobbies($html, $name, $data, $numColumns = 4, $isGroup = true, $block = '', $option = null, $nsc_couple_id=0)
-    {
-        $this->parseColumsHobbies($html, $name, $data, $numColumns, $isGroup, $block, $option, $nsc_couple_id);
-    }
-	//nnsscc-diamond-20200312-end
+
     public function parseCheckboxCustom($html, $name, $data, $isGroup = true, $parse = true)
     {
         if (!self::isActive($name)) {
@@ -694,120 +616,7 @@ class UserFields extends CHtmlBlock
 
         return $isParse;
     }
-	//nnsscc-diamond-20200312-start
-	public function parseColumsHobbies($html, $name, $data, $numColumns = 2, $isGroup = true, $block = '', $option = null, $nsc_couple_id=0)
-    {
-        if ($data['number_values'] > 0) {
 
-            $html->setvar('name', $name);
-            $html->setvar('field', l($data['title']));
-
-            $p = ($block == '') ? $this->block[$data['type']] : $block;
-            $n = ($isGroup) ? '_' . $data['group'] : '';
-            $column = "{$p}_column{$n}";
-            $columnAll = "{$p}_item{$n}";
-            $blockGroup = "{$p}{$n}";
-
-            $sql = "SELECT `id`, `title` FROM " . $data['table'] . ' ORDER BY id ASC';
-			$html->setvar('options', DB::db_options($sql, $this->getParam($name)));
-            $rows = DB::rows($sql, 0, true);
-
-            if ($rows) {
-                $i = 0;
-                $total = count($rows);
-
-                if ($html->varExists('count_column_first')) {
-                    $countInColumn = $total - $numColumns;
-                    if ($countInColumn >= 0) {
-                        $countInColumn = $numColumns;
-                    } else {
-                        $countInColumn = $total;
-                    }
-                    $html->setvar('count_column_first', $countInColumn);
-                }
-                //$inColumn = ceil(($total + $add) / $numColumns);
-                if ($option === null) {
-                    //$option = $this->getUser('checkbox', array());
-                    if($nsc_couple_id==0){ //nnsscc-diamond-20200323
-						$option = User::getInfoCheckbox($this->userId, $name, 1);
-					}else{
-						$option = User::getInfoCheckbox($nsc_couple_id, $name, 1);
-					}
-                    //$option = (isset($option[$data['id']])) ? $option[$data['id']] : array();
-                }//else {
-                    //$option = User::getInfoCheckbox($this->userId, $name, 1);
-                //}
-                $isFirstOptionChecked = false;
-                if ($this->parseSearchModule && !guid() && empty($option)) {
-                    $isFirstOptionChecked = true;
-                }
-				
-                foreach($rows as $row)
-                {
-                    $i++;
-					$html->setvar('id', $row[0]);
-                    $type = 'normal';
-                    if ($name == 'interests') {
-                        $type = 'list';
-                    }
-					if ($name == 'hobbies') {//nnsscc-diamond-20200312
-                        $type = 'list';
-                    }
-                    //$html->setvar($name . '_class', self::getArrayNameIcoField($name, $row[0], $type));
-
-                    $value = $this->translation($data['title'], $row['title']);
-					$html->setvar('title', $value);
-
-                    $isChecked = (in_array($row[0], $option) || $isFirstOptionChecked);
-
-                    $blockSelected = $name . '_selected';
-                    if ($html->blockExists($blockSelected)) {
-                        if ($isChecked) {
-                            $html->parse($blockSelected, false);
-                        } else {
-                            $html->clean($blockSelected);
-                        }
-                    }
-
-                    $html->setvar('checked', $isChecked ? ' checked' : '');
-                    $isFirstOptionChecked = false;
-                    //if ($i % $inColumn == 0 && $i != 0 && ($i != $total || $add > 0) && $numColumns != 1)
-                    //if ($i % $numColumns == 0 || $numColumns == 1 || $i == $total)
-                    if ($i % $numColumns == 0 && $numColumns != 1 && $i != $total) {
-                        if ($html->varExists('count_column')) {
-                            $countInColumn = $total - $i;
-                            if ($countInColumn >= $numColumns) {
-                                $countInColumn = $numColumns;
-                            }
-                            $html->setvar('count_column', $countInColumn);
-                        }
-                        $html->parse($column, false);
-                    } else
-                        $html->setblockvar($column, '');
-                    $html->parse($columnAll, true);
-					$html->parse('nnsscc_hobbies', true);
-                }
-				$html->parse('nnsscc_hobbies_parent', true);
-                /* Filter */
-                if (!self::isActive('orientation') && !self::isActive('age_range') && $html->blockexists('am_here_to_center')) {
-                    $html->parse('am_here_to_center');
-                }
-                /* Filter */
-                if($nsc_couple_id!=0 && $nsc_couple_id == guid()){
-					$html->parse("{$blockGroup}_edit", true);
-				}else if ($this->userId == guid()) {
-                    $html->parse("{$blockGroup}_edit", true);
-                }
-                $html->parse($blockGroup, false);
-                $html->setblockvar($columnAll, '');
-
-                if ($data['type'] == 'checkbox') {
-                    $this->countShowGroupСheckbox[$data['group']]++;
-                }
-            }
-        }
-    }
-	//nnsscc-diamond-20200312-end
     public function parseColums($html, $name, $data, $numColumns = 2, $isGroup = true, $block = '', $option = null)
     {
         if ($data['number_values'] > 0) {
@@ -934,12 +743,10 @@ class UserFields extends CHtmlBlock
         $pb = ($block == '') ? $this->block[$data['type']] : $block;
         $n = ($isGroup) ? '_' . $data['group'] : '';
         //$pb = ($isGroup) ? $block : '';
-		if($name=="hobbies") $pb="check"; //nnsscc-diamond-20200315
-		
+
         $column = $pb . '_column' . $n;
         $columnAll = $pb . $n;
         $blockGroup = $pb . 's' . $n;
-
 
         $sql = "SELECT id, title FROM " . $data['table'] . ' ORDER BY id ASC';
 
@@ -987,7 +794,7 @@ class UserFields extends CHtmlBlock
                 $value = $this->translation($data['title'], $row['title'], $prf);
 
                 $html->setvar('title', $value);
-                 
+
                 $isChecked = ($mask & (1 << ($row[0] - 1))) || $isAllOptionChecked;
 
                 $blockSelected = $name . '_selected';
@@ -1023,6 +830,7 @@ class UserFields extends CHtmlBlock
                     $html->setblockvar($column, '');*/
                 $html->parse($columnAll, true);
             }
+
             /* Looking For */
             if (!self::isActive('age_range')) {
                 $html->parse($pb . '_style', false);
@@ -1054,465 +862,6 @@ class UserFields extends CHtmlBlock
         }
         }
     }
-
-   
-    //parse slides of what are you looking for and I am looking for ...
-    public function parseSlides($html, $name, $data, $user_id = '11') {
-
-        global $g_user;
-        if($this->gUserNscCoupleId == 0) {
-            $relation_user = $g_user;
-        } else if($this->gUserNscCoupleId !=0){
-            $relation_user = DB::row("SELECT * FROM user WHERE user_id = '". $this->gUserNscCoupleId ."'");
-        }
-     
-        // var_dump($g_user); die();
-
-        $user_id = $relation_user['user_id']; //user_id of user table
-        $mask = ""; //value from scale sliders fields of user table.
-        $mask  = isset($relation_user[$name])? $relation_user[$name] : "";
-        $maskArray = [];
-        
-        $parts = explode(", ", $mask);
-        
-        foreach ($parts as $part) {
-            if (strpos($part, ":") !== false) {
-                list($key, $value) = explode(":", $part);
-                $maskArray[(int)$key] = (int)$value;
-            }
-        }
-
-
-        // get from const_relation, const_orientation table  
-        $csql = "SELECT * FROM const_" . $name . ";";
-
-        if($name == "p_orientation") {
-            $csql = "SELECT * FROM const_orientation;";
-        }
-
-        $c_rows = DB::rows($csql);
-
-        // get levels from looking_level table
-        $l_sql = "SELECT id, title FROM looking_level;";
-        $l_levels = DB::rows($l_sql);
-
-        foreach ($c_rows as $key => $c_row) {
-            
-            $checked = "";
-            $disabled = "";
-            $slides_name = "";
-            $slides_value = "";
-            $slides_id = "p_looking_". $name . "_" . $c_row['id'];
-            $slides_name = $slides_id;
-
-            if(isset($maskArray[$c_row['id']])) {
-                $slides_value = $maskArray[$c_row['id']];
-                $checked = "checked";
-                $disabled = "";
-            } else {
-                $slides_value = "";
-                $checked = "";
-                $disabled = "disabled = true";
-            }
-
-            $html->setvar('scale_field', $c_row['title']);
-
-            $html->setvar('slides_name', $slides_name);
-
-            $match = false;
-
-            foreach ($l_levels as $level_id => $level_title) {
-                if(isset($maskArray[$c_row['id']]) && $level_title['id'] == $maskArray[$c_row['id']]) {
-                    $match = true;
-                    break;
-                }  
-            }
-
-            $c = 0;
-            foreach ($l_levels as $level_id => $level_title) {
-                $radio_checked = isset($maskArray[$c_row['id']]) && $level_title['id'] == $maskArray[$c_row['id']] ? "checked" : "";
-                $html->setvar('relation_radio_value', $level_title['id']);
-                $html->setvar('relation_radio_label',$level_title['title']);
-                $html->setvar('relation_radio_id', "p_looking_". $name . "_" . $c_row['id'] . "_" . $level_title['id'] );
-                
-                $html->setvar('radio_checked', $radio_checked);
-                if($c == 2 && !$match){
-                    $html->setvar('radio_checked', "checked");
-                }
-
-                $html->setvar('radio_disabled', $disabled);
-
-                $html->parse('radio_item', true);
-                $c++;
-            }
-
-            $html->setvar('slides_name', $slides_name);
-            $html->setvar('slides_value', $slides_value);
-            $html->setvar('checked', $checked);
-            $html->setvar('disabled', $disabled);
-
-            $html->setvar('slides_id', $slides_id);
-            $html->parse('what_looking_for_relation_row', true);
-            $html->clean('radio_item');
-            
-        }
-
-        $html->setvar('looking_name', "p_looking_" . $name);
-        $html->setvar('field', l($data['title']));
-        $html->parse('what_looking_for_relation', true);
-
-        $html->clean('what_looking_for_relation_row');
-
-        
-    }
-
-    public function parseFlipBox($html, $row) {
-
-        $row['country_title'] = trim($row['country']);
-        if(pl_strlen($row['country_title']) > 7 ) $row['country_title'] = pl_substr($row['country_title'], 0, 7) . "...";
-        foreach($row as $k=>$v) {
-            if ($k == 'name') $v = User::nameOneLetterFull($v);
-            if($k =='orientation') {
-                $orientation_row = DB::row("SELECT * FROM const_orientation WHERE id = " . $v . ";");
-                $v = " -". $orientation_row['title'];
-    
-            }
-            // if($k == 'orientation') $v = "   -" . l($v);
-            $html->assign("members_".$k, $v);
-        }
-    
- 
-   
-    
-        $html->assign("members_num", $fliptxt_index);
-    
-            $flip_fields =  flipFields($row['user_id']);
-    
-            $filp_indexes_about = ["income", "status", "smoking", "drinking", "education", "height", "body", "hair", "eye"];
-            $filp_indexes_other = ["ethnicity", "first_date", "live_where", "living_with", "appearance", "age_preference", "humor", "can_you_host"];
-        
-            
-            foreach ($filp_indexes_about as $key => $value) {
-                $html->setvar('field', l($value));
-                $value1 = "-";
-                if($flip_fields[$value . '_title'] != "") {
-                    $value1 = $flip_fields[$value . '_title'];
-                }
-                $html->setvar('value', $value1);
-    
-    
-                $sql = "SELECT * FROM userinfo WHERE user_id = " . $row['user_id'] . ";";
-                $row1 = DB::row($sql);
-                
-                $icon_limit = array(
-                    'drinking' => array('limit' => [2,3,4], 'path' => "/_files/icons/drinking.png"),
-                    'smoking' => array('limit' => [1,2,4], 'path' => "/_files/icons/smoking.png"),
-                );
-    
-                
-                if(isset($icon_limit[$value]) && in_array($row1[$value], $icon_limit[$value]['limit'])) {
-                    $img_path = $icon_limit[$value]['path'];
-                    
-                    $personal_icon_style = "background-image: url('" . $img_path . "')";
-                    $html->setvar('personal_icon_style', $personal_icon_style);
-            
-                    $html->parse('icon_item', true);
-                }
-    
-                $html->parse('fields_about_row', true);
-                $html->clean('icon_item');
-            }
-    
-            parseIcons($html, $row['user_id']);
-    
-    
-            $mask = $row['p_orientation'];
-            $orientation_sql = "SELECT id, title FROM const_orientation" . ' ORDER BY id ASC';
-            $orientation_rows = DB::rows($orientation_sql, 0, true);
-    
-            $flips = array(
-                array(
-                    "color" => "red",
-                    "field" => "Cpl: "
-                ),
-                array(
-                    "color" => "green",
-                    "field" => "Mal: "
-                ),
-                array(
-                    "color" => "blue",
-                    "field" => "Fem: "
-                )
-            );
-    
-    
-    
-            
-            parseFlipboxScales($html, "relation",$row);
-    
-            
-            $html->parse("fields_about", false);
-            $html->clean('fields_about_row');
-            
-            $html->clean('what_looking_sliders');
-    
-            $html->clean('flip_looking_for_item');
-    
-            foreach ($filp_indexes_other as $key => $value) {
-                $html->setvar('field',l($value));
-                $value1 = "-";
-                if($flip_fields[$value . '_title'] != "") {
-                    $value1 = $flip_fields[$value . '_title'];
-                }
-                $html->setvar('value', $value1);
-                $html->parse('fields_other_row', true);
-            }
-    
-            parseBanners($html, $row);
-    
-            $html->parse("fields_other", false);
-            $html->clean('fields_other_row');
-            $html->clean('hotdate');
-            $html->clean('event');
-            $html->clean('partyhou');
-    
-            $html->parse("users_new_item" . $tmp_suffix, true);
-            $html->parse("users_new_item2",true);
-    
-    }
-
-     
-    // display icons about whether smoking and drinking level...
-    function parseIcons($html, $user_id) {
-        
-        $sql = "SELECT * FROM userinfo WHERE user_id = " . $user_id . ";";
-        $row1 = DB::row($sql);
-        
-        $icon_limit = array(
-            'drinking' => array('limit' => [2,3,4], 'path' => "/_files/icons/drinking.png"),
-            'smoking' => array('limit' => [1,2,4], 'path' => "/_files/icons/smoking.png"),
-        );
-        
-
-        foreach ($icon_limit as $key => $value) {
-            if(in_array($row1[$key], $value['limit'])) {
-                $img_path = $value['path'];
-
-                $personal_icon_style = "background-image: url('" . $img_path . "')";
-                $html->setvar('personal_icon_style', $personal_icon_style);
-
-                $html->parse('icon_item', true);
-            }
-            
-        }
-
-        $html->parse('icon_items', false);
-        $html->clean('icon_item');
-
-
-    }
-
-    public function parseFlipboxScales($html, $name, $flip_user) {
-        
-	$mask = ""; //value from scale sliders fields of user table.
-	$mask  = $flip_user[$name];
-	$maskArray = [];
-
-	$parts = explode(", ", $mask);
-	
-	foreach ($parts as $part) {
-		if (strpos($part, ":") !== false) {
-			list($key, $value) = explode(":", $part);
-			$maskArray[(int)$key] = (int)$value;
-		}
-	}
-
-	// if($flip_user['user_id'] == "11") {
-	// 	var_dump($maskArray); die();
-	// }
-
-	// get from const_relation, const_orientation table  
-	$csql = "SELECT * FROM const_" . $name . ";";
-
-	if($name == "p_orientation") {
-		$csql = "SELECT * FROM const_orientation;";
-	}
-
-	$c_rows = DB::rows($csql);
-
-	// get levels from looking_level table
-	$l_sql = "SELECT id, title FROM looking_level;";
-	$l_levels = DB::rows($l_sql);
-
-	$scale_back_colors = ['#e91720','#f79122', '#f8eb10' ,'#92d14f', '#3ab34a'];
-
-	foreach ($c_rows as $key => $c_row) {
-		
-		$scale_field_name = $c_row['title'];
-		$html->setvar('scale_field_name', $scale_field_name);
-
-		$scale_value = 3;
-		foreach ($l_levels as $level_id => $level_title) {
-			if(isset($maskArray[$c_row['id']]) && $level_title['id'] == $maskArray[$c_row['id']]) {
-				$scale_value = (int) $level_title['id'];
-				break;
-			}  
-		}
-
-		
-		$item_index = 0;
-		foreach ($l_levels as $level_id => $level_title) {
-			// $back_item_style = "background-color: " . $scale_back_colors[$item_index];
-			
-			$back_item_style = "background-color: rgb(28, 27, 27)" ;
-
-			$html->setvar('back_item_style', $back_item_style);
-			$html->parse('scale_back_item', true);
-			$item_index++;
-		}
-
-		$scale_length = $scale_value* 21 - 3;
-		$scale_var_style = "background-color: " . $scale_back_colors[$scale_value-1] . "; width: " . $scale_length . "px;";
-
-		if($scale_value == 5) {
-			$scale_length = $scale_value* 21 - 5;
-			$scale_var_style = "background-color: " . $scale_back_colors[$scale_value-1] . "; width: " . $scale_length . "px;";
-
-			$scale_var_style = $scale_var_style . "border-top-right-radius: 7px; border-bottom-right-radius: 7px;";
-		}
-
-
-		$html->setvar('scale_bar_back_style', "background-color: " . $scale_back_colors[$scale_value-1] . "; color: black;" );
-
-		$html->setvar('scale_bar_style', $scale_var_style);
-
-		
-	
-
-		$scale_level_name = l("set_".$l_levels[$scale_value-1]['title']);
-		$html->setvar('scale_level_name', $scale_level_name);
-
-		$html->parse('scale_slider', true);
-		$html->clean('scale_back_item');
-		
-	}
-
-	$html->parse('what_looking_sliders', true);
-
-	$html->clean('scale_slider');
-
-    }
-
-    function parseBanners ($html, $row) {
-
-        $sql = "SELECT e.* FROM events_event AS e, events_event_guest AS eg WHERE eg.event_id=e.event_id AND e.event_private=0 AND eg.user_id=".$row['user_id']." AND DATE_ADD(e.event_datetime, INTERVAL 3 HOUR) > NOW() ORDER BY e.event_n_comments DESC, e.event_datetime ASC LIMIT 0,10";
-            DB::query($sql);
-            $events = array();
-    
-            while($events_row = DB::fetch_row())
-            {
-                $events[] = $events_row;
-            }
-            if(count($events) && isset($row['set_events_banner_activity']) && $row['set_events_banner_activity']==1)
-            {
-                
-                foreach($events as $event)
-                {
-                    $html->clean('event_where_when_rows');
-                    $html->clean('event_when_guests_comments_rows');
-    
-                    $html->setvar('event_id', $event['event_id']);
-                    $html->setvar('event_title', strcut(to_html($event['event_title']), 20));
-                    $html->setvar('event_title_full', to_html($event['event_title']));
-    
-                    $html->setvar('event_n_comments', $event['event_n_comments']);
-                    $html->setvar('event_n_guests', $event['event_n_guests']);
-                    $html->setvar('event_place', strcut(to_html($event['event_place']), 16));
-                    $html->setvar('event_place_full', to_html($event['event_place']));
-    
-                    $html->setvar('event_date', to_html(Common::dateFormat($event['event_datetime'],'events_event_date')));
-                    $html->setvar('event_datetime_raw', to_html($event['event_datetime']));
-                    $html->setvar('event_time', to_html(Common::dateFormat($event['event_datetime'],'events_event_time')));
-    
-                    $images = event_images($event['event_id']);				
-                    $html->setvar("image_thumbnail", $images["image_thumbnail"]);
-                    $html->parse("event");
-                }
-            }
-    
-        
-        $sql = "SELECT e.* FROM hotdates_hotdate AS e, hotdates_hotdate_guest AS eg WHERE eg.hotdate_id=e.hotdate_id AND eg.user_id=".$row['user_id']." AND DATE_ADD(e.hotdate_datetime, INTERVAL 3 HOUR) > NOW() ORDER BY e.hotdate_n_comments DESC, e.hotdate_datetime ASC LIMIT 0,10";
-            DB::query($sql);
-            $hotdates = array();
-    
-            while($hotdates_row = DB::fetch_row())
-            {
-                $hotdates[] = $hotdates_row;
-            }
-            if(count($hotdates) && isset($row['set_nsc_banner_activity']) && $row['set_nsc_banner_activity']==1)
-            {
-                
-                foreach($hotdates as $hotdate)
-                {
-                    $html->clean('hotdate_where_when_rows');
-                    $html->clean('hotdate_when_guests_comments_rows');
-    
-                    $html->setvar('hotdate_id', $hotdate['hotdate_id']);
-                    $html->setvar('hotdate_title', strcut(to_html($hotdate['hotdate_title']), 20));
-                    $html->setvar('hotdate_title_full', to_html($hotdate['hotdate_title']));
-    
-                    $html->setvar('hotdate_n_comments', $hotdate['hotdate_n_comments']);
-                    $html->setvar('hotdate_n_guests', $hotdate['hotdate_n_guests']);
-                    $html->setvar('hotdate_place', strcut(to_html($hotdate['hotdate_place']), 16));
-                    $html->setvar('hotdate_place_full', to_html($hotdate['hotdate_place']));
-    
-                    $html->setvar('hotdate_date', to_html(Common::dateFormat($hotdate['hotdate_datetime'],'hotdates_hotdate_date')));
-                    $html->setvar('hotdate_datetime_raw', to_html($hotdate['hotdate_datetime']));
-                    $html->setvar('hotdate_time', to_html(Common::dateFormat($hotdate['hotdate_datetime'],'hotdates_hotdate_time')));
-    
-                    $images = hotdate_images($hotdate['hotdate_id']);				
-                    $html->setvar("image_thumbnail", $images["image_thumbnail"]);
-                    $html->parse("hotdate" ,true);
-                }
-    }
-    
-    
-    $sql = "SELECT e.* FROM partyhouz_partyhou AS e, partyhouz_partyhou_guest AS eg WHERE eg.partyhou_id=e.partyhou_id AND eg.user_id=".$row['user_id']." AND DATE_ADD(e.partyhou_datetime, INTERVAL 3 HOUR) > NOW() ORDER BY e.partyhou_n_comments DESC, e.partyhou_datetime ASC LIMIT 0,10";
-    DB::query($sql);
-    $partyhous = array();
-    
-    while($partyhous_row = DB::fetch_row())
-    {
-        $partyhous[] = $partyhous_row;
-    }
-    if(count($partyhous) && isset($row['set_nsc_banner_activity']) && $row['set_nsc_banner_activity']==1)
-    {
-        
-        foreach($partyhous as $partyhou)
-        {
-            $html->clean('partyhou_where_when_rows');
-            $html->clean('partyhou_when_guests_comments_rows');
-    
-            $html->setvar('partyhou_id', $partyhou['partyhou_id']);
-            $html->setvar('partyhou_title', strcut(to_html($partyhou['partyhou_title']), 20));
-            $html->setvar('partyhou_title_full', to_html($partyhou['partyhou_title']));
-    
-            $html->setvar('partyhou_n_comments', $partyhou['partyhou_n_comments']);
-            $html->setvar('partyhou_n_guests', $partyhou['partyhou_n_guests']);
-            // $html->setvar('partyhou_place', strcut(to_html($partyhou['partyhou_place']), 16));
-            // $html->setvar('partyhou_place_full', to_html($partyhou['partyhou_place']));
-    
-            // $html->setvar('partyhou_date', to_html(Common::dateFormat($partyhou['partyhou_datetime'],'partyhous_partyhou_date')));
-            // $html->setvar('partyhou_datetime_raw', to_html($partyhou['partyhou_datetime']));
-            // $html->setvar('partyhou_time', to_html(Common::dateFormat($partyhou['partyhou_datetime'],'partyhous_partyhou_time')));
-    
-            $images = partyhou_images($partyhou['partyhou_id']);				
-            $html->setvar("image_thumbnail", $images["image_thumbnail"]);
-            $html->parse("partyhou" ,true);
-        }
-    }
-    }
-
 
     // make static and add wherever displayed interests (CIm)
     public function parseInterests($html, $name, $data)
@@ -2031,9 +1380,7 @@ class UserFields extends CHtmlBlock
         $types = array('none'     => l('none'),
                        'silver'   => l('silver'),
                        'gold'     => l('gold'),
-                       'platinum' => l('platinum'),
-                       'platinum_plus' => l('Platinum Plus'),
-                       'platinum_events' => l('Platinum Events'));//nnsscc-diamond-20200522
+                       'platinum' => l('platinum'));
 		$html->setvar('type_options', h_options($types, $this->gUser['type']));
         $html->parse('type_plan', false);
     }
@@ -2117,7 +1464,7 @@ class UserFields extends CHtmlBlock
     }
     }
 
-    public function preparedSqlUpdate($type = 'profile', $isCleanEmpty = false, $nsc_couple_id=0)
+    public function preparedSqlUpdate($type = 'profile', $isCleanEmpty = false)
     {
         $sql = '';
         $this->isChangesFields = false;
@@ -2154,10 +1501,7 @@ class UserFields extends CHtmlBlock
                     $sql .= ', ' . $name . "='" . ((int)get_param($name, $this->gUser[$name]) . "'");
                 } elseif ($data['type'] == 'checkbox') {
                      // Сразу обновляется поле - таблица отдельная
-                    if($nsc_couple_id==0)
-						$this->updateCustomCheckbox($name);
-					else
-						$this->updateCustomCheckboxNscCouple($name);
+                     $this->updateCustomCheckbox($name);
                 } elseif ($data['type'] == 'checks') {
                         if (get_param($name . '_nm', '') == -1) {
                             $sql .= ', ' . $name . '=0';
@@ -2464,16 +1808,13 @@ class UserFields extends CHtmlBlock
         return $responseData;
     }
 
-    public function updateInfo($user_id, $type = 'profile', $status = false, $nsc_couple_id = 0) //nnsscc-diamond-20200323
+    public function updateInfo($user_id, $type = 'profile', $status = false)
     {
         //&&&
         if ($this->set == 'urban') {
             unset($this->gFields['star_sign']);
         }
-		if($nsc_couple_id!=0){
-			$this->gUserNscCoupleId = $nsc_couple_id;
-		}
-        $sql = $this->preparedSqlUpdate($type,false,$nsc_couple_id);
+        $sql = $this->preparedSqlUpdate($type);
         if ($sql != '' && $this->message == '')
             DB::execute("UPDATE userinfo SET " . $sql . " WHERE user_id=" . to_sql($user_id, "Number"));
     }
@@ -2487,7 +1828,7 @@ class UserFields extends CHtmlBlock
 
     public function updateCustomCheckbox($field)
     {
-		$options = get_param_array($field);
+        $options = get_param_array($field);
 
         $id = $this->gFields[$field]['id'];
 
@@ -2509,30 +1850,7 @@ class UserFields extends CHtmlBlock
             DB::execute($prepareSql);
         }
     }
-	public function updateCustomCheckboxNscCouple($field)//nnsscc-diamond-20200323
-    {
-		$options = get_param_array($field);
-		
-        $id = $this->gFields[$field]['id'];
 
-        $sql = 'DELETE FROM `users_checkbox`
-                 WHERE `user_id` = ' . to_sql($this->gUserNscCoupleId, 'Number') .
-                 ' AND `field` = ' . to_sql($id, 'Number');
-        DB::execute($sql);
-
-        $prepareSql = '';
-        foreach ($options as $value) {
-            if (!empty($value)) {
-                $prepareSql .= ', ('. to_sql($id, 'Number') .', ' . to_sql($this->gUserNscCoupleId, 'Number') . ', ' . to_sql($value, 'Number') . ')';
-            }
-        }
-        //echo $prepareSql;
-        if ($prepareSql != '') {
-            $prepareSql = substr($prepareSql, 1);
-            $prepareSql = "INSERT INTO `users_checkbox` (`field`, `user_id`, `value`) VALUES {$prepareSql};";
-            DB::execute($prepareSql);
-        }
-    }
     public function updateTexts($user_id, $type = 'profile')
     {
         global $g_user;
@@ -2544,7 +1862,6 @@ class UserFields extends CHtmlBlock
             $id = DB::result('SELECT id FROM texts WHERE user_id = ' . to_sql($user_id, 'Number') . ' ORDER BY id DESC LIMIT 1');
             if ($id) {
                 DB::execute('UPDATE texts SET ' . $sqlTo . ' WHERE user_id = ' . to_sql($user_id, 'Number') . ' AND id = ' . to_sql($id, 'Number'));
-				DB::execute('UPDATE userinfo SET ' . $sqlTo . ' WHERE user_id = ' . to_sql($user_id, 'Number'));
             } else {
                 DB::execute('INSERT INTO texts SET user_id = ' . to_sql($user_id, 'Number') . ', ' . $sqlTo);
             }
@@ -2567,41 +1884,7 @@ class UserFields extends CHtmlBlock
             DB::execute('UPDATE userinfo SET ' . $sqlToEmpty . ' WHERE user_id = ' . to_sql($user_id, 'Number'));
         }
     }
-	public function updateTextsNscCouple($user_id, $type = 'profile')
-    {
-        global $g_user;
 
-        g_user_full();
-
-        $sqlTo = $this->preparedSqlUpdate($type, false, $user_id);
-		
-        if ($sqlTo != '' && $this->isChangesFields) {
-            $id = DB::result('SELECT id FROM texts WHERE user_id = ' . to_sql($user_id, 'Number') . ' ORDER BY id DESC LIMIT 1');
-            if ($id) {
-                DB::execute('UPDATE texts SET ' . $sqlTo . ' WHERE user_id = ' . to_sql($user_id, 'Number') . ' AND id = ' . to_sql($id, 'Number'));
-				DB::execute('UPDATE userinfo SET ' . $sqlTo . ' WHERE user_id = ' . to_sql($user_id, 'Number'));				
-            } else {
-                DB::execute('INSERT INTO texts SET user_id = ' . to_sql($user_id, 'Number') . ', ' . $sqlTo);
-            }
-
-            $isDeleteTexts = true;
-            $fields = DB::row('SELECT * FROM texts WHERE user_id = ' . to_sql($user_id, 'Number') . ' ORDER BY id DESC LIMIT 1');
-            foreach ($fields as $name => $value) {
-                if ($name != 'id' && $name != 'user_id' && !is_int($name)
-                    && (!empty($value) && $g_user[$name] != $value)){
-                    $isDeleteTexts = false;
-                    break;
-                }
-            }
-            if ($isDeleteTexts) {
-                DB::delete('texts', 'user_id = ' . to_sql($user_id, 'Number') . ' AND id = ' . to_sql($id, 'Number'));
-            }
-        }
-        $sqlToEmpty = $this->preparedSqlUpdate($type, true, $user_id);
-		if ($sqlToEmpty != '') {
-            DB::execute('UPDATE userinfo SET ' . $sqlToEmpty . ' WHERE user_id = ' . to_sql($user_id, 'Number'));
-        }
-    }
     public function updateTextsApproval($type = 'profile')
     {
         global $g_user;
@@ -2615,21 +1898,6 @@ class UserFields extends CHtmlBlock
             }
         } else {
             $this->updateInfo(guid(), $type);
-        }
-    }
-	public function updateTextsApprovalNscCouple($type = 'profile',$nsc_id=0)//nnsscc-diamond
-    {
-        global $g_user;
-        if (Common::isOptionActive('texts_approval')) {
-            $this->updateTextsNscCouple($nsc_id, $type);
-            if ($this->isChangesFields && Common::isEnabledAutoMail('approve_text_admin')){
-                $vars = array(
-                    'name'  => User::getInfoBasic($nsc_id,'name'),
-                );
-                Common::sendAutomail(Common::getOption('administration', 'lang_value'), Common::getOption('info_mail', 'main'), 'approve_text_admin', $vars);
-            }
-        } else {
-            $this->updateInfo($nsc_id, $type, false, $nsc_id);
         }
     }
 
@@ -2697,7 +1965,6 @@ class UserFields extends CHtmlBlock
 
     public function parseTypeSections($html, $name, $data)
     {
-        
         $type = $data['type'];
         switch ($type) {
             case 'text':
@@ -2710,23 +1977,15 @@ class UserFields extends CHtmlBlock
             break;
 
             default:
-                if($name=="hobbies"){
-					$parseMethod = 'parseHobbies';//nnsscc-diamond-20200312
-				}else{
-					$parseMethod = 'parse' . $type;
-				}
-            break;
+                $parseMethod = 'parse' . $type;
+                break;
         }
-        
-      
         $this->$parseMethod($html, $name, $data);
-
     }
 
-    public function parseFieldsAll(&$html, $type = 'profile', $init = true, $nsc_id = 0)
+    public function parseFieldsAll(&$html, $type = 'profile', $init = true)
     {
-        
-		$this->currentTypeParse = $type;
+        $this->currentTypeParse = $type;
         if($init) {
             $this->init();
         }
@@ -2737,7 +1996,6 @@ class UserFields extends CHtmlBlock
             $countFieldGroup = count($group);
             foreach ($group as $name => $data)
             {
-
                 $countFieldGroup --;
                 if ($this->isAllowed($data, $type, $name))
                 {
@@ -2803,14 +2061,9 @@ class UserFields extends CHtmlBlock
 
                         case 'profile_html':
                             if (($data['type'] == 'text') || ($data['type'] == 'textarea')) {
-                                if ($this->gUser[$name] != ''){
+                                if ($this->gUser[$name] != '')
                                     $this->parseText($html, $name, $data, false);
-								}
-                            } elseif($data['type'] == 'checkbox' && $isPersonal) {//start-nnsscc-diamond-20200214                               
-								//$isParse = $this->parseCheckboxCustom($html, $name, $data, true, false);
-								$isParse = $this->parseCheckboxGeneral($html, $name, $data, true);
-                                //$this->countShowGroupInt[1]++;//end-nnsscc-diamond-20200214
-                            }else {
+                            } else {
                                 if ($isPersonal) {
                                     $this->parseInt($html, $name, $data, true, true);
                                 }
@@ -2903,27 +2156,8 @@ class UserFields extends CHtmlBlock
                             //$this->parseRadio($html, $name, $data, 1, false, $name, array($this->getUser('i_am_here_to')));
                             break;
 
-                        default:          
-							if($nsc_id==0){
-                                
-								$this->gUserNscCoupleId = 0;
-								$this->parseTypeSections($html, $name, $data);
-
-							}else{
-								//$this->parseTypeSections($html, $name, $data);
-								$this->gUserNscCoupleId = $nsc_id;
-								if($data['type']=='int'){			
-									$this->parseIntNscCouple($html, $name, $data, $nsc_id);
-								}else if($name=="hobbies"){
-									$this->parseHobbies($html, $name, $data, 4, true, '',null, $nsc_id);//nnsscc-diamond-20200323
-								}else if($data['type']=='text' || $data['type']=='textarea'){
-                                    // echo $name; 
-									$this->parseTypeSections($html, $name, $data);
-								} else if($name == 'relation') {
-                                    $this->parseTypeSections($html, $name, $data);
-
-                                }
-							}
+                        default:
+                            $this->parseTypeSections($html, $name, $data);
                             break;
                     }
                 }
@@ -2965,49 +2199,26 @@ class UserFields extends CHtmlBlock
             case 'profile':
                 $this->parseDate($html);
                 $this->parseLocation($html);
-				
                 if ($this->countShow > 0) {
-                    
-					if($nsc_id==0){
-						if (Common::isOptionActive('texts_approval')) {
-							global $g_user;
-							$count = DB::count('texts', ' `user_id` = '.$g_user['user_id'].' ');
-							if ($count) {
-								$html->parse('essays1_text');
-								$html->parse('essays2_text');
-							}
-						}
-						$html->parse('basic_fields_text', false);
-						$html->parse('title_basic_fields_text', false);
-					}else{						
-						if (Common::isOptionActive('texts_approval')) {
-							global $g_user;
-							$count = DB::count('texts', ' `user_id` = '.$nsc_id.' ');
-							if ($count) {
-								$html->parse('essays1_text');
-								$html->parse('essays2_text');
-							}
-						}
-						$html->parse('basic_fields_text', false);
-						$html->parse('title_basic_fields_text', false);
-					}
+                    if (Common::isOptionActive('texts_approval')) {
+                        global $g_user;
+                        $count = DB::count('texts', ' `user_id` = '.$g_user['user_id'].' ');
+                        if ($count) {
+                            $html->parse('essays1_text');
+                            $html->parse('essays2_text');
+                        }
+                    }
+                    $html->parse('basic_fields_text', false);
+                    $html->parse('title_basic_fields_text', false);
                 }
                 break;
 
             case 'personal':
-                if($nsc_id==0){
-					if ($this->isVisualGroup('Int')) {
-						$this->parseSections($html, 'Int', 'personal_fields');
-						$html->parse('personal_fields', false);
-						$html->parse('btn_bottom', false);
-					}
-				}else{
-					if ($this->isVisualGroup('Int')) {
-						$this->parseSections($html, 'Int', 'personal_fields');
-						$html->parse('personal_fields', false);
-						$html->parse('btn_bottom', false);
-					}
-				}
+                if ($this->isVisualGroup('Int')) {
+                    $this->parseSections($html, 'Int', 'personal_fields');
+                    $html->parse('personal_fields', false);
+                    $html->parse('btn_bottom', false);
+                }
                 break;
 
             case 'profile_html_urban':
@@ -3055,30 +2266,7 @@ class UserFields extends CHtmlBlock
                 break;
 
              case 'join':
-				//start-nnsscc_diamond
-                //$html->parse('new_single', false);//nnsscc_diamond
-				//$orientation = $this->gUser['orientation'];
-				$orientation = get_session("j_orientation");
-				$html->setvar("join_orientation",$orientation);
-				/*
-				if($orientation==5){
-					$html->parse('new_couple_join', true);
-				}else{
-					$html->parse('new_single_join', true);
-				}
-				*/
-                
-				
-				$couple_profile = get_session("j_couple_profile");				
-				$html->setvar("couple_profile",$couple_profile);
-				if($couple_profile==1){
-					$html->parse('new_couple_profile', true);
-					$html->setvar("couple_profile_title","Step 3. Partner Information");
-				}else{
-					$html->parse('new_single_join', true);
-				}
-				//end-nnsscc_diamond
-				if (self::isActive('age_range')) {
+                if (self::isActive('age_range')) {
                         $this->parseAge($html);
                         $html->parse('partner_on');
                         $html->parse('partner_on2');
@@ -3156,10 +2344,10 @@ class UserFields extends CHtmlBlock
                     $html->parse('fields_criteria', false);
                 }
                 if (self::isActive('relation')) {
-                    $this->parseChecks($html, 'p_relation', $this->gFields['income'], 3, 0, false, 'p_relation', false);//nnsscc-diamond-20200309
+                    $this->parseChecks($html, 'p_relation', $this->gFields['relation'], 2, 0, false, 'p_relation', false);
                 }
                 if (User::noYourOrientationSearch()) {
-                    $this->parseChecks($html, 'p_orientation', $this->gFields['orientation'], 1, 0, false, 'p_orientation', false);//nnsscc-diamond-20200309
+                    $this->parseChecks($html, 'p_orientation', $this->gFields['orientation'], 2, 0, false, 'p_orientation', false);
                 }
 
                 $sql = 'SELECT `register`
@@ -3190,14 +2378,9 @@ class UserFields extends CHtmlBlock
 
             case 'profile_html':
                 $html->setvar('user_name', $this->gUser['name']);
-                // echo $this->gUser['name']; die();
                 if ($this->countShow > 0) {
                     $html->parse('fields_essay', false);
                 }
-                
-                $this->parseScales($html, "relation", $this->gUser);
-                
-
                 $about = false;
                 if ($this->countShowGroupInt[1] > 0) {
                     $html->parse('fields_about_1', false);
@@ -3208,9 +2391,6 @@ class UserFields extends CHtmlBlock
                     $about = true;
                 }
                 if ($about) {
-                    $partner_t = DB::row("SELECT * FROM var_nickname WHERE id='". $this->gUser['partner_type'] ."'");
-
-                    $html->setvar('partner_type', " " . $partner_t['title']);
                     $html->parse('fields_about', false);
                 }
                 if ($this->countShowGroupInt[3] > 0) {
@@ -3223,100 +2403,6 @@ class UserFields extends CHtmlBlock
 
         }
     }
-
-    
-//parse slides of what are you looking for and I am looking for ...
- public function parseScales($html, $name, $flip_user) {
-
-
-	$mask = ""; //value from scale sliders fields of user table.
-	$mask  = $flip_user[$name];
-	$maskArray = [];
-
-	$parts = explode(", ", $mask);
-	
-	foreach ($parts as $part) {
-		if (strpos($part, ":") !== false) {
-			list($key, $value) = explode(":", $part);
-			$maskArray[(int)$key] = (int)$value;
-		}
-	}
-
-	// if($flip_user['user_id'] == "11") {
-	// 	var_dump($maskArray); die();
-	// }
-
-	// get from const_relation, const_orientation table  
-	$csql = "SELECT * FROM const_" . $name . ";";
-
-	if($name == "p_orientation") {
-		$csql = "SELECT * FROM const_orientation;";
-	}
-
-	$c_rows = DB::rows($csql);
-
-	// get levels from looking_level table
-	$l_sql = "SELECT id, title FROM looking_level;";
-	$l_levels = DB::rows($l_sql);
-
-	$scale_back_colors = ['#e91720','#f79122', '#f8eb10' ,'#92d14f', '#3ab34a'];
-
-	foreach ($c_rows as $key => $c_row) {
-		
-		$scale_field_name = $c_row['title'];
-		$html->setvar('scale_field_name', $scale_field_name);
-
-		$scale_value = 3;
-		foreach ($l_levels as $level_id => $level_title) {
-			if(isset($maskArray[$c_row['id']]) && $level_title['id'] == $maskArray[$c_row['id']]) {
-				$scale_value = (int) $level_title['id'];
-				break;
-			}  
-		}
-
-		
-		$item_index = 0;
-		foreach ($l_levels as $level_id => $level_title) {
-			$back_item_style = "background-color: rgb(28, 27, 27)" ;
-			
-			$html->setvar('back_item_style', $back_item_style);
-			$html->parse('scale_back_item', true);
-			$item_index++;
-		}
-
-		$scale_length = $scale_value* 21 - 3;
-		$scale_var_style = "background-color: " . $scale_back_colors[$scale_value-1] . "; width: " . $scale_length . "px;";
-
-		if($scale_value == 5) {
-			$scale_length = $scale_value* 21 - 5;
-			$scale_var_style = "background-color: " . $scale_back_colors[$scale_value-1] . "; width: " . $scale_length . "px;";
-
-			$scale_var_style = $scale_var_style . "border-top-right-radius: 7px; border-bottom-right-radius: 7px;";
-		}
-
-		$html->setvar('scale_bar_back_style', "background-color: " . $scale_back_colors[$scale_value-1] . "; color: black;" );
-
-		$html->setvar('scale_bar_style', $scale_var_style);
-		
-	
-
-		$scale_level_name = l("set_".$l_levels[$scale_value-1]['title']);
-		$html->setvar('scale_level_name', $scale_level_name);   
-        $partner_t = DB::row("SELECT * FROM var_nickname WHERE id='". $flip_user['partner_type'] ."'");
-
-        $html->setvar('scales_relation' , "<font size='+1' style='color: #8123a0;'>". $partner_t['title'] ."</font> " . l('partner_relation'));
-
-		$html->parse('scale_slider', true);
-		$html->clean('scale_back_item');
-		
-	}
-
-	$html->parse('what_looking_sliders', true);
-
-	$html->clean('scale_slider');
-
-	
-}
 
     static function updateAllPosition($fields)
     {
@@ -3468,8 +2554,8 @@ class UserFields extends CHtmlBlock
 
     static function isActive($option, $param = 'status', $neededValue = 'active')
     {
-        
         global $g;
+
 
         $active = false;
         if(self::getField($option, $param) == $neededValue

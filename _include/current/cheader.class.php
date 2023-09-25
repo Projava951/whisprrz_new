@@ -1,11 +1,12 @@
 <?php
-/* (C) Websplosion LLC, 2001-2021
 
-IMPORTANT: This is a commercial software product
-and any kind of using it must agree to the Websplosion's license agreement.
-It can be found at http://www.chameleonsocial.com/license.doc
+/* (C) Websplosion LTD., 2001-2014
 
-This notice may not be removed from the source code. */
+  IMPORTANT: This is a commercial software product
+  and any kind of using it must agree to the Websplosion's license agreement.
+  It can be found at http://www.chameleonsocial.com/license.doc
+
+  This notice may not be removed from the source code. */
 
 class CHeader extends CHtmlBlock {
 
@@ -205,36 +206,24 @@ class CHeader extends CHtmlBlock {
     {
         $isMobileModuleParsed = false;
         $blockMobileApp = 'mobile_app_ios';
-        $appOs = '';
         if($html->blockexists($blockMobileApp) && Common::isAppIos()) {
             $html->parse($blockMobileApp);
             $isMobileModuleParsed = true;
-            $appOs = 'ios';
         }
 
         $blockMobileApp = 'mobile_app_android';
         if($html->blockexists($blockMobileApp) && Common::isAppAndroid()) {
-            $androidAppVersion = Common::androidAppVersion();
-            if($androidAppVersion === '5.4' || $androidAppVersion === '5.5') {
-                $html->setvar('android_app_version', '-' . $androidAppVersion);
-            }
             $html->parse($blockMobileApp);
             $isMobileModuleParsed = true;
-            $appOs = 'android';
         }
 
         if($isMobileModuleParsed) {
-
-            Pay::parseInAppPurchaseProducts($html);
-
             $html->setvar('city_last_msg_id', City::lastMsgId());
             $block = 'mobile_app';
             $html->setvar("{$block}_push_notifications", intval(guser('set_notif_push_notifications') == 1));
 
-            CBanner::getBlock($html, 'admob_' . $appOs . '_top');
-            CBanner::getBlock($html, 'admob_' . $appOs . '_bottom');
-
-            $html->setvar('mobileAppIsTokenUpdateRequired', PushNotification::isTokenUpdateRequired());
+            CBanner::getBlock($html, 'admob_top');
+            CBanner::getBlock($html, 'admob_bottom');
 
             $html->parse($block);
         }
@@ -303,9 +292,6 @@ class CHeader extends CHtmlBlock {
             'color_scheme_button_primary_background_color_impact',
             'color_scheme_button_primary_background_color_hover_impact',
             'color_scheme_button_primary_text_color_impact',
-            'color_scheme_button_secondary_1_background_color_impact',
-            'color_scheme_button_secondary_1_background_color_hover_impact',
-            'color_scheme_button_secondary_1_text_color_impact',
         );
 
         $noAllowPages = array('index.php', 'join.php', 'join_facebook.php');
@@ -340,12 +326,12 @@ class CHeader extends CHtmlBlock {
                 'color_scheme_join_button_no_background_color_hover_impact',
                 'color_scheme_join_button_no_text_color_impact',
 
+                'color_scheme_button_secondary_1_background_color_impact',
+                'color_scheme_button_secondary_1_background_color_hover_impact',
+                'color_scheme_button_secondary_1_text_color_impact',
                 'color_scheme_button_secondary_2_background_color_impact',
                 'color_scheme_button_secondary_2_background_color_hover_impact',
                 'color_scheme_button_secondary_2_text_color_impact',
-                'color_scheme_button_secondary_3_background_color_impact',
-                'color_scheme_button_secondary_3_background_color_hover_impact',
-                'color_scheme_button_secondary_3_text_color_impact',
 
                 'color_scheme_button_upgrade_background_color_impact',
                 'color_scheme_button_upgrade_background_color_hover_impact',
@@ -432,7 +418,6 @@ class CHeader extends CHtmlBlock {
                 'color_scheme_main_page_footer_background_color_impact',
                 'color_scheme_main_page_footer_text_color_impact',
                 'color_scheme_join_overlay_opacity_impact',
-                'main_page_title_shadow_color',
             );
             $colorSchemeOptions = array_merge($colorSchemeOptions, $generalSchemeOptions);
             foreach($colorSchemeOptions as $colorSchemeOption) {
@@ -458,13 +443,6 @@ class CHeader extends CHtmlBlock {
             }
 
             $html->parse('color_scheme_styles_main_page');
-        }
-
-        if(!guid() && $html->blockExists('color_scheme_visitor_styles')) {
-            $html->setvar('main_page_header_button_border_color', implode(',', hex2rgb(Common::getOption('main_page_header_button_border_color'))) . ', 0.7');
-            $html->setvar('main_page_header_button_hover_color', implode(',', hex2rgb(Common::getOption('main_page_header_button_border_color'))) . ', 0.2');
-            $html->setvar('main_page_header_text_color', Common::getOption('main_page_header_text_color'));
-            $html->parse('color_scheme_visitor_styles');
         }
 
         if(!guid() && $p == 'join2.php' && $html->blockExists('color_scheme_styles_join2_page')) {
@@ -499,8 +477,6 @@ class CHeader extends CHtmlBlock {
             $html->setvar('min_number_photos_to_use_site', $minNumberPhotosToUseSite);
             $keyAlert = User::checkAccessToSiteWithMinNumberUploadPhotos();
             $html->setvar('alert_min_number_photos_to_use_site', $keyAlert);
-
-            $html->setvar('profile_status_max_length', Common::getOptionTemplateInt('profile_status_max_length'));
 
             $html->setvar('url_profile', User::url($guid));
             /* Header */
@@ -543,36 +519,23 @@ class CHeader extends CHtmlBlock {
             $type = get_param('type');
             $blockPaymentShow = 'payment_pop_show_' . $type;
             //&& in_array($type, array('search', 'refill', 'video_chat'))
-            if ($html->blockExists('system_payment_error')) {
-				$isErrorPayment = false;
-				if ($html->blockExists($blockPaymentShow)) {
-					$param = explode('-', base64_decode(get_param('custom')));
-					if (count($param) && isset($param[5])) {
-						if ($param[5] == 'payment_error') {
-							$isErrorPayment = true;
-							$html->parse('system_payment_error', false);
-						}
-					}
-				}
-				if (!$isErrorPayment) {
-					if ($cmd == 'payment_error'){
-						$html->parse('system_payment_error', false);
-					} elseif ($cmd == 'payment_thank') {
-						if ($html->blockExists($blockPaymentShow)) {
-							$html->parse($blockPaymentShow, false);
-						} else {
-							$html->parse('system_payment_thank', false);
-						}
-					}
-				}
+            if ($html->blockExists($blockPaymentShow)) {
+                $param = explode('-', base64_decode(get_param('custom')));
+                $isErrorPayment = false;
+                if (count($param) && isset($param[5])) {
+                    if ($param[5] == 'payment_error') {
+                        $isErrorPayment = true;
+                        $html->parse('system_payment_error', false);
+                    }
+                }
+                if (!$isErrorPayment && $cmd == 'payment_thank') {
+                    $html->parse($blockPaymentShow, false);
+                }
             }
             /* Response payment system */
 
             $blFooterMember = 'footer_member';
             if ($html->blockExists($blFooterMember)) {
-
-                User::parseProfileVerification($html, null, 'profile_verification_unverified_my');
-
                 //$html->parse('banner_footer_bl', false);
                 CBanner::getBlock($html, 'right_column');
                 if (Common::isCreditsEnabled()) {
@@ -658,7 +621,7 @@ class CHeader extends CHtmlBlock {
             $html->setvar('demo_version', get_session('demo_version'));
         }
 
-		if ($p == 'live_streaming.php') {
+        if ($p == 'live_streaming.php') {
 			if ($guid == $paramUid && $html->blockExists('pp_presenter_start')) {
 				$html->parse('pp_presenter_start', false);
 			}
@@ -669,23 +632,7 @@ class CHeader extends CHtmlBlock {
 				$html->parse('base_url_main_head', false);
 			}
 		}
-
     }
-
-	function parseBlockUrban(&$html)
-    {
-		global $p;
-
-		$paramUid = User::getParamUid();
-		if (in_array($p, array('live_list.php', 'live_list_finished.php', 'live_streaming.php'))) {
-			if ($html->blockExists('base_url_main_head')) {
-				$html->parse('base_url_main_head', false);
-			}
-			if (guid() == $paramUid && $html->blockExists('pp_presenter_start')) {
-				$html->parse('pp_presenter_start', false);
-			}
-		}
-	}
 
     function prepareOpacityValue($value)
     {
@@ -852,7 +799,7 @@ class CHeader extends CHtmlBlock {
                     $counterVisitors = '';
                 }
                 $html->setvar("{$blHeaderParse}_visitors_counter", $counterVisitors);
-                if ($viewers['new']) {
+                if ($counterVisitors) {
                     $html->parse("{$blHeaderParse}_visitors_counter_show", false);
                 }
             }
@@ -874,18 +821,11 @@ class CHeader extends CHtmlBlock {
 
             if ($p !== 'email_not_confirmed.php') {// && $p !== 'confirm_email.php'
                 $html->parse('header_member_top_menu', false);
-
-                $verifiedSystemsUser = User::getProfileVerificationData(User::getInfoBasic($guid));
-                $verificationSystemsData = $verifiedSystemsUser['data'];
-                if($verificationSystemsData) {
-                    $html->setvar('footer_verification_system_options', h_options($verificationSystemsData, ''));
-                    $html->parse('footer_verification_system_options', false);
-                }
             }
         } else {
 			$blHeaderParse = 'header_visitor';
             $blFooterParse = 'footer_visitor';
-		}
+        }
         if ($html->blockExists($blHeaderParse)) {
             if (Common::getOption('lang_loaded_rtl', 'main')) {
                 $html->parse('header_style_rtl', false);
@@ -944,24 +884,6 @@ class CHeader extends CHtmlBlock {
 
         Common::parseGdprCookie($html);
 
-		/* Edge profile cover bg */
-		if (get_param_int('clear_cover') && get_param_int('clear_cover')) {
-			User::clearProfileBgCover();
-		}
-		/* Edge profile cover bg */
-
-        if($html->varExists('user_allowed_feature') && ($this->name == 'urban' || $this->name == 'urban_mobile')) {
-            $html->setvar('user_allowed_feature', User::accessСheckFeatureSuperPowersGetList());
-        }
-
-        /* Send image to chat */
-        if ($html->varExists('max_filesize')) {
-            $maxFileSize = Common::getOption('photo_size');
-            $html->setvar('max_filesize', mb_to_bytes($maxFileSize));
-            $html->setvar('max_photo_file_size_limit', lSetVars('max_file_size', array('size' => $maxFileSize)));
-        }
-        /* Send image to chat */
-
         if ($html->varExists('load_router')) {
             $html->setvar('load_router', intval($g['router']['load']));
         }
@@ -972,10 +894,6 @@ class CHeader extends CHtmlBlock {
 
         if ($html->varExists('guser_options')) {
             $html->setvar('guser_options', Common::getGUserJs());
-        }
-
-		if ($html->varExists('smiles_list_default')) {
-            $html->setvar('smiles_list_default', json_encode(getListDefaultSmiles()));
         }
 
         if (IS_DEMO && $html->varExists('is_demo_site') ) {
@@ -1062,6 +980,26 @@ class CHeader extends CHtmlBlock {
         }
         if(Common::isOptionActive('news')) {
             $html->parse('news_on');
+			//nnsscc-diamond-20200306-start				
+			DB::query("SELECT * FROM `pages` WHERE `set` = '' AND `lang` = 'default' AND `section` ='top_menu' ORDER BY position");
+			while ($row = DB::fetch_row()) {            
+				$alias = $row['menu_title'];
+				$html->setvar('id', $row['id']);
+				$html->setvar('system', $row['system']);
+				$html->setvar('alias', $alias);
+				if ($row['system']) {
+					$row['menu_title'] = l($row['menu_title'], $lang);
+				}
+				
+				$html->setvar('menu_item_title_top', $row['menu_title']);
+				$html->setvar('menu_item_page_top', 'nsc_club.php?id='.$row['id']);
+				if ($row['section']=="top_menu") {   
+					$html->parse('menu_top_nsc_club_item');
+				} else {
+					$html->clean('menu_top_nsc_club_item');
+				}			
+			}
+			//nnsscc-diamond-20200306-end
             $html->parse('news_on1');
             $html->setvar('dash1','|');
         } else {
@@ -1089,7 +1027,13 @@ class CHeader extends CHtmlBlock {
             $darker = Common::getOption('color_darker_oryx');
             $upper = get_session('color_upper');
             $lower = get_session('color_lower');
-            $html->setvar('upper_header_color', $upper);
+			//start-nnsscc_diamond
+			if(empty($upper))
+				$upper = Common::getOption("upper_header_color_oryx");
+			if(empty($lower))
+				$lower = Common::getOption("lower_header_color_oryx");			
+			//end-nnsscc_diamond
+			$html->setvar('upper_header_color', $upper);
             $html->setvar('upper_header_color_darker', Common::colorLuminance($upper, $darker));
             $html->setvar('lower_header_color', $lower);
             $html->setvar('lower_header_color_darker', Common::colorLuminance($lower, $darker));
@@ -1126,7 +1070,150 @@ class CHeader extends CHtmlBlock {
         if($html->blockexists('header_menu_wall')) {
             $html->cond($p == 'wall.php', 'header_menu_wall_selected', 'header_menu_wall');
         }
+		//nnsscc-diamond-20200229-start		
+		
+		DB::query("SELECT * FROM `pages` WHERE `set` = '' AND `lang` = 'default' AND `section` ='bottom' ORDER BY position");
+        while ($row = DB::fetch_row()) {            
+            $alias = $row['menu_title'];
+            $html->setvar('id', $row['id']);
+            $html->setvar('system', $row['system']);
+            $html->setvar('alias', $alias);
+            if ($row['system']) {
+                $row['menu_title'] = l($row['menu_title'], $lang);
+            }
+            $html->setvar('menu_item_title_bottom', $row['menu_title']);
+            $html->setvar('menu_item_page_bottom', 'nsc_club.php?id='.$row['id']);
+			if ($row['section']=="bottom") {                
+                $html->parse('menu_bottom_nsc_club_item');
+            } else {
+				$html->clean('menu_bottom_nsc_club_item');
+			}			
+		}
+		//nnsscc-diamond-20200229-end
+		//nnsscc-diamond 20200227 start-nnsscc_diamond			
+			$guid = guid();
+			$generalSchemeOptions = array(
+				'color_scheme_button_primary_background_color_impact',
+				'color_scheme_button_primary_background_color_hover_impact',
+				'color_scheme_button_primary_text_color_impact',
+			);
+		
+            $colorSchemeOptions = array(
+                'color_scheme_header_text_color_impact',
+                'color_scheme_header_text_color_hover_impact',
+                'color_scheme_background_color_impact',
+                'color_scheme_menu_icons_impact',
+                'color_scheme_menu_text_color_impact',
+                'color_scheme_menu_text_hover_color_impact',
+                'color_scheme_menu_inactive_text_color_impact',
+                'color_scheme_menu_counter_color_impact',
+                'color_scheme_menu_counter_background_color_impact',
+                'color_scheme_central_column_background_color_impact',
+                'color_scheme_column_background_color_impact',
+                'color_scheme_column_text_color_impact',
+                'color_scheme_remove_ads_color_impact',
+                'color_scheme_remove_ads_color_hover_impact',
+                'color_scheme_remove_header_ads_color_impact',
+                'color_scheme_remove_header_ads_color_hover_impact',
+                'color_scheme_remove_footer_ads_color_impact',
+                'color_scheme_remove_footer_ads_color_hover_impact',
+                'color_scheme_footer_menu_color_impact',
+                'color_scheme_footer_menu_color_hover_impact',
+                'color_scheme_footer_copyright_color_impact',
+                'color_scheme_menu_selected_item_background_color_impact',
+                'color_scheme_join_button_yes_background_color_impact',
+                'color_scheme_join_button_yes_background_color_hover_impact',
+                'color_scheme_join_button_yes_text_color_impact',
+                'color_scheme_join_button_no_background_color_impact',
+                'color_scheme_join_button_no_background_color_hover_impact',
+                'color_scheme_join_button_no_text_color_impact',
 
+                'color_scheme_button_secondary_1_background_color_impact',
+                'color_scheme_button_secondary_1_background_color_hover_impact',
+                'color_scheme_button_secondary_1_text_color_impact',
+                'color_scheme_button_secondary_2_background_color_impact',
+                'color_scheme_button_secondary_2_background_color_hover_impact',
+                'color_scheme_button_secondary_2_text_color_impact',
+
+                'color_scheme_button_upgrade_background_color_impact',
+                'color_scheme_button_upgrade_background_color_hover_impact',
+                'color_scheme_button_upgrade_text_color_impact',
+                'color_scheme_button_like_background_color_impact',
+                'color_scheme_button_like_background_color_hover_impact',
+                'color_scheme_button_like_border_color_impact',
+                'color_scheme_button_like_border_color_hover_impact',
+                'color_scheme_button_like_text_color_impact',
+                'color_scheme_button_active_like_background_color_impact',
+                'color_scheme_button_active_like_background_color_hover_impact',
+                'color_scheme_button_message_background_color_impact',
+                'color_scheme_button_message_background_color_hover_impact',
+                'color_scheme_button_message_text_color_impact',
+                'color_scheme_button_message_reply_rate_background_color_impact',
+                'color_scheme_button_message_bottom_background_color_impact',
+                'color_scheme_button_message_bottom_background_color_hover_impact',
+                'color_scheme_button_message_bottom_text_color_impact',
+                'color_scheme_button_invisible_mode_background_color_impact',
+                'color_scheme_button_invisible_mode_background_color_hover_impact',
+                'color_scheme_button_invisible_mode_text_color_impact',
+                'color_scheme_search_filter_background_color_impact',
+                'color_scheme_search_extended_filter_background_color_impact',
+
+                'color_scheme_chat_header_background_color_impact',
+                'color_scheme_chat_header_icon_color_impact',
+                'color_scheme_chat_header_text_color_impact',
+                'color_scheme_chat_online_header_background_color_impact',
+                'color_scheme_chat_online_header_background_color_hover_impact',
+                'color_scheme_chat_online_header_icon_color_impact',
+                'color_scheme_chat_online_header_text_color_impact',
+                'color_scheme_chat_offline_header_background_color_impact',
+                'color_scheme_chat_offline_header_background_color_hover_impact',
+                'color_scheme_chat_offline_header_icon_color_impact',
+                'color_scheme_chat_offline_header_text_color_impact',
+                'color_scheme_pagination_active_item_text_color_impact',
+                'color_scheme_pagination_active_item_background_color_impact',
+                'color_scheme_pagination_inactive_item_text_color_impact',
+                'color_scheme_pagination_disabled_item_color_impact',
+            );
+
+            $colorSchemeOptions = array_merge($colorSchemeOptions, $generalSchemeOptions);
+
+            foreach($colorSchemeOptions as $colorSchemeOption) {
+
+                if($colorSchemeOption == 'color_scheme_chat_online_header_background_color_hover_impact') {
+                    $color = Common::getOption($colorSchemeOption);
+                    $html->setvar($colorSchemeOption . '_darker', Common::colorLuminance(Common::getOption($colorSchemeOption),15));
+                    $html->setvar($colorSchemeOption, $color);
+                } else {
+                    $value = Common::getOption($colorSchemeOption);
+                    if ($colorSchemeOption == 'color_scheme_background_color_impact') {
+                        if (Common::getOption('color_scheme_background_type_impact') == 'gradient') {
+                            $value = Common::getOption('color_scheme_background_color_upper_impact');
+                        }
+                        $html->setvar('color_scheme_background_color_impact_one_color', $value);
+                        $value = Common::getBackgroundColorSheme('color_scheme_background');
+                    }
+                    $html->setvar($colorSchemeOption, $value);
+                }
+            }
+            $html->setvar('color_scheme_menu_item_border_top_color_rgba', implode(',', hex2rgb(Common::getOption('color_scheme_menu_item_border_top_color_impact'))) . ',' . $this->prepareOpacityValue(Common::getOption('color_scheme_menu_item_border_top_opacity_impact')));
+            $html->setvar('color_scheme_menu_item_border_bottom_color_rgba', implode(',', hex2rgb(Common::getOption('color_scheme_menu_item_border_bottom_color_impact'))) . ',' . $this->prepareOpacityValue(Common::getOption('color_scheme_menu_item_border_bottom_opacity_impact')));
+
+            $colorSchemeBackgroundImage = Common::getOption('color_scheme_background_image_impact');
+            if($guid && $colorSchemeBackgroundImage != 'no_image') {
+                $image = getFileUrl('main_page_image', $colorSchemeBackgroundImage, '_main_page_image_', 'color_scheme_background_image_impact', 'color_scheme_background_image');
+                if ($image) {
+                    $blockStyleBgImage = 'color_scheme_styles_background_image';
+                    $html->setvar($blockStyleBgImage, $image);
+                    $html->parse("{$blockStyleBgImage}_head_js");
+                    $html->parse("{$blockStyleBgImage}_js");
+                    $html->parse($blockStyleBgImage);
+                }
+            }
+
+            $html->parse('color_scheme_styles');
+        
+		
+		//nnsscc-diamond 20200227 end-nnsscc_diamond
 /*------------ Repeat from csspage.class.php
         if (Common::isOptionActive('map_on_main_page_urban', 'template_options')) {
             $color = Common::getOption('header_color_urban');
@@ -1216,11 +1303,11 @@ class CHeader extends CHtmlBlock {
         }
         $profileBgVideo = '{}';
         $isBgVideoAllPage = Common::isOptionActive('youtube_video_background_users_all_pages_urban');
-        if (guid() && $p != 'city.php' && $p != 'live_streaming.php') {
+        if (guid() && $p != 'city.php') {
             if ($html->varExists('user_profile_bg')) {
                 $profileBg = guser('profile_bg');
                 $display = get_param('display');
-                $userId = User::getParamUid();
+                $userId = get_param('uid', guser('user_id'));
                 $userName = get_param('name', guser('name'));
                 $isBgVideo = Common::isOptionActive('youtube_video_background_users_urban');
                 $colOrder=Common::getColOrder('narrow');
@@ -1253,7 +1340,7 @@ class CHeader extends CHtmlBlock {
                             );
                         }
 
-                        $profileBg = $profileBgUser['profile_bg'];
+                        //$profileBg = $profileBgUser['profile_bg'];
                         if ($isBgVideo) {
                             $isBgVideoAllPage = true;
                             $profileBgVideo = $profileBgUser['profile_bg_video'];
@@ -1316,7 +1403,7 @@ class CHeader extends CHtmlBlock {
             $html->setvar('profile_bg_video_quality', Common::getOption('youtube_video_background_users_urban_quality'));
         }
 
-        if (($p == 'city.php' || $p == 'live_streaming.php') && $html->blockExists('content_city')) {
+        if ($p == 'city.php' && $html->blockExists('content_city')) {
             $html->parse('content_city', false);
         }
 
@@ -1522,6 +1609,11 @@ class CHeader extends CHtmlBlock {
             $xajaxLoginStatus = 'true';
 
             if (Moderator::checkAccess(true)) {
+                $totalNum = Moderator::moderator_totalNum();
+                if($totalNum) {
+                    $html->setvar('moderator_num', $totalNum);
+                    $html->parse('moderator_waiting_num', true);
+                }
                 $html->parse('moderator');
             }
 
@@ -1711,10 +1803,6 @@ class CHeader extends CHtmlBlock {
             $html->setvar('im_history_messages', $optionImHistory);
         }
 
-		if ($html->varExists('live_price')) {
-			$html->setvar('live_price', Pay::getServicePrice('live_stream', 'credits'));
-		}
-
         if (guid() && $html->varExists('last_new_msg_id')) {
             $lastNewMsgId = 0;
             $lastNewMsg = CIm::getDataNewMessagesLast(1, 'id DESC');
@@ -1814,16 +1902,6 @@ class CHeader extends CHtmlBlock {
         if ($html->varExists('user_age') && isset($g_user['age'])) {
             $html->setvar('user_age', $g_user['age']);
         }
-
-        if ($optionTmplName == 'urban' && guid() && $html->varExists('min_number_photos_to_use_site')) {
-            $minNumberPhotosToUseSite = intval(Common::getOption('min_number_photos_to_use_site'));
-            $html->setvar('min_number_photos_to_use_site', $minNumberPhotosToUseSite);
-            $keyAlert = User::checkAccessToSiteWithMinNumberUploadPhotos();
-            $html->setvar('alert_min_number_photos_to_use_site', $keyAlert);
-        }
-
-		CProfilePhoto::parseImageEditor($html);
-
         if ($html->blockexists('member_header')
             || $html->blockexists('visitor_header')
             || $html->blockexists('visitor_footer')
@@ -2044,22 +2122,6 @@ class CHeader extends CHtmlBlock {
                         if ($display == 'want_to_meet_you') {
                             $pageTitle = l('page_want_to_meet_you');
                         }
-                    } elseif (in_array($p, array('live_list_finished.php', 'live_list.php'))) {
-                         $allowUserMenuOnPage[] = $p;
-                    } elseif ($p == 'live_streaming.php') {
-						$guid = guid();
-						$clientId = User::getParamUid($guid, 'user_id');
-						$isPresenter = intval($guid == $clientId);
-						$userInfo = User::getInfoBasic($clientId);
-						$pageTitle = '';
-				        if ($userInfo) {
-							if ($isPresenter) {
-								$pageTitle = l('page_title_my');
-							} else {
-								$name = User::nameShort($userInfo['name']);
-								$pageTitle = lSetVars('page_title', array('name' => $name));
-							}
-						}
                     }
 
                     /* Header name user */
@@ -2125,15 +2187,6 @@ class CHeader extends CHtmlBlock {
 
                 $blockFooterUser = $blockFooter . '_user';
                 if ($html->blockexists($blockFooterUser)) {
-                    if ($html->blockExists('footer_verification_system_options')) {
-                        $verifiedSystemsUser = User::getProfileVerificationData(User::getInfoBasic(guid()));
-                        $verificationSystemsData = $verifiedSystemsUser['data'];
-                        if($verificationSystemsData) {
-                            $html->setvar('footer_verification_system_options', h_options($verificationSystemsData, ''));
-                            $html->parse('footer_verification_system_options', false);
-                        }
-                    }
-
                     $allowPage = array('search.php',
                                        'upgrade.php',
                                        'profile_personal_edit.php',
@@ -2373,10 +2426,6 @@ class CHeader extends CHtmlBlock {
             $html->parse('demo');
         }
 
-		Common::parseSmileBlock($html);
-
-		Common::parseStickersBlock($html);
-
         if (Common::isOptionActiveTemplate('include_template_class')) {
             $classTemplate = 'Template' . $optionTmplName;
             if (class_exists($classTemplate, true) && method_exists($classTemplate, 'headerParseBlock')) {
@@ -2392,11 +2441,17 @@ class CHeader extends CHtmlBlock {
             $html->setvar('icon_pwa_url', PWA::getUrlIcon());
         }
 
-        if(Common::getOption('ssl_seal_html', 'main') && $html->blockExists('ssl_seal') && !Common::isApp()) {
-            $html->parse('ssl_seal');
-        }
+        if ($p == 'live_streaming.php') {
+			if ($html->blockExists('pp_presenter_start')) {
+				$html->parse('pp_presenter_start', false);
+			}
+		}
 
-        $html->setvar('html_language_code', Common::getLocaleShortCode());
+		if (in_array($p, array('live_list.php', 'live_list_finished.php', 'live_streaming.php'))) {
+			if ($html->blockExists('base_url_main_head')) {
+				$html->parse('base_url_main_head', false);
+			}
+		}
 
         parent::parseBlock($html);
     }

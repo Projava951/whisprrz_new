@@ -7,7 +7,7 @@ It can be found at http://www.chameleonsocial.com/license.doc
 
 This notice may not be removed from the source code. */
 
-Class TemplateEdge {
+Class Templateoyrx {
 
     static $listUserGroupUid = 0;
     static $listUserGroupId = 0;
@@ -349,7 +349,7 @@ Class TemplateEdge {
                 $html->parse('app_ios_style', false);
             }
 
-            $varsHeader['user_allowed_feature'] = User::access��heckFeatureSuperPowersGetList();
+            $varsHeader['user_allowed_feature'] = User::accessСheckFeatureSuperPowersGetList();
 
             $isPlayerNative = $isCheckMobileDevice || Common::getOption('video_player_type') == 'player_native';
             $varsHeader['is_player_native_site'] = intval($isPlayerNative);

@@ -1,11 +1,12 @@
 <?php
-/* (C) Websplosion LLC, 2001-2021
 
-IMPORTANT: This is a commercial software product
-and any kind of using it must agree to the Websplosion's license agreement.
-It can be found at http://www.chameleonsocial.com/license.doc
+/* (C) Websplosion LTD., 2001-2014
 
-This notice may not be removed from the source code. */
+  IMPORTANT: This is a commercial software product
+  and any kind of using it must agree to the Websplosion's license agreement.
+  It can be found at http://www.chameleonsocial.com/license.doc
+
+  This notice may not be removed from the source code. */
 
 class Users_List {
 
@@ -25,6 +26,21 @@ class Users_List {
 
         $optionSet = Common::getOption('set', 'template_options');
 		$optionTmplName = Common::getOption('name', 'template_options');
+		//eric-cuigao-nsc-20201130-start
+        $private_set = get_param('private_set', '0');
+        $private_id = get_param('uid', '0');
+        if($private_set>0 and $private_id>0){
+            $psqlCount = 'SELECT COUNT(fu.user_id) FROM invited_private AS fu where fu.friend_id = '.$private_set.' and fu.user_id = '.$g_user['user_id'].' and activity=3';
+            $total = DB::result($psqlCount);
+            if($total>0){
+                $psql = 'DELETE FROM invited_private WHERE friend_id='.$private_set.' and user_id = '.$g_user['user_id'];
+                DB::execute($psql);
+            }else{
+                $psql = 'INSERT  INTO `invited_private` (`user_id`,`friend_id`,`accepted`,`activity`) VALUES ('.$g_user['user_id'].','.$private_set.',1,3)';
+                DB::execute($psql);
+            }
+        }
+        //eric-cuigao-20201130-end
         if ($optionSet == 'urban') {
             $display = get_param('display', 'info');
             if (in_array($display, array('gallery', 'list'))) {
@@ -49,7 +65,15 @@ class Users_List {
                 && in_array($display, $reviewLink)
                 && UserFields::isActive('orientation')
                 && Common::isOptionActive('user_choose_default_profile_view')) {
-                $whereGender = 'gender = ' . to_sql($gender, 'Text');
+                //nnnsscc-diamond-20200503-start
+				if($gender=='C'){
+					$whereGender = 'u.orientation = 5';
+				}else if($gender=='M'){
+					$whereGender = 'u.orientation = 1';
+				}else{//F
+					$whereGender = 'u.orientation = 2';
+				}
+				//$whereGender = 'u.gender = ' . to_sql($gender, 'Text');
                 if ($where != '') {
                     $where .= ' AND ' . $whereGender;
                 } else {
@@ -166,10 +190,7 @@ class Users_List {
 
             $isAjaxRequest = (get_param('ajax') && Common::isOptionActive('list_users_info_ajax', 'template_options'));
             /* EDGE */
-            $isLikedShowList = in_array($show, array('wall_liked', 'wall_shared', 'wall_liked_comment',
-                                                     'photo_liked', 'photo_liked_comment',
-                                                     'video_liked', 'video_liked_comment',
-                                                     'blogs_post_liked', 'blogs_post_liked_comment'));
+            $isLikedShowList = in_array($show, array('wall_liked', 'wall_shared', 'wall_liked_comment', 'photo_liked', 'photo_liked_comment', 'video_liked', 'video_liked_comment'));
 
             if(!$isAjaxRequest) {
                 $page = new CProfilesPageBase('', $g['tmpl']['dir_tmpl_main'] . $template);
@@ -255,11 +276,8 @@ class Users_List {
                         }
                         $wallItemInfo = DB::one('wall', '`id` = ' . to_sql($wallLikesItemId) . ' AND `group_id` != 0');
                         if ($wallItemInfo) {
-                            $isPageGroup = Groups::getInfoBasic($wallItemInfo['group_id'], 'page');
-                            if ($isPageGroup) {
-                                TemplateEdge::$listUserGroupId = $wallItemInfo['group_id'];
-                                TemplateEdge::$listUserGroupUid = $wallItemInfo['user_id'];
-                            }
+                            TemplateEdge::$listUserGroupId = $wallItemInfo['group_id'];
+                            TemplateEdge::$listUserGroupUid = $wallItemInfo['user_id'];
                         }
                     } elseif(in_array($show, array('photo_liked', 'video_liked', 'wall_liked_comment', 'photo_liked_comment', 'video_liked_comment'))){
                         $dataInfo = array();
@@ -286,11 +304,8 @@ class Users_List {
                             }
                         }
                         if ($dataInfo) {
-                            $isPageGroup = Groups::getInfoBasic($dataInfo['group_id'], 'page');
-                            if ($isPageGroup) {
-                                TemplateEdge::$listUserGroupId = $dataInfo['group_id'];
-                                TemplateEdge::$listUserGroupUid = $dataInfo['group_user_id'];
-                            }
+                            TemplateEdge::$listUserGroupId = $dataInfo['group_id'];
+                            TemplateEdge::$listUserGroupUid = $dataInfo['group_user_id'];
                         }
                     }
                 }
@@ -401,6 +416,8 @@ class Users_List {
             }
             elseif ($display == "photo")
                 $list = new CHtmlUsersPhoto("users_list", $g['tmpl']['dir_tmpl_main'] . "_photo.html");
+			elseif ($display == "private_photo")//eric-cuigao-20201125-start
+                $list = new CHtmlUsersPhoto("users_list", $g['tmpl']['dir_tmpl_main'] . "_private_photo.html");//eric-cuigao-20201125-end
             elseif ($display == "friends")
                 $list = new CUsersFriends("users_list", $g['tmpl']['dir_tmpl_main'] . "_friends.html");
             else {

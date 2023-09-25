@@ -19,7 +19,8 @@ class CJoinFinal extends UserFields//CHtmlBlock
         $cmds = array('photo', 'skip');
         $cmd = get_param('cmd', '');
         $this->message = '';
-        if (in_array($cmd, $cmds)) {
+        set_session('j_couple_profile', 0);//start-nnsscc_diamond
+		if (in_array($cmd, $cmds)) {
             $this->validate();
             if ($this->message == '') {
                 $uid = User::add();

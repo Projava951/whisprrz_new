@@ -1,5 +1,5 @@
 <?php
-/* (C) Websplosion LLC, 2001-2021
+/* (C) Websplosion LTD., 2001-2014
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -219,18 +219,20 @@ class CHtmlMailList extends CUsers
                       (DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(birth, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(birth, '00-%m-%d'))) AS age,
                        " . $like . "
                        m.id, m.subject, m.date_sent, IF(m.receiver_read = 'N' OR m.receiver_read = '', 'Y', 'N') as new, m.system,
-                       u.is_photo, u.city, u.state, u.country
+                       u.is_photo, u.city, u.state, u.country, u.partner_type, u.nsc_couple_id, u.set_nsc_banner_activity, u.set_events_banner_activity, u.nsc_phone, u.nsc_join_phone, u.set_my_presence_couples, u.set_my_presence_everyone, u.set_my_presence_males, u.set_my_presence_females, u.set_profile_visitor,u.set_profile_visitor_couples, u.set_profile_visitor_males, u.set_profile_visitor_females, u.set_album_video_couples, u.set_album_video_everyone, u.set_album_video_males, u.set_album_video_females
 				FROM (mail_msg AS m LEFT JOIN user AS u ON u.user_id=m.user_to)
-				" . $this->m_sql_from_add;
+				" . $this->m_sql_from_add;//nnsscc-diamond-20200328
+				// , u.set_photo_couples, u.set_photo_everyone, u.set_photo_males, u.set_photo_females,u.set_album_couples, u.set_album_everyone, u.set_album_males, u.set_album_females
 		} else {
-			$this->m_sql = "
-				SELECT u.user_id, u.gender, u.orientation, u.name, u.last_visit, u.gold_days, u.type, u.rating, u.relation,
+			$this->m_sql = "				SELECT u.user_id, u.gender, u.orientation, u.name, u.last_visit, u.gold_days, u.type, u.rating, u.relation,
+
                        (DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(birth, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(birth, '00-%m-%d'))) AS age,
                        " . $like . "
                        m.id, m.subject, m.date_sent, m.new, m.system,
-                       u.is_photo, u.city, u.state, u.country
+                       u.is_photo, u.city, u.state, u.country, u.partner_type, u.nsc_couple_id, u.set_nsc_banner_activity, u.set_events_banner_activity, u.nsc_phone, u.nsc_join_phone, u.set_my_presence_couples, u.set_my_presence_everyone, u.set_my_presence_males, u.set_my_presence_females, u.set_profile_visitor,u.set_profile_visitor_couples, u.set_profile_visitor_males, u.set_profile_visitor_females, u.set_album_video_couples, u.set_album_video_everyone, u.set_album_video_males, u.set_album_video_females
                   FROM (mail_msg AS m LEFT JOIN user AS u ON u.user_id=m.user_from)
-				" . $this->m_sql_from_add;
+				" . $this->m_sql_from_add;//nnsscc-diamond-20200328
+				// ,  u.set_photo_couples, u.set_photo_everyone, u.set_photo_males, u.set_photo_females,u.set_album_couples, u.set_album_everyone, u.set_album_males, u.set_album_females
 		}
 
         //$this->total_init = DB::result($this->m_sql_count . " WHERE " . $this->m_sql_where);
@@ -398,6 +400,7 @@ class CHtmlMailText extends CUsers
 	}
 	function init()
 	{
+
 		parent::init();
 		global $g;
 		global $g_user;
@@ -416,12 +419,12 @@ class CHtmlMailText extends CUsers
 		if ($this->m_folder == 3)
 		{
 			$this->m_sql = "
-				SELECT u.user_id, u.gender, u.last_visit, u.gold_days, u.type, u.name, u2.name AS user_from,  u.name AS user_to,
+				SELECT u.user_id, u.gender, u.last_visit, u.gold_days, u.type, u.name, u2.name AS user_from,  u.name AS user_to, u.partner_type,
 				u.user_id AS user_to_id,
 				u.orientation,
 				(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(u2.birth, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(u2.birth, '00-%m-%d'))) AS age,
                 " . $like . "
-				m.id, m.subject, m.date_sent, m.sent_id, m.receiver_read, m.new, m.text, m.type as mtype, m.system,
+				m.id, m.subject,  u.set_my_presence_couples, u.set_my_presence_everyone, u.set_my_presence_males, u.set_my_presence_females, m.date_sent, m.sent_id, m.receiver_read, m.new, m.text, m.type as mtype, m.system,
 				u.is_photo, u.city, u.state, u.country, u.rating, u.relation
 				FROM ((mail_msg AS m LEFT JOIN user AS u ON u.user_id=m.user_to)
 				LEFT JOIN user AS u2 ON u2.user_id=m.user_from)
@@ -431,10 +434,10 @@ class CHtmlMailText extends CUsers
 		else
 		{
 			$this->m_sql = "
-				SELECT u.user_id, u.gender, u.last_visit, u.gold_days, u.type, u.name, u.name AS user_from,  u2.name AS user_to, u2.user_id AS user_to_id, u.orientation,
+				SELECT u.user_id, u.gender, u.last_visit, u.gold_days, u.type, u.name, u.name AS user_from,  u2.name AS user_to, u2.user_id AS user_to_id, u.orientation, u.partner_type,
 				(DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(u2.birth, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(u2.birth, '00-%m-%d'))) AS age,
                 " . $like . "
-                m.id, m.subject, m.date_sent, m.sent_id, m.receiver_read, m.new, m.text, m.type as mtype, m.system,
+                m.id, m.subject, u.set_my_presence_couples, u.set_my_presence_everyone, u.set_my_presence_males, u.set_my_presence_females, m.date_sent, m.sent_id, m.receiver_read, m.new, m.text, m.type as mtype, m.system,
 				u.is_photo,	u.city, u.state, u.country, u.rating, u.relation
 				FROM ((mail_msg AS m LEFT JOIN user AS u ON u.user_id=m.user_from)
 				LEFT JOIN user AS u2 ON u2.user_id=m.user_to)
@@ -517,8 +520,9 @@ class CHtmlMailText extends CUsers
 
 	function onItem(&$html, $row, $i, $last)
 	{
+
 		global $g_user;
-                global $g_info;
+        global $g_info;
 		global $g;
 		global $l;
 
@@ -527,9 +531,7 @@ class CHtmlMailText extends CUsers
 		$row['text'] = strip_tags($row['text']);
         //$this->m_field['subject'][1] = strip_tags($this->m_field['subject'][1]);
         //$this->m_field['text'][1] = strip_tags($this->m_field['text'][1]);
-
 		parent::onItem($html, $row, $i, $last);
-
 		if (!isset($row['country_title'])) $this->m_field['country_title'][1] = '-';
 		if (!isset($row['state_title'])) $this->m_field['state_title'][1] = '-';
 		if (!isset($row['city_title'])) $this->m_field['city_title'][1] = '-';
@@ -546,6 +548,7 @@ class CHtmlMailText extends CUsers
 			global $no_folders;
 			$no_folders = true;
 		} else {
+
 			$html->setvar('text', nl2br(strip_tags($real_text, '<a><br>')));
 			$html->parse('plain', true);
 			$html->parse('top_plain', true);
@@ -560,6 +563,7 @@ class CHtmlMailText extends CUsers
             if ($row['sent_id'] != 0)
                 DB::execute("UPDATE `mail_msg` SET `receiver_read` = 'Y' WHERE id = " . to_sql($row['sent_id'], 'Number'));
         }
+		// echo "=====================";
 
         $sql = "SELECT COUNT(id)
                   FROM `mail_msg`

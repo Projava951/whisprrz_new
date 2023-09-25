@@ -1,5 +1,6 @@
 <?php
-/* (C) Websplosion LLC, 2001-2021
+
+/* (C) Websplosion LTD., 2001-2014
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -60,6 +61,7 @@ class PageInfo extends CHtmlBlock
                 }
             }
         }
+
 
 		parent::parseBlock($html);
 	}
