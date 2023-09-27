@@ -2,3 +2,4 @@
 /.htaccess
 /_files/cache
 /_cron/error_log
+/_files/logs

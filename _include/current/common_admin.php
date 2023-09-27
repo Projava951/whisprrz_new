@@ -397,13 +397,15 @@ class CAdminHeader extends CHtmlBlock
         }elseif($filename == 'media_podcast.php') {//eric-cuigao-nsc-20201210-end
             $menu = "smediapodcast";
         }elseif($filename == 'partyhouz_partyhouz.php') {//eric-ECA-73023-830PM-Start
-        $menu = "spartyhouz";
-        }elseif($filename == 'partyhouz_partyhou_comments.php') {
-        $menu = "spartyhouzcomments";
-        }elseif($filename == 'partyhouzcategories.php') {
-            $menu = "spartyhouz_categories";
-        }elseif($filename == 'partyhouz_category_add.php') {//eric-ECA-73023-830PM--end
-            $menu = "spartyhouzcategory";    
+            $menu = "spartyhouz";
+        // Rade 2023-09-28 delete start
+        // }elseif($filename == 'partyhouz_partyhou_comments.php') {
+        // $menu = "spartyhouzcomments";
+        // }elseif($filename == 'partyhouzcategories.php') {
+        //     $menu = "spartyhouz_categories";
+        // }elseif($filename == 'partyhouz_category_add.php') {//eric-ECA-73023-830PM--end
+        //     $menu = "spartyhouzcategory";
+        // Rade 2023-09-28 delete end    
         }elseif($filename == 'users_reports.php') {// Divyesh - 31072023 - Start
             $menu = "smoderator";    
         }elseif($filename == 'sms_carriers.php') {
