@@ -53,9 +53,9 @@ class CAdminPopupPages extends CHtmlBlock {
         $where = '';
 
         $tmplOptionSet = Common::getOption('set', 'template_options');
-        if($tmplOptionSet == 'urban') {
-            $where = ' AND page IN ("priv_policy", "term_cond")';
-        }
+        // if($tmplOptionSet == 'urban') {
+        //     $where = ' AND page IN ("priv_policy", "term_cond")';
+        // }
 
         $sql = 'SELECT page FROM ' . $this->getTable() . '
             WHERE lang = "default" ' . $where . ' ORDER BY page ASC LIMIT 1';
@@ -71,6 +71,7 @@ class CAdminPopupPages extends CHtmlBlock {
 
         $sql = 'SELECT * FROM ' . $this->getTable() . '
             WHERE lang = "default" ' . $where . ' ORDER BY page ASC';
+        
         DB::query($sql);
 
         while ($row = DB::fetch_row()) {

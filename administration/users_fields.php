@@ -738,6 +738,12 @@ class CAdminFields extends CHtmlBlock
                             $html->setvar('gender_f', 'checked');
                         else
                             $html->setvar('gender_f', '');
+						//nnsscc-diamond-20200502
+						if ($row['gender'] == 'C')
+                            $html->setvar('gender_c', 'checked');
+                        else
+                            $html->setvar('gender_c', '');
+                        //nnsscc-diamond-20200502
                         if  ((Common::getOption('set', 'template_options') == 'urban')&&( $row['free'] != 'none')){
                             $row['free'] = 'platinum';
                         }

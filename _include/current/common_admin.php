@@ -382,6 +382,10 @@ class CAdminHeader extends CHtmlBlock
             $menu = "sdonation";
         }elseif($filename == 'pages_add_club.php') {
             $menu = "saddclub";
+        }elseif($filename == 'pages_add_menu.php') {
+            $menu = "saddmenu";
+        }elseif($filename == 'add_manager.php') {
+            $menu = "saddmanager";
         }elseif($filename == 'music_musicians.php') {//eric-cuigao-nsc-20201210-start
             $menu = "smediamusic";
         }elseif($filename == 'alb_albums.php') {
@@ -3494,6 +3498,7 @@ class CAdminPageMenuUsersFields extends CAdminPageMenu {
 		'users_fields_states.php'	 => array('title' => 'menu_states', 'icon' => '<i class="icon-globe"></i>'),
 		'users_fields_cities.php'	 => array('title' => 'menu_cities', 'icon' => '<i class="icon-globe"></i>'),
 		'users_fields_interests.php' => array('title' => 'menu_fields_interests', 'icon' => '<i class="fa fa-star" aria-hidden="true"></i>'),
+		'users_fields_add_nickname.php' => 'menu_fields_nickname_add',
     );
     protected $notAvailableItems = array('old' => array('users_fields_interests.php'));
     protected $notAvailableItemsTemplate = array('impact' => array('users_fields_interests.php'),
