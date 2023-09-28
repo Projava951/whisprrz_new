@@ -64,6 +64,7 @@ class CAdminHeader extends CHtmlBlock
                                           'hotdates_hotdates',
                                           'partyhouz_partyhouz',
                                           'forum_categories',
+                                          'games',
 			                              'stickers',
                                           'gifts',
                                           'cityrooms',
@@ -102,7 +103,7 @@ class CAdminHeader extends CHtmlBlock
     protected $notAvailableItemsTemplate = array(
             'impact' => array('stickers', 'gifts', 'groups_social', 'groups_social_videos', 'groups_social_music', 'blogs_bloggers', 'music_musicians'),
             'urban'  => array('stickers','groups_social', 'groups_social_videos', 'groups_social_music', 'blogs_bloggers', 'music_musicians'),
-            'edge'   => array('gifts', 'flashchat_rooms'));
+            'edge'   => array('gifts', ));
 
     function setLinkMainMenu(&$html)
 	{
@@ -165,6 +166,7 @@ class CAdminHeader extends CHtmlBlock
                                 'sgroupssocialvideos' => array('groups_social_vids_groups.php', 'groups_social_vids_videos.php', 'groups_social_vids_groups_comments.php', 'groups_social_vids_groups_videos.php', 'groups_social_vids_comments.php', 'groups_social_vids_video_edit.php'),
                                 'sgroupssocialmusic' => array('groups_social_music_songs.php')
                           );
+        
         foreach ($adminMenuItems as $key => $pages) {
             if (in_array($p, $pages)) {
                 $activeMenu = $key;
@@ -414,6 +416,30 @@ class CAdminHeader extends CHtmlBlock
             $menu = "ssms_mass_text";
         }elseif($filename == 'autosms.php') {
             $menu = "ssms_auto_mailer";
+            // Rade 2023-09-28 add start
+        }elseif($filename == 'groups_social.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_pages.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_photo.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_video.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_reports.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_reports_content.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_reports_wall_post.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_vids_videos.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_vids_groups.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_vids_comments.php') {
+            $menu = "sgroups";
+        }elseif($filename == 'groups_social_music_songs.php') {
+            $menu = "sgroups";
+            // Rade 2023-09-28 add end
         }else { // Divyesh - 31072023 - Start
             // Rade 2023-09-22 add end
             $menu = $this->getActiveMenuItem();
@@ -461,6 +487,7 @@ class CAdminHeader extends CHtmlBlock
                 //'dt_party' => array('spartyhouz', 'spartyhouzcomments','spartyhouz_categories', 'spartyhouzcategory')//eric-ECA-73023830pm
             );
             $dtMenu = '';
+            
             foreach ($datesMenu as $dt => $itemsDt) {
                 $items = array_flip($itemsDt);
                 if (isset($items[$menu])) {
@@ -473,6 +500,7 @@ class CAdminHeader extends CHtmlBlock
                 $html->parse('data_smenu', false);
             }
         }
+
 
 		$html->setvar("smenu",$menu);
 
@@ -567,7 +595,8 @@ class CAdminHeader extends CHtmlBlock
         }
 
 
-
+        // var_dump($html);
+        // die();
 
 		parent::parseBlock($html);
 	}
