@@ -54,10 +54,10 @@ class CAdminHeader extends CHtmlBlock
                                           'pages',
                                           'blogs_bloggers',
                                           'places_results',
-                                        //   'music_musicians',
+                                        //   'music_musicians', //Rade 2023-09-28 delete
                                           'flashchat_rooms',
                                           '3dchat_rooms',
-                                        //   'vids_videos',
+                                        //   'vids_videos', //Rade 2023-09-28 delete
                                           'adv',
                                           'groups_groups',
                                           'events_events',
