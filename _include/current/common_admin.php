@@ -640,35 +640,46 @@ class CAdminConfig extends CHtmlBlock {
         'urban' => array(
             //General website's settings
             //Active pages
-            'music','places','events','hot_dates','hotdates','partyhouz','groups','news','invite_friends','help','blogs','games','chat',//'flashchat',
-            'forum','biorythm','top5','rating','gallery','personal_settings','partner_settings','adv_search',
-            'saved_searches','bookmarks','online_tab_enabled','new_tab_enabled','birthdays_tab_enabled ','matching_tab_enabled',
-            'i_viewed_tab_enabled','viewed_me_tab_enabled','adv','events_calendar','hotdates_calendar','partyhouz_calendar','network','stats',
+            //Rade 2023-09-29 delete start
+            // 'music','places','events','hot_dates','hotdates','partyhouz','groups','news','invite_friends','help','blogs','games','chat',//'flashchat',
+            // 'forum','biorythm','top5','rating','gallery','personal_settings','partner_settings','adv_search',
+            // 'saved_searches','bookmarks','online_tab_enabled','new_tab_enabled','birthdays_tab_enabled ','matching_tab_enabled',
+            // 'i_viewed_tab_enabled','viewed_me_tab_enabled','adv','events_calendar','hotdates_calendar','partyhouz_calendar','network','stats',
+            //Rade 2023-09-29 delete end
             //Active features
-            'widgets','recorder','im','postcard','mail','favorite_add','wall_like_comment_alert',
-            'status_relation','mail_message_alert','upgrade_couple','love_calculator','couples',
+            //Rade 2023-09-29 delete start
+            // 'widgets','recorder','im','postcard','mail','favorite_add','wall_like_comment_alert',
+            // 'status_relation','mail_message_alert','upgrade_couple','love_calculator',
+            // 'couples',
+            //Rade 2023-09-29 delete end
             //Main page settings
-            'main_page_settings','main_new_videos','main_users','main_users_number_oryx','main_users_number_mixer','main_users_number_new_age','main_users_photo_size',
+            
+           'main_new_videos','main_users','main_users_number_oryx','main_users_number_new_age',
+        //    'main_users_photo_size', //Rade 2023-09-29 delete
+        //    'main_users_number_mixer', //Rade 2023-09-29 delete
             'main_page_header_mode','main_search',
+
             //Logged in user settings
-            'hide_profile_enabled',
+            // 'hide_profile_enabled', //Rade 2023-09-29 delete
             //'only_friends_wall_posts','wall_posts_by_default',
-            /*'your_orientation',*/'show_home_page_online',
+            /*'your_orientation',*/
+            // 'show_home_page_online',
             //Upload settings
-            'music_mp3_file_size_limit_mbs',
+            // 'music_mp3_file_size_limit_mbs',
             //Messages settings
             'mails_limit_max','number_friends_show_mail',//'auto_ban_messages',
             //Logged in user settings
-            'frameworks_version',
+            // 'frameworks_version',
             'city_language',
-            'join',
+            // 'join', // Rade 2023-09-29
             'gps_enabled', 'watch_geo_position_time', 'geo_position_max_age',
             'audio_greeting',
             'im_audio_messages',
 			'audio_comment',
             'app_vibration_duration',
             'type_media_chat',
-			'face_input_size', 'face_score_threshold', 'in_app_purchase_enabled',
+			'face_input_size', 'face_score_threshold', 
+            // 'in_app_purchase_enabled', // Rade 2023-09-29
         ),
         'old' => array(//General website's settings
                        'minimum_match_percent_on_graphs',
@@ -780,8 +791,8 @@ class CAdminConfig extends CHtmlBlock {
             'app_btn_position',
             //Logged in user settings
             'default_profile_background',
-            'only_friends_wall_posts',
-            'wall_posts_by_default',
+            // 'only_friends_wall_posts', // Rade 2023-09-29
+            // 'wall_posts_by_default', // Rade 2023-09-29
             'wall_comments_by_default',
             'rate_see_my_photo_rating',
             'spotlight_photos_number',
@@ -832,29 +843,44 @@ class CAdminConfig extends CHtmlBlock {
             'app_btn_position', 'number_of_profiles_in_the_search_results',
             'only_apps_active',
             //User-defined settings
-            'top_select', 'number_of_columns_in_language_selector', 'mode_profile', 'allow_users_profile_mode',
+            // Rade 2023-09-29 delete start
+            // 'top_select',
+            // 'number_of_columns_in_language_selector', 
+            // 'mode_profile', 
+            // 'allow_users_profile_mode',
+            // Rade 2023-09-29 delete end
             //User registration settings
             'join_number_photo_likes',
             //Not logged in user settings
             'mobile_site_on_tablet', 'mobile_redirect', 'header_users_module_enabled_urban',
             'photo_rating_enabled', 'spotlight_enabled_urban',
             //Active pages
-            'flashchat',
+            // 'flashchat', // Rade 2023-09-29
             //Active features
-            'wall_enabled', 'wink', 'gifts_enabled', 'profile_status', 'credits_enabled',
+            'wall_enabled', 
+            // 'wink', Rade 2023-09-29
+            'gifts_enabled', 
+            // 'profile_status', //Rade 2023-09-29
+            'credits_enabled',
             'credit_transfer_to_another_user',
             //Logged in user settings
             'forced_user_about_me', 'default_profile_background', 'spotlight_photos_number', 'search_service_number',
-            'only_friends_wall_posts', 'wall_comments_by_default', 'wall_posts_by_default',
-            'type_media_chat', 'your_orientation', 'forced_profile_picture_upload',
+            // 'only_friends_wall_posts', 'wall_comments_by_default', 'wall_posts_by_default', // Rade 2023-09-29
+            'type_media_chat', 
+            // 'your_orientation', //Rade 2023-09-29
+            'forced_profile_picture_upload',
             //Messages settings
             'hide_im_on_page_city', 'message_notifications_active', 'message_notifications_lifetime',
             'message_notifications_position', 'message_notifications_not_show_when_3d_city', 'sp_sending_messages_per_day_urban',
             'map_on_main_page_urban', 'image_main_page_urban', 'image_main_page_compression_ratio_urban', 'upload_image_main_page_urban', 'background_color_urban',
             'upload_limit_photo_count',
-            'videogallery', 'mobile_enabled', 'hide_profile_data_for_guests_urban',
-	     'profile_verification_enabled', 'in_app_purchase_enabled',
-            'in_app_purchase_enabled', 'join_with_photo_only',
+            // 'videogallery', // Rade 2023-09-29
+            // 'mobile_enabled', // Rade 2023-09-29
+            'hide_profile_data_for_guests_urban',
+	     'profile_verification_enabled', 
+            // 'in_app_purchase_enabled', //Rade 2023-09-29
+            // 'in_app_purchase_enabled', 
+            // 'join_with_photo_only', // Rade 2023-09-29
             'main_page_header_text_color',
             'main_page_header_button_border_color',
             'main_page_title_shadow_color',
@@ -945,6 +971,7 @@ class CAdminConfig extends CHtmlBlock {
 			if (isset($this->allowAvailableOptionTemplate[$tmplOptionName]) && is_array($this->allowAvailableOptionTemplate[$tmplOptionName])) {
 				$allowAvailableOption = $this->allowAvailableOptionTemplate[$tmplOptionName];
 			}
+            
 			if (isset($this->notAvailableOptionTemplate[$tmplOptionName]) && is_array($this->notAvailableOptionTemplate[$tmplOptionName])) {
 				$this->notAvailableOption[$tmplOptionSet] = array_merge($this->notAvailableOption[$tmplOptionSet], $this->notAvailableOptionTemplate[$tmplOptionName]);
 			}
@@ -1477,7 +1504,7 @@ class CAdminConfig extends CHtmlBlock {
         $optionSet = $this->set;
         $optionTmplName = $this->name;
         $config = Config::getOptionsAll($this->getModule(), $this->getSort(), $this->getOrder(), true, $this->getAllowedOptions());
-
+        
         $this->deactivateOption($config);
 
         /* EDGE - Temporarily deleted, since the option does not work */
@@ -1587,6 +1614,7 @@ class CAdminConfig extends CHtmlBlock {
             unset($config['main_title']);
         }
 
+
         $templatesAllowColorSchema = array('oryx' => 1, 'impact' => 1);
         if((Common::isOptionActive('header_color_admin', 'template_options')
             || Common::isOptionActive('color_scheme_activate', 'template_options'))
@@ -1601,7 +1629,7 @@ class CAdminConfig extends CHtmlBlock {
         }
 
         if(!Common::isOptionActive('color_scheme_settings', 'template_options')) {
-            unset($config['allow_users_color_scheme']);
+            // unset($config['allow_users_color_scheme']); // Rade 2023-09-29 delete
         }
         if(!Common::isOptionActive('website_background', 'template_options')) {
             unset($config['website_background_oryx']);
@@ -1647,7 +1675,7 @@ class CAdminConfig extends CHtmlBlock {
         }
 
         if(!Common::isOptionActive('network', 'template_options')) {
-            unset($config['network']);
+            // unset($config['network']);
         }
 
         // Urban
@@ -1717,7 +1745,7 @@ class CAdminConfig extends CHtmlBlock {
         }
         // Urban
         if ($optionSet == 'urban') {
-            unset($config['user_choose_default_profile_view']);
+            // unset($config['user_choose_default_profile_view']); // Rade 2023-09-29 delete
         } else {
             unset($config['view_home_page_urban']);
             unset($config['default_profile_background']);
