@@ -782,7 +782,7 @@ class CAdminConfig extends CHtmlBlock {
             'fb_link_color','fb_link_color_hover', 'maps_service', 'bing_apikey',
             'main_page_urban_animated',
             'show_interests_search_results_urban',
-            'users_on_main_page_map_and_mobile',
+            // 'users_on_main_page_map_and_mobile', // Rade 2023-10-01
             'header_users_module_enabled_urban',
             //'map_on_main_page_urban',
 			'google_apikey',
@@ -834,14 +834,17 @@ class CAdminConfig extends CHtmlBlock {
             'main_page_header_background_color_lower_stop',
             'main_page_urban_video_code', 'main_page_urban_animated',
             'main_page_urban_video_mute', 'main_page_urban_video_volume', 'main_page_urban_video_show_video_once',
-            'home_page_mode', 'main_page_mode', 'feed_as_home_page', 'show_interests_search_results_urban',
-            'users_on_main_page_map_and_mobile',
+            // 'home_page_mode', // Rade 2023-10-01
+            // 'main_page_mode', // Rade 2023-10-01
+            // 'feed_as_home_page', // Rade 2023-10-01
+            'show_interests_search_results_urban',
+            // 'users_on_main_page_map_and_mobile', // Rade 2023-10-01
             '3dcity_menu_item_position',
             'login_form_position_right','login_form_position_bottom','info_block_transparency','info_block_position_left','info_block_position_bottom',
             'fb_link_color','fb_link_color_hover', 'maps_service', 'bing_apikey', 'google_apikey',
             'minimum_match_percent_on_graphs',
             'app_btn_position', 'number_of_profiles_in_the_search_results',
-            'only_apps_active',
+            // 'only_apps_active', // Rade 2023-10-01
             //User-defined settings
             // Rade 2023-09-29 delete start
             // 'top_select',
@@ -872,7 +875,11 @@ class CAdminConfig extends CHtmlBlock {
             //Messages settings
             'hide_im_on_page_city', 'message_notifications_active', 'message_notifications_lifetime',
             'message_notifications_position', 'message_notifications_not_show_when_3d_city', 'sp_sending_messages_per_day_urban',
-            'map_on_main_page_urban', 'image_main_page_urban', 'image_main_page_compression_ratio_urban', 'upload_image_main_page_urban', 'background_color_urban',
+            'map_on_main_page_urban', 
+            // 'image_main_page_urban', 
+            'image_main_page_compression_ratio_urban', 
+            'upload_image_main_page_urban', 
+            'background_color_urban',
             'upload_limit_photo_count',
             // 'videogallery', // Rade 2023-09-29
             // 'mobile_enabled', // Rade 2023-09-29
@@ -1228,6 +1235,8 @@ class CAdminConfig extends CHtmlBlock {
                 }
 
                 $lang = ($lang == 'default') ? '' : '_' . $lang;
+                var_dump("test");
+                die();
                 if (Common::isOptionActive('upload_image_main_page', 'template_options')) {
                     $files = readAllFileArrayOfDir($dir, '', SORT_NUMERIC, "{$part}_main_page_dating_bg_user");
                     $i = getNumUploadFile($files, 1);
@@ -1248,7 +1257,6 @@ class CAdminConfig extends CHtmlBlock {
                 if (Common::isOptionActive('top_five_button', 'template_options')) {
                     $errors[] = uploadFileImagesCropped('upload_image_top_five_button', 14, 86, 91, $part . '_top5user' . $lang . '.png');
                 }
-
                 if(Common::isOptionActive('map_on_main_page_urban', 'template_options')
                     && isset($options['image_main_page_urban'])
                     && $options['map_on_main_page_urban'] == 'image') {
@@ -1621,12 +1629,12 @@ class CAdminConfig extends CHtmlBlock {
             && isset($templatesAllowColorSchema[$this->name])) {
             unset($templatesAllowColorSchema[$this->name]);
         }
-        foreach ($templatesAllowColorSchema as $name => $value) {
-            unset($config['color_scheme_' . $name]);
-            unset($config['upper_header_color_' . $name]);
-            unset($config['lower_header_color_' . $name]);
-            unset($config['color_darker_' . $name]);
-        }
+        // foreach ($templatesAllowColorSchema as $name => $value) {
+        //     unset($config['color_scheme_' . $name]);
+        //     unset($config['upper_header_color_' . $name]);
+        //     unset($config['lower_header_color_' . $name]);
+        //     unset($config['color_darker_' . $name]);
+        // }
 
         if(!Common::isOptionActive('color_scheme_settings', 'template_options')) {
             // unset($config['allow_users_color_scheme']); // Rade 2023-09-29 delete
@@ -1638,11 +1646,10 @@ class CAdminConfig extends CHtmlBlock {
             unset($config['background_only_not_logged_oryx']);
         }
         $uploadImageMainPage = Common::isOptionActive('upload_image_main_page', 'template_options');
-
         if(!$uploadImageMainPage
            || Common::getOption('main_page_mode') != 'dating') {//|| Common::getOption('home_page_mode') != 'dating'
-            unset($config['upload_image_main_page']);
-            unset($config['image_main_page']);
+            // unset($config['upload_image_main_page']);
+            // unset($config['image_main_page']);
         }
 
         if($optionTmplName == 'impact') {
