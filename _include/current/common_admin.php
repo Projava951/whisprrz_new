@@ -1530,7 +1530,8 @@ class CAdminConfig extends CHtmlBlock {
 
         if ($this->module == 'trial') {
             if ($optionSet == 'urban') {
-                unset($config['type']);
+                // unset($config['type']); // Rade 2023-10-01
+                unset($config['credits']);
             } else {
                 unset($config['credits']);
             }
