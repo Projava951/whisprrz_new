@@ -84,7 +84,8 @@ class CHon extends CHtmlBlock
 				break;
 			default:
 				if ($html->blockexists("group")){
-					DB::query('select * from payment_cat WHERE code NOT IN("audiochat", "flash_chat", "games", "videochat") order by name');
+					// DB::query('select * from payment_cat WHERE code NOT IN("audiochat", "flash_chat", "games", "videochat") order by name'); // Rade 2023-10-01 delete
+					DB::query('select * from payment_cat WHERE code NOT IN( "flash_chat") order by name'); // Rade 2023-10-01 modified
                     $i = 0;
 					while($row = DB::fetch_row()){
                         $i++;
