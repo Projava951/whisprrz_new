@@ -399,7 +399,7 @@ $g['template_options'] = array(
     'allow_you_to_view_blocked_profile' => 'Y',
     'redirect_from_profile_to_home_page' => 'Y',
 
-    'no_private_photos' => 'Y',
+    'no_private_photos' => 'N',
     'no_rating_photos' => 'Y',
 
     'gallery_type' => 'edge',
