@@ -3157,10 +3157,12 @@ class UserFields extends CHtmlBlock
 
                 $this->parseDate($html);
                 $this->parseLocation($html);
-                if ($this->set != 'urban') {
-                    $this->parseType($html);
-                }
-
+                $this->parseType($html);
+                // Rade 2023-10-02 add start
+                // if ($this->set != 'urban') {
+                //     $this->parseType($html);
+                // }
+                // Rade 2023-10-02 add end
 				$isParseModernPersonal = false;
                 $range = false;
                 if ($this->set == 'urban') {
@@ -3213,11 +3215,13 @@ class UserFields extends CHtmlBlock
                     $html->parse('fields_criteria', false);
                 }
                 if (self::isActive('relation')) {
-                    $this->parseChecks($html, 'p_relation', $this->gFields['relation'], 2, 0, false, 'p_relation', false);
+                    // $this->parseChecks($html, 'p_relation', $this->gFields['relation'], 2, 0, false, 'p_relation', false); // Rade 2023-10=02
+		            $this->parseChecks($html, 'p_relation', $this->gFields['income'], 3, 0, false, 'p_relation', false);//nnsscc-diamond-20200309
                 }
 
                 if (User::noYourOrientationSearch()) {
-                    $this->parseChecks($html, 'p_orientation', $this->gFields['orientation'], 2, 0, false, 'p_orientation', false);
+			        $this->parseChecks($html, 'p_orientation', $this->gFields['orientation'], 1, 0, false, 'p_orientation', false);//nnsscc-diamond-20200309
+                    // $this->parseChecks($html, 'p_orientation', $this->gFields['orientation'], 2, 0, false, 'p_orientation', false); // Rade 2023-10=02
                 }
 
                 if (UserFields::isActive('orientation') && Common::isOptionActive('your_orientation')) {

@@ -287,10 +287,17 @@ class CForm extends UserFields //CHtmlBlock
 
         $optionsSet = Common::getOption('set', 'template_options');
         if ($optionsSet == 'urban') {
+            // $html->parse('menu_im'); // Rade 2023-10-02
+            // Rade 2023-10-02 add start
+            $html->parse('menu_editblog');
             $html->parse('menu_im');
+            $html->parse('menu_chat');
+            $html->parse('menu_mail');
+            // Rade 2023-10-02 add end
             $html->setvar('field_physical_datails', l('appearance'));
             $html->setvar('credits', $g_user['credits']);
-            $html->parse('user_credits');
+            $html->parse('type_plan'); // Rade 2023-10-02
+            // $html->parse('user_credits'); // Rade 2023-10-02
             if (Common::isParseModule('people_nearby_spotlight')) {
                 if ($g_user['is_photo_public'] != 'N') {
                     $html->parse('menu_add_spotlight');
