@@ -874,7 +874,8 @@ class CAdminConfig extends CHtmlBlock {
             'forced_profile_picture_upload',
             //Messages settings
             'hide_im_on_page_city', 'message_notifications_active', 'message_notifications_lifetime',
-            'message_notifications_position', 'message_notifications_not_show_when_3d_city', 'sp_sending_messages_per_day_urban',
+            'message_notifications_position', 'message_notifications_not_show_when_3d_city', 
+            // 'sp_sending_messages_per_day_urban', // Rade 2023-10-02
             'map_on_main_page_urban', 
             // 'image_main_page_urban', 
             'image_main_page_compression_ratio_urban', 
