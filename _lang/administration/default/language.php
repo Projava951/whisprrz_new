@@ -566,6 +566,7 @@ $l['all']['moderator_wowslider'] = "Wowslider";
 $l['all']['provider'] = "Cell Phone Provider";
 $l['all']['menu_moderator'] = "Moderator";
 $l['all']['menu_report'] = "Users Reports";
+$l['all']['edit_manager'] = "Edit Manager";
 
 $l['banner.php']['fill_title'] = "Please fill in the Title";
 $l['banner.php']['fill_country'] = "Please fill in the Country";

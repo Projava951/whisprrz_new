@@ -27,7 +27,8 @@ class CAddManager extends CHtmlBlock
             set_session('admin_last_login', false);
 			redirect("index.php");
 		}
-		elseif ($cmd == "add_manager")
+		
+		elseif ($cmd == "add_manager" && get_param("name", "") != "admin")
 		{
 			$password = get_param("password", "");
 			$name = get_param("name", "");
@@ -49,10 +50,14 @@ class CAddManager extends CHtmlBlock
 			$New_Page = get_param("New_Page", "");
 			$New_Menu = get_param("New_Menu", "");
 			
+			$exist_name = DB::result("SELECT * FROM add_manager WHERE name = '".$name."'");
+			if($exist_name) {
+			    redirect("add_manager.php");
+			}
+			
             $sql = "INSERT INTO add_manager (        
                         `name`,
                         `password`,
-                        `Main`,
                         `Frameworks`,
                         `Languages`,
                         `Site_news`,
@@ -62,7 +67,6 @@ class CAddManager extends CHtmlBlock
                         `Media`,
                         `SMS_TEXT`,
                         `PartyHouZ`,
-                        `Home`,
                         `Options`,
                         `Statistics`,
                         `Payment`,
@@ -73,7 +77,6 @@ class CAddManager extends CHtmlBlock
                         VALUES (        
                             '$name',
                             '$password',     
-                            '$Main',
                             '$Frameworks',
                             '$Languages',
                             '$Site_news',     
@@ -83,7 +86,6 @@ class CAddManager extends CHtmlBlock
                             '$Media',     
                             '$SMS_TEXT',
                             '$PartyHouZ',
-                            '$Home',
                             '$Options',     
                             '$Statistics',
                             '$Payment',

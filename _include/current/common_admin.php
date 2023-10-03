@@ -386,6 +386,8 @@ class CAdminHeader extends CHtmlBlock
             $menu = "saddclub";
         }elseif($filename == 'pages_add_menu.php') {
             $menu = "saddmenu";
+        }elseif($filename == 'pages_add_nsc_sub.php') {
+            $menu = "saddmenu";
         }elseif($filename == 'add_manager.php') {
             $menu = "saddmanager";
         }elseif($filename == 'music_musicians.php') {//eric-cuigao-nsc-20201210-start

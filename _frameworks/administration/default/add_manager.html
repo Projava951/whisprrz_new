@@ -5,6 +5,7 @@
 <div class="block_narrow">
     <ul class="lmenu_lgreen">
         <li class="active" ><a href="{url_main}administration/add_manager.php">{l_add_manager}</a></li>
+        <li class="" ><a href="{url_main}administration/edit_manager.php" style="pointer-events: none; cursor: default;">{l_edit_manager}</a></li>
         <li class="" ><a href="{url_main}administration/managers.php">{l_managers}</a></li>
     </ul>
 </div>
@@ -15,17 +16,17 @@
         <form action="{url_page}" method="POST" id="add_manager" name="add_manager">
             <input type="hidden" name="cmd" value="add_manager">
             <label>{l_manager_name}:</label>
-            <input type="text" id="name" name="name"/>
+            <input type="text" id="name" name="name" value=""/>
 
             <label>{l_manager_password}:</label>
-            <input type="password" id="password" name="password"/>
+            <input type="password" id="password" name="password" value=""/>
             
             <label>{l_available_menu_select}:</label>
-            <div class="bl_label">
-                <label class="fl_left" style="cursor: pointer;">{l_menu_main}</label>
-                <div class="fl_right"><input class="check" for="add_manager" type="checkbox" name="{l_menu_main}" id="{l_menu_main}" value="1"></div>
-                <div class="justify"></div>
-            </div>
+            <!--<div class="bl_label">-->
+            <!--    <label class="fl_left" style="cursor: pointer;">{l_menu_main}</label>-->
+            <!--    <div class="fl_right"><input class="check" for="add_manager" type="checkbox" name="{l_menu_main}" id="{l_menu_main}" value="1"></div>-->
+            <!--    <div class="justify"></div>-->
+            <!--</div>-->
             <div class="bl_label">
                 <label class="fl_left" style="cursor: pointer;">{l_menu_templates}</label>
                 <div class="fl_right"><input class="check" for="add_manager" type="checkbox" name="{l_menu_templates}" id="{l_menu_templates}" value="1"></div>
@@ -71,11 +72,11 @@
                 <div class="fl_right"><input class="check" for="add_manager" type="checkbox" name="{l_menu_partyhouz}" id="{l_menu_partyhouz}" value="1"></div>
                 <div class="justify"></div>
             </div>
-            <div class="bl_label">
-                <label class="fl_left" style="cursor: pointer;">{l_menu_home}</label>
-                <div class="fl_right"><input class="check" for="add_manager" type="checkbox" name="{l_menu_home}" id="{l_menu_home}" value="1"></div>
-                <div class="justify"></div>
-            </div>
+            <!--<div class="bl_label">-->
+            <!--    <label class="fl_left" style="cursor: pointer;">{l_menu_home}</label>-->
+            <!--    <div class="fl_right"><input class="check" for="add_manager" type="checkbox" name="{l_menu_home}" id="{l_menu_home}" value="1"></div>-->
+            <!--    <div class="justify"></div>-->
+            <!--</div>-->
             <div class="bl_label">
                 <label class="fl_left" style="cursor: pointer;">{l_menu_city_options}</label>
                 <div class="fl_right"><input class="check" for="add_manager" type="checkbox" name="{l_menu_city_options}" id="{l_menu_city_options}" value="1"></div>
@@ -116,6 +117,14 @@
     <span id="add_manager_results"></span>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+    
+    window.onload = function () { 
+        document.getElementById("name").value = "";
+        document.getElementById("password").value = "";
+    }
+
+    </script>
 
     </div>
 </div>

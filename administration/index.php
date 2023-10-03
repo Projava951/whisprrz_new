@@ -40,10 +40,11 @@ class CAdminLogin extends CHtmlBlock
 
             $user=DB::row($sql);
             
-            $sql = "SELECT COUNT(*) FROM add_manager WHERE name='$login' AND password='$pass'";
+            $sql = "SELECT COUNT(*) FROM add_manager WHERE BINARY name='$login' AND BINARY password='$pass'";
             $flag = DB::result($sql);
         
             if($user){
+                var_export($user);
                 set_session("replier_auth", "Y");
                 set_session("replier_id", $user['id']);
                 set_session("replier_name", $user['username']);
@@ -66,6 +67,11 @@ class CAdminLogin extends CHtmlBlock
                         DB::execute($sql);
                         set_session("admin_auth", "Y");
                         set_session("manager_name", $login);
+                        set_session("replier_name", $login);
+                        if($login == "admin") {
+                            set_session("replier_name", "Administrator");
+                        }
+
                         if(!$cmd_ajax) redirect("index.php");
                     } else {
                         $sql = 'INSERT INTO admin_login
