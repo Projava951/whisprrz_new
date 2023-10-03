@@ -609,6 +609,14 @@ $l['add_manager.php']['manager_password'] = "Manager Password";
 $l['add_manager.php']['available_menu_select'] = "Select menu";
  // Rade 2023-09-22 add end
 
+ // Rade 2023-10-03 add start
+$l['edit_manager.php']['enter_manager_information'] = "Edit manager";
+$l['edit_manager.php']['edit_manager'] = "Edit manager";
+$l['edit_manager.php']['manager_name'] = "Manager name";
+$l['edit_manager.php']['manager_password'] = "Manager Password";
+$l['edit_manager.php']['available_menu_select'] = "Select menu";
+// Rade 2023-10-03 add end
+
 $l['home.php']['title_current'] = "Welcome back to administration panel!";
 $l['home.php']['date'] = "Date"; // Rade 2023-09-22
 $l['home.php']['today'] = "Today";
