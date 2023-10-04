@@ -22,64 +22,66 @@ class CManagersResults extends CHtmlList
 
 		$edit_user_id = get_param('edit', "");
 
-        $banned = intval(get_param('ban'));
-        $isRedirect = false;
+		$banned = intval(get_param('ban'));
+		$isRedirect = false;
 
 		//delete single manager
 		if ($del) {
 
 			if (Common::isEnabledAutoMail('admin_delete')) {
-				DB::query("SELECT * FROM add_manager WHERE id = '". $m_user_id ."'");
+				DB::query("SELECT * FROM add_manager WHERE id = '" . $m_user_id . "'");
 				$m_row = DB::fetch_row();
-				
-				DB::query("SELECT * FROM user WHERE name = '" . $m_row['name']. "'");
+
+				DB::query("SELECT * FROM user WHERE name = '" . $m_row['name'] . "'");
 				$row = DB::fetch_row();
 				$vars = array(
 					'title' => $g['main']['title'],
 					'name' => $row['name'],
 				);
-				// Common::sendAutomail($row['lang'], $row['mail'], 'admin_delete', $vars);
-				DB::execute("DELETE FROM add_manager WHERE id =  '".$m_user_id."'");
+				if (!is_null($row['mail'])) {
+					Common::sendAutomail($row['lang'], $row['mail'], 'admin_delete', $vars);
+				}
+				DB::execute("DELETE FROM add_manager WHERE id =  '" . $m_user_id . "'");
 			}
 			$isRedirect = true;
 		} elseif ($multi_del) {
 			foreach ($multi_m_user_ids as $key => $m_user_id_1) {
 				if (Common::isEnabledAutoMail('admin_delete')) {
-					DB::query("SELECT * FROM add_manager WHERE id = '". $m_user_id_1 ."'");
+					DB::query("SELECT * FROM add_manager WHERE id = '" . $m_user_id_1 . "'");
 					$m_row = DB::fetch_row();
-					
-					DB::query("SELECT * FROM user WHERE name = '" . $m_row['name']. "'");
+
+					DB::query("SELECT * FROM user WHERE name = '" . $m_row['name'] . "'");
 					$row = DB::fetch_row();
 					$vars = array(
 						'title' => $g['main']['title'],
 						'name' => $row['name'],
 					);
 					Common::sendAutomail($row['lang'], $row['mail'], 'admin_delete', $vars);
-					DB::execute("DELETE FROM add_manager WHERE id =  '".$m_user_id_1."'");
+					DB::execute("DELETE FROM add_manager WHERE id =  '" . $m_user_id_1 . "'");
 				}
 			}
 			$isRedirect = true;
 		} elseif ($banned) {
-			$sql='UPDATE user SET ban_global=1-ban_global WHERE user_id='. to_sql($banned, 'Number');
+			$sql = 'UPDATE user SET ban_global=1-ban_global WHERE user_id=' . to_sql($banned, 'Number');
 			DB::execute($sql);
-            $isRedirect = true;
-		} 
-        if ($isRedirect) {
-            $offset = intval(get_param('offset', '1'));
-            if ($offset) {
-                $offset = "?offset={$offset}";
-            } else {
-                $offset = '';
-            }
-            redirect($p . $offset);
-        }
+			$isRedirect = true;
+		}
+		if ($isRedirect) {
+			$offset = intval(get_param('offset', '1'));
+			if ($offset) {
+				$offset = "?offset={$offset}";
+			} else {
+				$offset = '';
+			}
+			redirect($p . $offset);
+		}
 	}
 
 	function init()
 	{
 		global $g;
 
-        $this->m_on_page = 20;
+		$this->m_on_page = 20;
 		$this->m_on_bar = 10;
 
 		$this->m_sql_count = "SELECT COUNT(m.id) FROM add_manager AS m " . $this->m_sql_from_add . "";
@@ -97,11 +99,11 @@ class CManagersResults extends CHtmlList
 	{
 		parent::parseBlock($html);
 	}
-    function onPostParse(&$html)
+	function onPostParse(&$html)
 	{
-        if ($this->m_total != 0) {
-            $html->parse('no_delete');
-        }
+		if ($this->m_total != 0) {
+			$html->parse('no_delete');
+		}
 	}
 	function onItem(&$html, $row, $i, $last)
 	{
@@ -121,4 +123,3 @@ $page->add($footer);
 include("../_include/core/administration_close.php");
 
 ?>
-
