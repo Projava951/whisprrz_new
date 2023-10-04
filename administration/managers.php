@@ -38,7 +38,7 @@ class CManagersResults extends CHtmlList
 					'title' => $g['main']['title'],
 					'name' => $row['name'],
 				);
-				Common::sendAutomail($row['lang'], $row['mail'], 'admin_delete', $vars);
+				// Common::sendAutomail($row['lang'], $row['mail'], 'admin_delete', $vars);
 				DB::execute("DELETE FROM add_manager WHERE id =  '".$m_user_id."'");
 			}
 			$isRedirect = true;

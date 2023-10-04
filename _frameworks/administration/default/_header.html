@@ -73,6 +73,7 @@
     <script type="text/javascript">
         var startTime = new Date();
         $(function () {
+            console.log(menus);
             for (j = 0; j < menus.length; j++) {
                 uls = document.getElementsByTagName("ul");
                 for (i = 0; i < uls.length; i++) {
@@ -323,7 +324,7 @@
                     <!-- begin_auth -->
                     <div class="admin_menu">
                         <ul>
-                            <li><strong>{l_hello_administator}</strong> </li>
+                            <li><strong>{l_hello}, {replier_name}!</strong> </li>
                             <li>[</li>
                             <li><a href="{url_main}administration/options.php">{l_header_settings}</a></li>
                             <li>|</li>
@@ -364,25 +365,49 @@
                     <div class="header_l">
                         <div class="header_r">
                             <ul class="mmenu">
+                                <!-- begin_menu_main -->
                                 <li><a href="{url_main}administration/home.php" id="main_ll_adm_menu">{l_menu_main}</a>
                                 </li>
+                                <!-- end_menu_main -->
+                                
                                 <!-- begin_menu_template -->
                                 <li><a href="{url_main}administration/template.php"
                                         id="view_ll_adm_menu">{l_menu_templates}</a></li>
                                 <!-- end_menu_template -->
+                                
+                                <!--begin_menu_languages-->
                                 <li><a href="{url_main}administration/language.php"
                                         id="lang_ll_adm_menu">{l_menu_languages}</a></li>
+                                <!--end_menu_languages-->
+                                
+                                <!--begin_menu_help_and_news-->
                                 <li><a href="{url_main}administration/{main_menu_link_to_news}"
                                         id="news_ll_adm_menu">{l_menu_help_and_news}</a></li>
+                                <!--end_menu_help_and_news-->
+                                
+                                <!--begin_menu_users-->
                                 <li><a href="{url_main}administration/users_results.php"
                                         id="users_ll_adm_menu">{l_mmenu_users}</a></li>
+                                <!--end_menu_users-->
+
+                                <!--begin_menu_modules-->
                                 <li><a href="{url_main}administration/blogs_bloggers.php"
                                         id="modules_ll_adm_menu">{l_menu_modules}</a></li>
+                                <!--end_menu_modules-->
+                                
+                                <!--begin_menu_advertise-->
                                 <li><a href="{url_main}administration/pages_add_banner.php"
                                         id="advertise_ll_adm_menu">{l_menu_advertise}</a></li>
+                                <!--end_menu_advertise-->
+                                
+                                <!--begin_menu_media-->
                                 <li><a href="{url_main}administration/alb_albums.php"
                                         id="media_ll_adm_menu">{l_menu_media}</a></li>
+                                <!--end_menu_media-->
+                                
+                                <!--begin_menu_sms_text-->
                                 <li><a href="{url_main}administration/sms_carriers.php" id="sms_ll_adm_menu">{l_menu_sms_text}</a></li>
+								<!--end_menu_sms_text-->
                                 <!--Rade 2023-09-28 <li><a href="{url_main}administration/partyhouz_partyhouz.php"
                                         id="partyhouz_ll_adm_menu">{l_menu_parthouz}</a></li> -->
                                 <!-- Rade 2023-09-28 <li><a href="{url_main}administration/add_manager.php"
@@ -393,32 +418,43 @@
                             <div class="bl_hmenu_sub">
                                 <div class="bl_hmenu_sub_l">
                                     <div class="bl_hmenu_sub_r">
+                                        <!--begin_smenu_main-->
                                         <ul class="smenu" data-menu="dt_home" id="smain_ll_adm_menu">
                                             <li id="shome"><a href="{url_main}administration/home.php">{l_menu_home}</a>
                                             </li>
+                                            <!--begin_smenu_options-->
                                             <li id="soptions"><a
                                                     href="{url_main}administration/options.php">{l_menu_options}</a>
                                             </li>
+                                            <!--end_smenu_options-->
+                                            <!--begin_smenu_stats-->
                                             <li id="sstats"><a
                                                     href="{url_main}administration/stats.php">{l_menu_stats}</a></li>
-                                            <!-- begin_menu_payment -->
+                                            <!--end_smenu_stats-->
+                                            <!--begin_smenu_payment-->
                                             <li id="spay"><a
                                                     href="{url_main}administration/pay.php">{l_menu_payment}</a></li>
-                                            <!-- end_menu_payment -->
+                                            <!--end_smenu_payment-->
                                             <!-- START cobra-55555 donation setting page menu -->
+                                            <!--begin_smenu_donation-->
                                             <li id="sdonation"><a
                                                     href="{url_main}administration/donation_admin_cobra.php">{l_menu_donation}</a>
                                             </li>
+                                            <!--end_smenu_donation-->
                                             <!-- END cobra-55555 donation setting page menu -->
                                             <!-- START nnsscc-diamond club page menu -->
+                                            <!--begin_smenu_club_add-->
                                             <li id="saddclub"><a
                                                     href="{url_main}administration/pages_add_club.php">{l_menu_club_add}</a>
                                             </li>
+                                            <!--end_smenu_club_add-->
                                             <!-- END nnsscc-diamond club page menu -->
                                             <!-- START rade without page menu -->
+                                            <!--begin_smenu_new_add-->
                                             <li id="saddmenu"><a
                                                     href="{url_main}administration/pages_add_menu.php">{l_menu_new_add}</a>
                                             </li>
+                                            <!--end_smenu_new_add-->
                                             <!-- END rade without page menu -->
                                             <!-- rade 2023-09-28 add -->
                                             <li id="saddmanager"><a href="{url_main}administration/add_manager.php"
@@ -430,6 +466,7 @@
                                             </li>
                                             <!-- end_menu_import -->
                                         </ul>
+                                        <!--end_smenu_main-->
                                         <!-- begin_menu_template_item -->
                                         <ul class="smenu" data-menu="dt_template" id="sview_ll_adm_menu">
                                             <li id="stemplate_main">
@@ -457,6 +494,7 @@
                                             </li>
                                         </ul>
                                         <!-- end_menu_template_item -->
+                                        <!--begin_smenu_languages-->
                                         <ul class="smenu" data-menu="dt_lang" id="slang_ll_adm_menu">
                                             <li id="slanguage_main"><a
                                                     href="{url_main}administration/language.php">{l_menu_main}</a></li>
@@ -470,6 +508,8 @@
                                                     href="{url_main}administration/language.php?part=partner">{l_menu_partner}</a>
                                             </li>
                                         </ul>
+                                        <!--end_smenu_languages-->
+                                        <!--begin_smenu_help_and_news-->
                                         <ul class="smenu" data-menu="dt_pages" id="snews_ll_adm_menu">
                                             <!-- begin_menu_secondary_help -->
                                             <li id="shelp"><a
@@ -498,6 +538,8 @@
                                             <!-- end_menu_secondary_pages -->
 
                                         </ul>
+                                        <!--end_smenu_help_and_news-->
+                                        <!--begin_smenu_users-->
                                         <ul class="smenu" data-menu="dt_users" id="susers_ll_adm_menu"
                                             style="width: 100%;">
                                             <li id="susers"><a
@@ -531,6 +573,8 @@
                                                     href="{url_main}administration/gifts.php">{l_menu_gifts}</a></li>
                                             <!-- end_menu_secondary_gifts -->
                                         </ul>
+                                        <!--end_smenu_users-->
+                                        <!--begin_smenu_modules-->
                                         <ul class="smenu" data-menu="dt_modules" id="smodules_ll_adm_menu"
                                             style="width: 100%;">
                                             <!-- begin_menu_secondary_blogs_bloggers -->
@@ -600,6 +644,8 @@
                                             <!-- end_menu_secondary_games -->
                                             
                                         </ul>
+                                        <!--end_smenu_modules-->
+                                        <!--begin_smenu_advertise-->
                                         <ul class="smenu" data-menu="dt_advertise" id="sadvertise_ll_adm_menu">
                                             <!-- START nnsscc-diamond club page menu -->
                                             <li id="saddadv"><a href="{url_main}administration/adv.php">{l_menu_adv}</a>
@@ -617,6 +663,8 @@
                                             </li>
                                             <!-- END nnsscc-diamond club page menu -->
                                         </ul>
+                                        <!--end_smenu_advertise-->
+                                        <!--begin_smenu_media-->
                                         <ul class="smenu" data-menu="dt_media" id="smedia_ll_adm_menu">
                                             <li id="smediaalb"><a
                                                     href="{url_main}administration/alb_albums.php">{l_menu_albums}</a>
@@ -638,11 +686,14 @@
                                                     id="partyhouz_ll_adm_menu">{l_menu_parthouz}</a></li>
 
                                         </ul>
+                                        <!--end_smenu_media-->
+                                        <!--begin_smenu_sms_text-->
                                         <ul class="smenu" data-menu="dt_sms" id="ssms_ll_adm_menu">
                                             <li id="scarrier"><a href="{url_main}administration/sms_carriers.php">{l_carrier}</a></li>
                                             <li id="ssms_mass_text"><a href="{url_main}administration/masssms.php">{l_sms_mass_text}</a></li>
                                             <li id="ssms_auto_mailer"><a href="{url_main}administration/autosms.php">{l_sms_auto_mailer}</a></li>
                                         </ul>
+										<!--end_smenu_sms_text-->
                                         <!-- <ul class="smenu" data-menu="dt_partyhouz" id="spartyhouz_ll_adm_menu">
 
                                             <li id="spartyhouz"><a
