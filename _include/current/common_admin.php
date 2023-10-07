@@ -379,6 +379,10 @@ class CAdminHeader extends CHtmlBlock
             $menu = "sdonation";
         } elseif ($filename == 'pages_add_club.php') {
             $menu = "saddclub";
+        } elseif ($filename == 'pages.php') {
+            $menu = "saddclub";
+        } elseif ($filename == 'pages_add.php') {
+            $menu = "saddclub";
         } elseif ($filename == 'pages_add_menu.php') {
             $menu = "saddmenu";
         } elseif ($filename == 'pages_add_nsc_sub.php') {
@@ -387,11 +391,29 @@ class CAdminHeader extends CHtmlBlock
             $menu = "saddmanager";
         } elseif ($filename == 'music_musicians.php') { //eric-cuigao-nsc-20201210-start
             $menu = "smediamusic";
+        } elseif ($filename == 'music_musician_comments.php') { //eric-cuigao-nsc-20201210-start
+            $menu = "smediamusic";
+        } elseif ($filename == 'music_songs.php') { //eric-cuigao-nsc-20201210-start
+            $menu = "smediamusic";
+        } elseif ($filename == 'music_song_comments.php') { //eric-cuigao-nsc-20201210-start
+            $menu = "smediamusic";
+        } elseif ($filename == 'music_categories.php') { //eric-cuigao-nsc-20201210-start
+            $menu = "smediamusic";
+        } elseif ($filename == 'music_category_add.php') { //eric-cuigao-nsc-20201210-start
+            $menu = "smediamusic";
         } elseif ($filename == 'alb_albums.php') {
             $menu = "smediaalb";
         } elseif ($filename == 'vids_radios.php') { //popcorn 9/29/2023
             $menu = "smediaradio";
         } elseif ($filename == 'vids_videos.php') {
+            $menu = "smediavids";
+        } elseif ($filename == 'vids_users.php') {
+            $menu = "smediavids";
+        } elseif ($filename == 'vids_comments.php') {
+            $menu = "smediavids";
+        } elseif ($filename == 'vids_categories.php') {
+            $menu = "smediavids";
+        } elseif ($filename == 'vids_category_add.php') {
             $menu = "smediavids";
         } elseif ($filename == 'media_radio.php') {
             $menu = "smediaradio";
@@ -810,7 +832,8 @@ class CAdminConfig extends CHtmlBlock
             // 'music_mp3_file_size_limit_mbs',
             //Messages settings
             'mails_limit_max',
-            'number_friends_show_mail', //'auto_ban_messages',
+            'number_friends_show_mail',
+            //'auto_ban_messages',
             //Logged in user settings
             // 'frameworks_version',
             'city_language',
@@ -827,7 +850,8 @@ class CAdminConfig extends CHtmlBlock
             'face_score_threshold',
             // 'in_app_purchase_enabled', // Rade 2023-09-29
         ),
-        'old' => array( //General website's settings
+        'old' => array(
+            //General website's settings
             'minimum_match_percent_on_graphs',
             'youtube_video_background_users_urban',
             'youtube_video_background_users_all_pages_urban',
@@ -2051,11 +2075,11 @@ class CAdminConfig extends CHtmlBlock
             unset($config['image_main_page_compression_ratio_urban']);
             unset($config['background_color_urban']);
         } /*elseif(Common::getOption('map_on_main_page_urban') == 'map') {
-           unset($config['image_main_page_urban']);
-           unset($config['upload_image_main_page_urban']);
-           unset($config['image_main_page_compression_ratio_urban']);
-           unset($config['background_color_urban']);
-       }*/
+          unset($config['image_main_page_urban']);
+          unset($config['upload_image_main_page_urban']);
+          unset($config['image_main_page_compression_ratio_urban']);
+          unset($config['background_color_urban']);
+      }*/
 
         if (!Common::isOptionActive('information_block_on_main_page_urban', 'template_options')) {
             unset($config['main_text_title_urban']);
@@ -2500,17 +2524,19 @@ class CAdminConfig extends CHtmlBlock
                     $html->setvar('info_timezone', lSetVars('info_timezone', $time));
                     $html->parse('info_timezone', false);
                 } elseif (
-                    in_array($row['option'], array(
-                        'list_people_number_row',
-                        'list_blog_posts_number_row',
-                        'list_groups_number_row',
-                        'list_pages_number_row',
-                        'list_videos_number_row',
-                        'list_photos_number_row',
-                        'list_blog_my_posts_number_row',
-                        'list_blog_someones_posts_number_row',
-                        'list_live_number_row'
-                    )
+                    in_array(
+                        $row['option'],
+                        array(
+                            'list_people_number_row',
+                            'list_blog_posts_number_row',
+                            'list_groups_number_row',
+                            'list_pages_number_row',
+                            'list_videos_number_row',
+                            'list_photos_number_row',
+                            'list_blog_my_posts_number_row',
+                            'list_blog_someones_posts_number_row',
+                            'list_live_number_row'
+                        )
                     )
                 ) {
                     if (
@@ -2543,13 +2569,15 @@ class CAdminConfig extends CHtmlBlock
                         );
                     }
                 } elseif (
-                    in_array($row['option'], array(
-                        'list_blog_posts_type_order',
-                        'blogs_list_1_type_order',
-                        'blogs_list_2_type_order',
-                        'list_blog_my_posts_type_order',
-                        'list_blog_someones_posts_type_order'
-                    )
+                    in_array(
+                        $row['option'],
+                        array(
+                            'list_blog_posts_type_order',
+                            'blogs_list_1_type_order',
+                            'blogs_list_2_type_order',
+                            'list_blog_my_posts_type_order',
+                            'list_blog_someones_posts_type_order'
+                        )
                     )
                 ) {
                     $noRandom = $row['module'] == 'edge_general_settings' || $row['module'] == 'edge_member_settings' || $row['module'] == 'edge_blogs_settings';
