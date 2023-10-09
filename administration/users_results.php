@@ -53,15 +53,22 @@ class CUsersResults extends CHtmlList
 	{
 		global $g;
 
-        $this->m_on_page = 20;
+        $display = get_param('display', '25');
+		if ($display == "all"){
+			DB::query("SELECT count(u.user_id) as total_row FROM user AS u  
+						" . $this->m_sql_from_add . "");
+			$row = DB::fetch_row();
+			$display = $row['total_row'];
+		}
+		$this->m_on_page = $display;
 		$this->m_on_bar = 10;
 
 		$this->m_sql_count = "SELECT COUNT(u.user_id) FROM user AS u " . $this->m_sql_from_add . "";
 		$this->m_sql = "
-			SELECT u.user_id, u.mail, u.type, u.orientation, u.password, u.gold_days, u.name, (DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(birth, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(birth, '00-%m-%d'))
+			SELECT u.user_id, u.mail, u.type, u.orientation, u.nsc_phone, u.carrier_provider, u.password, u.gold_days, u.name, (DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(birth, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(birth, '00-%m-%d'))
 ) AS age, u.last_visit,
 			u.is_photo,
-			u.city_id, u.state_id, u.country_id, u.last_ip, u.register, u.ban_global, u.lms_user_type
+			u.city_id, u.state_id, u.country_id, u.last_ip, u.register, u.ban_global
 			FROM user AS u
 			" . $this->m_sql_from_add . "
 		";
@@ -77,10 +84,13 @@ class CUsersResults extends CHtmlList
 		$this->m_field['type'] = array("type", null);
 		$this->m_field['gold_days'] = array("gold_days", null);
 		$this->m_field['password'] = array("password", null);
+		$this->m_field['orientation'] = array("orientation", null);
 		$this->m_field['last_ip'] = array("last_ip", null);
 		$this->m_field['register'] = array("register", null);
 		$this->m_field['ban_action'] = array("ban_action", null);
-
+		$this->m_field['photo'] = array("photo", null);
+		$this->m_field['carrier_provider'] = array("carrier_provider", null);
+		$this->m_field['nsc_phone'] = array("nsc_phone", null);
         CUsersResultsBase::init($this->m_field);
 
 		$where = "";
@@ -226,12 +236,27 @@ class CUsersResults extends CHtmlList
             $where .= ' AND use_as_online = ' . to_sql($useAsOnline);
         }
 
+		$q = get_param("q", "");
+		if ($q) {
+			$where .= " AND name LIKE '%".$q."%'";
+		}
+
 		$this->m_sql_where = "1" . $where;
 		$this->m_sql_order = "user_id";
 		$this->m_sql_from_add = "";
 	}
 	function parseBlock(&$html)
 	{
+		$page_options = array("25" => "25 / Page", "50" => "50 / Page", "75" => "75 / Page", "100" => "100 / Page", "all" => "All / Page");
+		$selected = get_param('display', '25');
+		$opt_html = "";
+		foreach ($page_options as $key => $page) {
+			$opt_html .= "<option value='{$key}' " . ($key == $selected ? 'selected' : '') . ">{$page}</option>";
+		}
+		$html->setvar("page_option", $opt_html);
+		$html->setvar("display", $selected);
+		$html->setvar("q", get_param("q", ""));
+
 		parent::parseBlock($html);
 	}
     function onPostParse(&$html)
@@ -245,6 +270,7 @@ class CUsersResults extends CHtmlList
 		global $g;
 
         $html->setvar('url_profile', User::url($row['user_id']));
+		$html->setvar('url_loginas', 'loginas.php?cmd=loginasuser&user=' . $row['mail']);
 
 		$this->m_field['city_title'][1] = DB::result("SELECT city_title FROM geo_city WHERE city_id=" . $row['city_id'] . "", 0, 2);
 		if ($this->m_field['city_title'][1] == "") $this->m_field['city_title'][1] = "blank";
@@ -253,6 +279,8 @@ class CUsersResults extends CHtmlList
 		$this->m_field['country_title'][1] = DB::result("SELECT country_title FROM geo_country WHERE country_id=" . $row['country_id'] . "", 0, 2);
 		if ($this->m_field['country_title'][1] == "") $this->m_field['country_title'][1] = "blank";
 
+		$user_photo = User::getPhotoDefault($row['user_id'], "m");
+		$this->m_field['photo'][1] = $user_photo;
                 if (Common::getOption('set', 'template_options') != 'urban')
                 {
                     $html->setvar('user_id',  $row['user_id']);
@@ -282,6 +310,11 @@ class CUsersResults extends CHtmlList
 			$this->m_field['ban_action'][1] = l('ban');
 		}
 
+		$this->m_field['orientation'][1] = DB::result("SELECT title FROM const_orientation WHERE id=" . $row['orientation'] . "", 0, 2);
+		if ($this->m_field['orientation'][1] == "")
+		{
+			$this->m_field['orientation'][1] = "Invilid orientation";
+		}
         $this->m_field['password'][1] = hard_trim($row['password'], 7);
 		if (IS_DEMO) {
 			$this->m_field['mail'][1] = 'disabled@ondemoadmin.cp';
