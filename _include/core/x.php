@@ -184,6 +184,7 @@ $g['options']['guest_pages'] = array(
                     'page.php',
                     'css.php',
                     'js.php',
+					'donation_cobra.php'   // cobra-55555 -display donation_cobra page without login
 );
 
 if (Common::isMobile()) {
@@ -220,8 +221,8 @@ $g['music_musician_image']['thumbnail_big_y'] = "120";
 $g['music_musician_image']['thumbnail_small_x'] = "39";
 $g['music_musician_image']['thumbnail_small_y'] = "29";
 
-$g['music_song_image']['big_x'] = "825";
-$g['music_song_image']['big_y'] = "825";
+$g['music_song_image']['big_x'] = "400";
+$g['music_song_image']['big_y'] = "400";
 $g['music_song_image']['thumbnail_x'] = "85";
 $g['music_song_image']['thumbnail_y'] = "64";
 $g['music_song_image']['thumbnail_big_x'] = "160";
@@ -237,6 +238,28 @@ $g['events_event_image']['thumbnail_big_x'] = "160";
 $g['events_event_image']['thumbnail_big_y'] = "120";
 $g['events_event_image']['thumbnail_small_x'] = "39";
 $g['events_event_image']['thumbnail_small_y'] = "29";
+//nnsscc-diamond-20200310-start
+$g['hotdates_hotdate_image']['big_x'] = "400";
+$g['hotdates_hotdate_image']['big_y'] = "400";
+$g['hotdates_hotdate_image']['thumbnail_x'] = "85";
+$g['hotdates_hotdate_image']['thumbnail_y'] = "64";
+$g['hotdates_hotdate_image']['thumbnail_big_x'] = "160";
+$g['hotdates_hotdate_image']['thumbnail_big_y'] = "120";
+$g['hotdates_hotdate_image']['thumbnail_small_x'] = "39";
+$g['hotdates_hotdate_image']['thumbnail_small_y'] = "29";
+//nnsscc-diamond-20200310-end
+
+//rade-start - 20230808
+$g['partyhouz_partyhou_image']['big_x'] = "400";
+$g['partyhouz_partyhou_image']['big_y'] = "400";
+$g['partyhouz_partyhou_image']['thumbnail_x'] = "85";
+$g['partyhouz_partyhou_image']['thumbnail_y'] = "64";
+$g['partyhouz_partyhou_image']['thumbnail_big_x'] = "160";
+$g['partyhouz_partyhou_image']['thumbnail_big_y'] = "120";
+$g['partyhouz_partyhou_image']['thumbnail_small_x'] = "39";
+$g['partyhouz_partyhou_image']['thumbnail_small_y'] = "29";
+//rade-end - 20230808
+
 
 $g['groups_group_image']['big_x'] = "400";
 $g['groups_group_image']['big_y'] = "400";
@@ -252,8 +275,8 @@ $g['options']['video_approval'] = "N";
 
 $g['media_server_firewall'] = 'Y';
 $g['media_server_firewall'] = 'N';
-$g['media_server'] = 'https://mediaserver.chameleonintranet.com';
-$g['webrtc_app'] = 'wss://zls.qflirt.com:8443/one2one';
+$g['media_server'] = '54.39.16.172';
+$g['webrtc_app'] = 'wss://zws.qflirt.com:8443/one2one';
 $g['webrtc_app_live_streaming'] = 'wss://zls.qflirt.com:8444/one2many';
 
 $g["forum"]["n_topics_per_page"] = 20;
@@ -524,6 +547,10 @@ class Moderator {
         'photo',
         'vids_video',
         'texts',
+        'events',
+        'hotdates',
+        'partyhouz',
+        'craigs'
     );
 
     static $notificationType = '';
@@ -585,6 +612,93 @@ class Moderator {
         return $default;
     }
 
+    static function moderator_totalNum() {
+        global $g_user;
+
+
+        $buttons = array(
+			0 => array('title' => l('moderator_profiles'), 'section' => 'profiles'),
+            1 => array('title' => l('Moderator photo'), 'section' => 'photo'),
+            2 => array('title' => l('Moderator video'), 'section' => 'vids_video'),
+            3 => array('title' => l('Moderator essay'), 'section' => 'texts'),
+            4 => array('title' => l('moderator_events'), 'section' => 'events'),
+            5 => array('title' => l('moderator_hotdates'), 'section' => 'hotdates'),
+            6 => array('title' => l('moderator_partyhouz'), 'section' => 'partyhouz'),
+            7 => array('title' => l('moderator_craigs'), 'section' => 'craigs'),
+            8 => array('title' => l('moderator_wowslider'), 'section' => 'wowslider'),
+            9 => array('title' => l('moderator_users_reports'), 'section' => 'users_reports'),
+
+        );
+
+        $totalNum = 0;
+
+        foreach ($buttons as $v) {
+            $num = 0;
+
+            switch ($v['section']) {
+                case 'profiles':
+                    DB::query("SELECT * FROM user  WHERE active = 0", 2);
+                    $num = DB::num_rows(2);
+                    break;
+                case 'texts':
+                    DB::query("SELECT * FROM texts", 2);
+                    $num = DB::num_rows(2);
+                break;
+                case 'vids_video':
+                    DB::query('SELECT * FROM `vids_video` WHERE `active` = 3', 2);
+                    $num = DB::num_rows(2);
+                break;    
+                case 'photo':
+                    DB::query("SELECT * FROM photo WHERE " . CProfilePhoto::moderatorVisibleFilter(), 2);
+                    $num = DB::num_rows(2);
+                    break;
+                case 'events':
+                    DB::query("SELECT * FROM events_event WHERE approved = 0", 2);
+                    $num = DB::num_rows(2);
+                break;  
+                case 'hotdates':
+                    DB::query("SELECT * FROM hotdates_hotdate WHERE approved = 0", 2);
+                    $num = DB::num_rows(2);
+                break;  
+                case 'partyhouz':
+                    DB::query("SELECT * FROM partyhouz_partyhou WHERE approved = 0", 2);
+                    $num = DB::num_rows(2);
+                break;  
+                case 'craigs':
+                    $num = 0;
+                    for($i=1;$i<=11;$i++)
+                    {
+                        DB::query("select * from adv_cats where id=".$i);
+                        if ($cat = DB::fetch_row()) {
+        
+                            $adv_table = "adv_" . $cat['eng'];
+                            DB::query("SELECT * FROM ". $adv_table . " WHERE approved = 0", 2);
+                            $num1 = DB::num_rows(2);
+                            $num = $num + $num1;
+                        }
+                        
+                    }
+                break;  
+                case 'wowslider':
+                    DB::query("SELECT * FROM wowslider WHERE approved = 0", 2);
+                    $num = DB::num_rows(2);
+                break;  
+                case 'users_reports':
+                    DB::query("SELECT * FROM users_reports", 2);
+                    $num = DB::num_rows(2);
+                break;  
+                default:
+                    # code...
+                    break;
+            }
+            if ($g_user['moderator_' . $v['section']] == 1) {
+               $totalNum += $num;
+            }
+        }
+
+        return $totalNum;
+    }
+
     static function buttonsParse(&$html)
     {
         global $g_user;
@@ -596,6 +710,13 @@ class Moderator {
             1 => array('title' => l('Moderator photo'), 'section' => 'photo'),
             2 => array('title' => l('Moderator video'), 'section' => 'vids_video'),
             3 => array('title' => l('Moderator essay'), 'section' => 'texts'),
+            4 => array('title' => l('moderator_events'), 'section' => 'events'),
+            5 => array('title' => l('moderator_hotdates'), 'section' => 'hotdates'),
+            6 => array('title' => l('moderator_partyhouz'), 'section' => 'partyhouz'),
+            7 => array('title' => l('moderator_craigs'), 'section' => 'craigs'),
+            8 => array('title' => l('moderator_wowslider'), 'section' => 'wowslider'),
+            9 => array('title' => l('moderator_users_reports'), 'section' => 'users_reports'),
+
         );
 
         foreach ($buttons as $v) {
@@ -614,8 +735,83 @@ class Moderator {
                     $html->setvar('active_button', 'green');
                 }
             }
+
+            $num = 0;
+
+            switch ($v['section']) {
+                case 'profiles':
+                    DB::query("SELECT * FROM user  WHERE active = 0", 2);
+                    $num = DB::num_rows(2);       
+                    break;
+                case 'texts':
+                    DB::query("SELECT * FROM texts", 2);
+                    $num = DB::num_rows(2);
+
+                break;
+                case 'vids_video':
+                    DB::query('SELECT * FROM `vids_video` WHERE `active` = 3', 2);
+                    $num = DB::num_rows(2);
+
+                break;    
+                case 'photo':
+                        DB::query("SELECT * FROM photo WHERE " . CProfilePhoto::moderatorVisibleFilter(), 2);
+                        $num = DB::num_rows(2);
+        
+                        break;
+                
+                case 'events':
+                    DB::query("SELECT * FROM events_event WHERE approved = 0", 2);
+                    $num = DB::num_rows(2);
+  
+                break;  
+                case 'hotdates':
+                    DB::query("SELECT * FROM hotdates_hotdate WHERE approved = 0", 2);
+                    $num = DB::num_rows(2);
+       
+                break;  
+                case 'partyhouz':
+                    DB::query("SELECT * FROM partyhouz_partyhou WHERE approved = 0", 2);
+                    $num = DB::num_rows(2);
+                 
+                break;  
+                case 'craigs':
+                $num = 0;
+                for($i=1;$i<=11;$i++)
+                {
+                    DB::query("select * from adv_cats where id=".$i);
+                    if ($cat = DB::fetch_row()) {
+    
+                        $adv_table = "adv_" . $cat['eng'];
+                        DB::query("SELECT * FROM ". $adv_table . " WHERE approved = 0", 2);
+                        $num1 = DB::num_rows(2);
+                        $num = $num + $num1;
+                    }
+                    
+                }
+          
+                break;  
+                case 'wowslider':
+                    DB::query("SELECT * FROM wowslider WHERE approved = 0", 2);
+                    $num = DB::num_rows(2);
+               
+                break;  
+                case 'users_reports':
+                    DB::query("SELECT * FROM users_reports", 2);
+                    $num = DB::num_rows(2);
+               
+                break; 
+                default:
+                    # code...
+                    break;
+            }
             if ($g_user['moderator_' . $v['section']] == 1) {
+
+                if($num) {
+                    $html->setvar('moderator_num', $num);
+                    $html->parse('moderator_waiting_num', true);
+                }
                 $html->parse('button');
+                $html->clean('moderator_waiting_num');
             }
         }
     }
@@ -794,6 +990,8 @@ class IP {
         if(get_session('ip_block_check_time_' . $ip) > Common::getOption('last_update_time', 'ipblock')) {
             return;
         }
+
+        $ip = self::getIp();
 
         $ipMasks=IP::getIpMasks($ip);
 

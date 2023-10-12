@@ -155,6 +155,7 @@ Class Menu {
                 } else {
                     $url = $setHomePageUrban;
                 }
+                return 'home.php';
                 return  $url;
             }
 
