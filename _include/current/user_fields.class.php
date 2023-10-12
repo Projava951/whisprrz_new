@@ -2801,9 +2801,9 @@ class UserFields extends CHtmlBlock
                                 if ($data['group'] == 1) {
                                     $isParse = $this->parseInt($html, $name, $data, true, false,false);
                                 } else {
-                                    if($this->set == 'urban' && $data['group'] == 3) {
-                                        break;
-                                    }
+                                    // if($this->set == 'urban' && $data['group'] == 3) {
+                                    //     break;
+                                    // }
                                     $this->parseInt($html, $name, $data);
                                 }
                             } elseif ($data['type'] == 'const'){
@@ -3644,7 +3644,6 @@ class UserFields extends CHtmlBlock
     static function removeUnavailableField($option = 'fields_not_available')
     {
         global $g;
-
         $availableField = Common::getOption($option, 'template_options');
         if($option === 'fields_not_available' || $option === 'fields_not_available_admin') {
             if(Common::isEdgeLmsMode()) {

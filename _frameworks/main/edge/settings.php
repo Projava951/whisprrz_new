@@ -7,7 +7,11 @@ It can be found at http://www.chameleonsocial.com/license.doc
 
 This notice may not be removed from the source code. */
 global $g;
-
+//Rade 2023-10-12 add start
+Common::setOptionRuntime('Y', 'main_users');
+Common::setOptionRuntime('N', 'status_relation');
+$g['user_var']['relation']['status'] = 'inactive';
+//Rade 2023-10-12 add end
 
 $listPeopleNumberUsers = Common::getOptionInt('list_people_number_users', 'edge_general_settings');
 
@@ -15,6 +19,7 @@ $g['template_options'] = array(
     'set' => 'urban',
     'name' => 'edge',
     'include_template_class' => 'Y',
+    '3d_chat_custom_css' => 'Y', 	//Rade 2023-10-12 add
     'type_payment_features' => 'edge',
     'type_payment_plan' => 'edge',
     'type_payment_module_credits' => 'payment_module_boost',
@@ -27,6 +32,11 @@ $g['template_options'] = array(
     'featured_users_on_main_page' => 'N',
     'main_col_order' => 'Y',
     'right_col_order' => 'Y',
+//Rade 2023-10-12 add start
+    'events_quests_per_page' => 8,
+    'groups_members_per_page' => 8,
+    'im_msg_layout' => 'oryx',
+//Rade 2023-10-12 add end
     'header_color_admin' => 'Y',
     //'type_payment_free' => 'Y',
 
@@ -34,8 +44,8 @@ $g['template_options'] = array(
     // 'no_mobile_template' => 'Y',
     // rade 2023-09-20 delete end
 
-    'logo_w' => 280,
-    'logo_h' => 35,
+    'logo_w' => 207, 	//Rade 2023-10-12 update
+    'logo_h' => 47, 	//Rade 2023-10-12 update
     'logo_inner' => 'Y',
     'logo_inner_w' => 195,
     'logo_inner_h' => 24,
@@ -98,14 +108,14 @@ $g['template_options'] = array(
 
     'menu_admin_banner' => 'Y',
     'banners_places' => array(
-        'home' => 0,
-        'top' => 0,
-        'header' => 0,
+        'home' => 1, 	// Rade 2023-10-12 update
+        'top' => 1, 	// Rade 2023-10-12 update
+        'header' => 1, 	// Rade 2023-10-12 update
         'right_column' => 1,
-        'left_column' => 1,
+        'left_column' => 0, // Rade 2023-10-12 update
         'footer' => 1,
         'footer_mobile' => 0,
-        'footer_additional' => 0
+        'footer_additional' => 1 // Rade 2023-10-12 update
     ),
     'number_banners_place_right_column' => 1,
     'number_banners_place_right_column_paid' => 1,
@@ -184,7 +194,7 @@ $g['template_options'] = array(
 
     'games_template' => array('main' => 'games.html'),
     'calendar_template' => array('main' => 'calendar.html'),
-
+    'options_main_title' => 'Y', 	//Rade 2023-10-12 add
     'wall_template' => array(
         'main' => 'wall.html',
         'wall_custom' => '_wall_custom.html',
@@ -363,7 +373,8 @@ $g['template_options'] = array(
     'captcha_contact_only_visitor' => 'Y',
 
     'im_type' => 'edge',
-    'im_no_system_msg' => 'Y', //only "welcoming_message"
+    'im_no_system_msg' => 'Y',
+    //only "welcoming_message"
 
     'wall_type' => 'edge',
     'wall_sections_only' => array('comment', 'photo', 'vids', 'pics', 'group_social_created', 'photo_default', 'blog_post', 'music'),
@@ -401,7 +412,7 @@ $g['template_options'] = array(
 
     'no_private_photos' => 'N',
     'no_rating_photos' => 'Y',
-
+    'options_main_text' => 'Y', // Rade 2023-10-12 add
     'gallery_type' => 'edge',
     'gallery_comment_time_ago' => 'Y',
     'gallery_comment_replies' => 'Y',
@@ -429,7 +440,8 @@ $g['template_options'] = array(
      */
     'fields_social' => 'N',
     'fields_not_availableOLD' => array(133, 134, 136, 137, 139, 140, 142, 144, 145, 146, 148, 149, 150, 152, 154, 155, 156, 157, 158, 160, 162, 163, 164, 165, 166, 167, 168, 169, 170, 348, 468, 471),
-    'fields_not_available_admin' => array(133, 134, 136, 137, 139, 140, 142, 144, 145, 146, 148, 149, 150, 152, 154, 156, 157, 158, 160, 162, 163, 164, 165, 166, 167, 168, 169, 170, 348, 468, 471, 485, 494),
+    // 'fields_not_available_admin' => array(133, 134, 136, 137, 139, 140, 142, 144, 145, 146, 148, 149, 150, 152, 154, 156, 157, 158, 160, 162, 163, 164, 165, 166, 167, 168, 169, 170, 348, 468, 471, 485, 494), // Rade 2023-10-11 delete
+    'fields_not_available_admin' => array(473, 136, 137, 139, 140, 142, 144, 146, 148, 149, 150, 152, 154, 156, 157, 158, 160, 162, 167, 170, 348, 468, 471, 485, 494), // Rade 2023-10-11 delete
     'fields_not_available' => array(541, 457, 460),
     'fields_mode' => 'urban',
 
@@ -468,10 +480,47 @@ $g['template_options'] = array(
     'live_enabled' => 'Y',
 
     'custom_profile_html' => 'profile_html_urban',
-
+    'live_list_filter_disabled' => 'Y', // Rade 2023-10-12 add
     'near_me_radius' => 25,
+    'list_live_number_items' => 8, 	//Rade 2023-10-12 add
 );
 
+// Rade 2023-10-12 add start
+global $swf;
+
+$swf['profile']['attributes']['width'] = '547';
+$swf['profile']['attributes']['height'] = '864';
+$swf['profile']['attributes']['bgcolor'] = 'FFFFFF';
+$swf['profile']['flashvars']['colorbgeditor'] = '0xFFFFFF';
+$swf['profile']['flashvars']['colorbgabout'] = '0xFFFFFF';
+$swf['profile']['flashvars']['colorbgfontabout'] = '0xFFFFFF';
+$swf['profile']['flashvars']['colorheaderabout'] = '0x000000';
+$swf['profile']['flashvars']['colorfontabout'] = '0x000000';
+$swf['profile']['flashvars']['colorbgmenu1'] = '0xF0F0F0';
+$swf['profile']['flashvars']['colorbgmenu2'] = '0x989898';
+$swf['profile']['flashvars']['colorcontourmenu'] = '0x6A6A6A';
+$swf['profile']['flashvars']['editborder'] = '0xFAFAFA';
+$swf['profile']['flashvars']['bgtabmenu'] = '0x6f6f6f';
+$swf['profile']['flashvars']['tabmenubtn'] = '0xffffff';
+$swf['profile']['flashvars']['bgcanvas'] = '0xFAFAFA';
+$swf['profile']['flashvars']['colorcontourmenu'] = '0x666666';
+$swf['profile']['flashvars']['colormskforbg'] = '0xFFFFFF';
+$swf['profile']['flashvars']['bgColorPreloader'] = '0xFFFFFF';
+
+$swf['flashchat']['attributes']['width'] = '746';
+$swf['flashchat']['attributes']['height'] = '500';
+$swf['flashchat']['attributes']['bgcolor'] = 'FFFFFF';
+$color = str_replace('#', '0x', get_session('color_lower'));
+$swf['flashchat']['flashvars']['btnRoomsColor'] = $color;
+$swf['flashchat']['flashvars']['usersColor'] = $color;
+$swf['flashchat']['flashvars']['bgColor'] = '0xFFFFFF';
+
+$swf['games']['attributes']['bgcolor'] = 'FAFAFA';
+$swf['games']['flashvars']['bgColor'] = '0xFAFAFA';
+
+global $gc;
+$gc = true;
+// Rade 2023-10-12 add end
 Common::setOptionRuntime('N', 'mobile_enabled');
 Common::setOptionRuntime('N', 'mobile_redirect');
 Common::setOptionRuntime('N', 'mobile_site_on_tablet');
