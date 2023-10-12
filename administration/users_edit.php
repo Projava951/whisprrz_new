@@ -121,21 +121,21 @@ class CForm extends UserFields //CHtmlBlock
                     }
 
                 $isAdmin = get_param('user_admin');
+                //Rade 2023-10-12 add start
                 $setSql .= ', moderator_photo = ' . to_sql(get_param('moderator_photo'), 'Number') . ',
                                  moderator_texts = ' . to_sql(get_param('moderator_texts'), 'Number') . ',
                                  moderator_vids_video = ' . to_sql(get_param('moderator_vids_video'), 'Number') . ',
 								 moderator_profiles = ' . to_sql(get_param('moderator_profiles'), 'Number') . ',
-//Rade 2023-10-12 add start
+
                                  moderator_events = ' . to_sql(get_param('moderator_events'), 'Number') . ',
 								 moderator_hotdates = ' . to_sql(get_param('moderator_hotdates'), 'Number') . ',
 								 moderator_partyhouz = ' . to_sql(get_param('moderator_partyhouz'), 'Number') . ',
 								 moderator_craigs = ' . to_sql(get_param('moderator_craigs'), 'Number') . ',
 								 moderator_wowslider = ' . to_sql(get_param('moderator_wowslider'), 'Number') . ',
                                  moderator_users_reports = ' . to_sql(get_param('moderator_users_reports'), 'Number') . ',
-//Rade 2023-10-12 add end
                                  admin = ' . to_sql($isAdmin, 'Number') . ',
                                  type = ' . to_sql($type);
-
+                //Rade 2023-10-12 add end
                     if($name != $g_user['name']) {
                         $setSql .= ', `name_seo` = ' . to_sql(Router::getNameSeo($name, $g_user['user_id'], 'user'));
                     }
