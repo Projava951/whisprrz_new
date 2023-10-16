@@ -1586,8 +1586,6 @@ class CAdminConfig extends CHtmlBlock
                 }
 
                 $lang = ($lang == 'default') ? '' : '_' . $lang;
-                var_dump("test");
-                die();
                 if (Common::isOptionActive('upload_image_main_page', 'template_options')) {
                     $files = readAllFileArrayOfDir($dir, '', SORT_NUMERIC, "{$part}_main_page_dating_bg_user");
                     $i = getNumUploadFile($files, 1);
