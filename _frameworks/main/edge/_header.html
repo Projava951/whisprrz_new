@@ -18,6 +18,7 @@
 	<link rel="stylesheet" href="{url_tmpl_main}css/invitee.css{cache_version_param}" type="text/css" />
 	<link rel="stylesheet" href="{url_tmpl_main}css/tinyscrollbar.css{cache_version_param}" type="text/css" />
     <link rel="stylesheet" href="{url_tmpl_main}css/jquery.file.css{cache_version_param}" type="text/css" media="screen">
+	<link rel="stylesheet" href="{url_tmpl_main}css/common.css{cache_version_param}" type="text/css" />
     <!--<link rel="stylesheet" href="{url_tmpl_main}css/scale_slides.css{cache_version_param}" type="text/css" media="screen">-->
 
 
@@ -436,7 +437,7 @@ var l_wait_to = '{l_wait_to}';
 {to_head}
 <script type="text/javascript"> function stopError() { return true; }; window.onError = stopError; window.status=Date();</script>
 <style type="text/css">
-html, body {height:100%}
+html, body {min-height:100%}
 .upper_header_color {background-color:{upper_header_color};}
 .lower_header_color {background-color:{lower_header_color};}
 .progress-bar {background-color:{upper_header_color};}
@@ -852,7 +853,7 @@ preloadImagesWidgets('{url_main}');
 	<!-- end_banner_top -->
 	<div id="wrapper">
 		<div id="header">
-			<div style="text-align:center;">
+			<!-- <div style="text-align:center;">
 				<div class="bl_logo">
 					<div id="logo">
 						<a href="{url_main}{url_home_page}">
@@ -860,59 +861,26 @@ preloadImagesWidgets('{url_main}');
 						</a>
 					</div>
 				</div>
-			</div>
-			<div>
+			</div> -->
+			<div  style="padding: 12px 10px;" class="lower_header_color flex justify-between items-center">
 				<!-- begin_view -->
-				<div class="module_change_language">
-					<a class="module_change_language_current" onclick="return false;" href="">{language_current}</a>
-					<div id="module_change_language_item">
-						<ul>
-							<!-- begin_language -->
-							<li><a href="{url_page}?{url_page_params}set_language={language_value}"><span class="{language_class}">{language_title}</span></a></li>
-							<!-- end_language -->
-						</ul>
-					</div>
-				</div>
+                <div class="module_change_language" style="margin-top: 0;">
+                    <a class="module_change_language_current" onclick="return false;" href="">{language_current}</a>
+                    <div id="module_change_language_item">
+                        <ul>
+                            <!-- begin_language -->
+                            <li><a href="{url_page}?{url_page_params}set_language={language_value}" class="text-white"><span class="{language_class} text-white">{language_title}</span></a></li>
+                            <!-- end_language -->
+                        </ul>
+                    </div>
+                </div>
 				<!-- end_view -->
 
-				<div class="bl_rebuild" style="position: relative;">
-				
-				<ul class="top_menu">
-					<!-- begin_auth -->
-					<li class="first"><strong><a class="link_profile"title={l_welcome} " href="{url_main}profile_view.php">{l_hi} {name}</a></strong></li>
-					<!-- begin_moderator -->
-					<li><a title={l_moderator} " href="{url_main}moderator.php" style="position: relative;">
-						{l_top_moderator}     
-						<!-- begin_moderator_waiting_num -->
-						<span class="moderator_waiting_total_num">{moderator_num}</span>
-						<!-- end_moderator_waiting_num -->
-						</a>
-					</li>
-					<!-- end_moderator -->
-					<!-- begin_help_on -->
-									<li><a title={l_support} " href="{url_main}help.php">{l_support}</a></li>
-									<!-- end_help_on -->
-
-									<!-- begin_invite_on -->
-									<li><a title={l_invite_my_friends} " href="{url_main}invite.php">{l_invite_friends}</a></li>
-									<!-- end_invite_on -->
-
-					<li><a title={l_logout} " href="{url_main}index.php?cmd=logout">{l_logout}</a></li>
-					<!-- begin_menu_upgrade --><li><a href="{url_main}upgrade.php">{l_menu_upgrade}</a></li><!-- end_menu_upgrade -->
-					<!-- begin_menu_upgrade_active --><li><a title={l_upgrade} " href="{url_main}upgrade.php">{l_menu_upgrade}</a></li><!-- end_menu_upgrade_active -->
-					<!-- end_auth -->
-
-					<!-- begin_loginform -->
-					<li class="first">{l_welcome_to} <strong>{title}</strong></li>
-					<li><a href="{url_main}join.php">{l_to_joinform}</a></li>
-					<li><a href="{url_main}join.php">{l_to_loginform}</a></li>
-					<!-- end_loginform -->
-				</ul>
-
-				<!-- begin_header_block_info -->
-				<ul class="list_icon_notify">
+				<div class="flex justify-between">
+                    				    <!-- begin_header_block_info -->
+				    <ul class="list_icon_notify" style="margin-top: 0;">
 				    
-						<li style="position: absolute; left: -6%; top: 49%;"><div title="{l_filter} "class="switch-filter <!-- begin_info_mail_href -->?display=text&mid={mid}<!-- end_info_mail_href -->">
+						<li><div title="{l_filter} "class="switch-filter <!-- begin_info_mail_href -->?display=text&mid={mid}<!-- end_info_mail_href -->">
                             
 							<input id="nd_change_filter" type="checkbox" class="control" style="outline:0px;" name="front_checkbox"  {isnd_filter}>
 
@@ -949,30 +917,45 @@ preloadImagesWidgets('{url_main}');
                                             
                                         </a>
                                     </li>
-				</ul>
+				        </ul>
 							<!-- end_header_block_info -->
-				<div class="cl"></div>
+                    <ul class="top_menu flex" style="padding-top: 0; gap: 4px;">
+                        <!-- begin_auth -->
+                        <li class="first"><strong><a class="link_profile"title={l_welcome} " href="{url_main}profile_view.php">{l_hi} {name}</a></strong></li>
+                        <!-- begin_moderator -->
+                        <li><a title={l_moderator} " href="{url_main}moderator.php" style="position: relative;">
+                            {l_top_moderator}     
+                            <!-- begin_moderator_waiting_num -->
+                            <span class="moderator_waiting_total_num">{moderator_num}</span>
+                            <!-- end_moderator_waiting_num -->
+                            </a>
+                        </li>
+                        <!-- end_moderator -->
+                        <!-- begin_help_on -->
+                                        <li><a title={l_support} " href="{url_main}help.php">{l_support}</a></li>
+                                        <!-- end_help_on -->
+
+                                        <!-- begin_invite_on -->
+                                        <li><a title={l_invite_my_friends} " href="{url_main}invite.php">{l_invite_friends}</a></li>
+                                        <!-- end_invite_on -->
+
+                        <li><a title={l_logout} " href="{url_main}index.php?cmd=logout">{l_logout}</a></li>
+                        <!-- begin_menu_upgrade --><li><a href="{url_main}upgrade.php">{l_menu_upgrade}</a></li><!-- end_menu_upgrade -->
+                        <!-- begin_menu_upgrade_active --><li><a title={l_upgrade} " href="{url_main}upgrade.php">{l_menu_upgrade}</a></li><!-- end_menu_upgrade_active -->
+                        <!-- end_auth -->
+
+                        <!-- begin_loginform -->
+                        <li class="first">{l_welcome_to} <strong>{title}</strong></li>
+                        <li><a href="{url_main}join.php">{l_to_joinform}</a></li>
+                        <li><a href="{url_main}join.php">{l_to_loginform}</a></li>
+                        <!-- end_loginform -->
+                    </ul>
 				</div>
 			</div>
 		</div><!-- header end -->
 
 
         <div id="menu" class="upper_header_color" style="position: relative;">  
-			
-					<div style="position: absolute; left: 59%; top: 12%;">
-						<li style="list-style: none;">
-							<div class="zoom_out" onclick="zoom_out1();" style="width:20px; height: 20px; background-repeat: no-repeat; background-size: 20px 20px; background-image: url('_files/icons/zoom_out.png');"></div>
-						
-                        </li>
-				    </div>
-					<div style="position: absolute; left: 63%; top: 12%;">
-						<li style="list-style: none;">
-							<div class="zoom_in" onclick="zoom_in1();" style="width:20px; height: 20px; background-repeat: no-repeat; background-size: 20px 20px; background-image: url('_files/icons/zoom_in.png');"></div>
-						
-                        </li>
-				    </div>
-
-			
 			<ul>
 				<!-- begin_news_on -->
 				<li><a href="{url_main}news.php?view=4">{l_site_tour}</a></li>
@@ -996,11 +979,52 @@ preloadImagesWidgets('{url_main}');
 					<li><a href="./profile_view.php">My Profile</a></li>
 				</ul>
 			</ul>
-			<form action="{url_main}search_results.php" method="get" >
-				<input type="hidden" name="search_header" value="1">
-				<input type="text" class="input no_abk" value="{topquery}" name="keyword" placeholder="{l_search_for_people}"/>
-				<input class="btn_search" type="submit" value="{l_search}" />
-			</form>
+            <div class="flex items-center justify-between" style="margin-top: 40px; padding-inline: 10px;">
+                <a href="{url_main}{url_home_page}" style="display: block; width: 30%;">
+                    <img src="{header_url_logo}" alt="{title}" style="max-width: 100%; width: 100%; display: block;" />
+                </a>
+                <div style="width: 60%;">
+                    <div class="flex">
+                        <div class="inline-flex gap-2 items-center">
+                            <div class="cursor-pointer" onclick="zoom_out1();">
+                                <img src="_files/icons/zoom_out.svg" height="24px"/>
+                            </div>
+                            <div class="cursor-pointer" onclick="zoom_in1();">
+                                <img src="_files/icons/zoom_in.svg" height="24px"/>
+                            </div>
+                            <a href="#" class="text-white">Mail 1</a>
+                            <a href="#" class="text-white">Mail 2</a>
+                            <a href="#" class="text-white">Settings</a>
+                        </div>
+                        <form action="{url_main}search_results.php" method="get" style="margin-top: 0px; max-width: 50%;  box-sizing: border-box;" class="inline-flex " >
+                            <input type="hidden" name="search_header" value="1">
+                            <input type="text" style="box-sizing: border-box;" class="input no_abk" value="{topquery}" name="keyword" placeholder="{l_search_for_people}"/>
+                            <input class="btn_search" type="submit" value="{l_search}" />
+                        </form>
+                    </div>
+                    <div class="flex gap-1 mt-2">
+                        <a href="#" class="text-white text-xs font-medium">Albums</a>
+                        <span class="text-white text-xs font-medium">/</span>
+                        <a href="#" class="text-white text-xs font-medium">Music</a>
+                        <span class="text-white text-xs font-medium">/</span>
+                        <a href="#" class="text-white text-xs font-medium">Videos</a>
+                        <span class="text-white text-xs font-medium">/</span>
+                        <a href="#" class="text-white text-xs font-medium">Forms</a>
+                        <span class="text-white text-xs font-medium">/</span>
+                        <a href="#" class="text-white text-xs font-medium">Blogs</a>
+                        <span class="text-white text-xs font-medium">/</span>
+                        <a href="#" class="text-white text-xs font-medium">Groups</a>
+                        <span class="text-white text-xs font-medium">/</span>
+                        <a href="#" class="text-white text-xs font-medium">Places</a>
+                        <span class="text-white text-xs font-medium">/</span>
+                        <a href="#" class="text-white text-xs font-medium">Network</a>
+                        <span class="text-white text-xs font-medium">/</span>
+                        <a href="#" class="text-white text-xs font-medium">Vote</a>
+                        <span class="text-white text-xs font-medium">/</span>
+                        <a href="#" class="text-white text-xs font-medium">Top</a>
+                    </div>
+                </div>
+            </div>
 		</div><!-- menu end -->
         <!-- begin_menu_site -->
         <script language="javascript" type="text/javascript">

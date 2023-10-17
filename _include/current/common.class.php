@@ -4488,7 +4488,6 @@ JS;
                     'user_photos_list'  => 'photos',
                     'user_vids_list'    => 'vids',
                     'user_songs_list'    => 'songs',
-
                     'user_friends_list' => 'friends',
                     'my_friends_online' => 'friends_online',
 
