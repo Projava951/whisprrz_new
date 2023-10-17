@@ -4,7 +4,6 @@ var CProfilePhoto = function(guid,uid) {
     this.guid=guid*1;
     this.uid=uid*1;
     this.dur=500;
-	this.isImageEditorEnabled = true;
 
     this.uploadFileData = {public:{},private:{},video:{},photo:{},song:{}};
 
@@ -132,7 +131,6 @@ var CProfilePhoto = function(guid,uid) {
                             }
                             $this.updaterCounterPage(sel,data.data.count_title, data.data.count);
                             if (type == 'photo') {
-								$this.isImageEditorEnabled = data.data.isImageEditorEnabled;
                                 $this.replacePhotoDefaultCheck(data.data.photo_default, photoDefaultId, data);
                             }
                             delete data.data;
@@ -300,12 +298,8 @@ var CProfilePhoto = function(guid,uid) {
 		var info=false, pid=$this.curPid;
 		if ($this.visibleMediaData[pid]!=undefined) {
 			info=$this.visibleMediaData[pid];
-		} else if ($this.galleryMediaData[pid] != undefined){
-            // Fix - default profile photo not available in visibleMediaData
-			info = $this.visibleMediaData[pid] = $this.galleryMediaData[pid];
 		}
 		if (!info) {
-            console.log('openEditorImageGallery no info');
 			return false;
 		}
 		if (info['user_id']!=$this.guid) {
@@ -320,9 +314,6 @@ var CProfilePhoto = function(guid,uid) {
 		var info=false, pid=$this.curPid;
 		if ($this.visibleMediaData[pid]!=undefined) {
 			info=$this.visibleMediaData[pid];
-		} else if ($this.galleryMediaData[pid] != undefined){
-            // Fix - default profile photo not available in visibleMediaData
-			info = $this.visibleMediaData[pid] = $this.galleryMediaData[pid];
 		}
 		if (!info) {
 			return false;
@@ -423,15 +414,16 @@ var CProfilePhoto = function(guid,uid) {
                         '</form>'+
                         '</div>';
         } else if (type == 'photo') {
-			initEditorImage('edge');
+			//initEditorImage('edge');
 
 
-			editImage='<button class="btn btn-primary btn_edit_image hide" disabled >'+
+			editImage='<button class="btn btn-primary btn_edit_image" disabled>'+
 							'<span class="icon_fa">'+
                             '<svg height="24" width="24" viewBox="0 0 24 24"><path d="M17.484 12c0.844 0 1.5-0.656 1.5-1.5s-0.656-1.5-1.5-1.5-1.5 0.656-1.5 1.5 0.656 1.5 1.5 1.5zM14.484 8.016c0.844 0 1.5-0.656 1.5-1.5s-0.656-1.5-1.5-1.5-1.5 0.656-1.5 1.5 0.656 1.5 1.5 1.5zM9.516 8.016c0.844 0 1.5-0.656 1.5-1.5s-0.656-1.5-1.5-1.5-1.5 0.656-1.5 1.5 0.656 1.5 1.5 1.5zM6.516 12c0.844 0 1.5-0.656 1.5-1.5s-0.656-1.5-1.5-1.5-1.5 0.656-1.5 1.5 0.656 1.5 1.5 1.5zM12 3c4.969 0 9 3.609 9 8.016 0 2.766-2.25 4.969-5.016 4.969h-1.734c-0.844 0-1.5 0.656-1.5 1.5 0 0.375 0.141 0.703 0.375 0.984s0.375 0.656 0.375 1.031c0 0.844-0.656 1.5-1.5 1.5-4.969 0-9-4.031-9-9s4.031-9 9-9z"/></svg>'+
 							'</span>'+
 							'<span class="hidden-xs">'+l('edit_image')+'</span>'+
                        '</button>';
+		   editImage = '';
 		}
 
         var previewTemplate='<div class="'+selItem+' dz-preview dz-file-preview" onclick="clProfilePhoto.hideUploadCoverError(event, $(this).find(\'.dz-cover-image\'));">'+
@@ -476,6 +468,9 @@ var CProfilePhoto = function(guid,uid) {
             }
         }).on('addedfile',function(file){
 			var $preview=$(file.previewElement);
+			if (type == 'photo' && file.type == 'image/gif') {
+				$preview.find('.btn_edit_image').css('visibility', 'hidden');
+			}
             $preview.find('.dz-desc').keydown(function(e){
                 if(e.keyCode == 13){
                     if($this.$ppUpload[type]['upload_count'] == 1 && !$this.$ppUpload[type]['btn_publish'].prop('disabled')){
@@ -532,15 +527,10 @@ var CProfilePhoto = function(guid,uid) {
                         }
 
                         if(res.error){
-                            showError(file, res.error);
+							showError(file, res.error);
                             //debugLog('COMPLETE ERROR', res.error);
                             return;
                         }
-
-						if (type == 'photo' && !res.gif && res.isImageEditorEnabled) {
-							console.log('show editor');
-							$preview.find('.btn_edit_image').removeClass('hide');
-						}
 
                         var $img=$preview.find('.dz-image > img').on('load', function(){
                             $preview.addClass('dz-complete-full').data({id:res.id});
@@ -548,7 +538,7 @@ var CProfilePhoto = function(guid,uid) {
 						$img[0].src=src;
                         if($img[0].complete)$img.load();
                         $preview.find('.dz-desc')[0].id='dz_item_desc_'+res.id;
-						if (type=='photo') {
+						if (type=='photo' && false) {
 							if (type=='photo' && isSiteOptionActive('gallery_photo_face_detection', 'edge_gallery_settings')) {
 								checkImageFaceDetection(urlFiles+res.src_bm, res.id);
 							}
@@ -591,7 +581,7 @@ var CProfilePhoto = function(guid,uid) {
                         showError(file)
                     }
                 } catch(e){
-                    //debugLog('COMPLETE ERROR TRY', e, file);
+					//debugLog('COMPLETE ERROR TRY', e, file);
                     showError(file)
                 }
                 $this.enabledPublish(type);
@@ -816,7 +806,7 @@ var CProfilePhoto = function(guid,uid) {
 
         } else {
             for (var pid in $this.galleryMediaData) {
-				delete $this.galleryMediaData[pid];
+                delete $this.galleryMediaData[pid];
             }
             $this.galleryMediaData=data;
             if (!stopPreloadPhoto) {
@@ -1103,11 +1093,8 @@ var CProfilePhoto = function(guid,uid) {
             $this.$el['linkReport'].hide();
             $this.$el['mediaMenu'].show();
 			if (!$this.ppGalleryIsVideo) {
-				if(info['gif']) {
-					$this.$el['btnAdditionalEditor'].addClass('hide');
-				} else {
-					$this.$el['btnAdditionalEditor'].removeClass('hide');
-				}
+				$this.$el['btnAdditionalEditor'][info['gif']?'hide':'show']();
+				$('#pp_gallery_edit_picture')[info['gif']?'hide':'show']();
 				$this.$el['btnAdditional'].addClass('to_show');
 			} else {
 				$this.$el['btnAdditional'].removeClass('to_show');
@@ -3182,16 +3169,9 @@ var CProfilePhoto = function(guid,uid) {
         var urlDefault=info ? info['src_r'] : 'edge_nophoto_r.png';
         if(pid){
             $this.updatePhotoInfoDefault(pid, urlDefault);
-			if(urlDefault === 'edge_nophoto_r.png' || info['gif'] || !$this.isImageEditorEnabled) {
-				$('.edit_main_user_pic').addClass('to_hide');
-			} else {
-				$('.edit_main_user_pic').removeClass('to_hide');
-			}
             setTimeout(function(){
                 $this.replacePhotoDefaultInput($this.curPid);
             },100)
-        } else {
-			$('.edit_main_user_pic').addClass('to_hide');
 		}
 
 		var $headerPhotoBigEditor=$jq('#profile_photo_big_'+$this.guid+'_'+groupId);
@@ -3749,7 +3729,7 @@ var CProfilePhoto = function(guid,uid) {
 			} else {
 				src=url_files+'photo/'+$this.guid+'_'+pid+'_'+size+'.jpg?'+v;
 			}
-			$img[0].src= urlAddUniqueVersionParam($img[0].src);
+			$img[0].src=src;
 		}
 	}
 
@@ -3760,7 +3740,7 @@ var CProfilePhoto = function(guid,uid) {
 				preloadArr=[],i=0,url,v=+new Date; v='?v='+v,
 				isMediaData=typeof $this.galleryMediaData[pid] != 'undefined';
             sizes.forEach(function(size,i,arr) {
-				url = urlAddUniqueVersionParam($this.visibleMediaData[pid]['src_'+size]);
+                url='photo/'+photo+'_'+size+'.jpg'+v;
                 $this.visibleMediaData[pid]['src_'+size] = url;
 				if (isMediaData) {
 					$this.galleryMediaData[pid]['src_'+size] = url;
@@ -3779,46 +3759,7 @@ var CProfilePhoto = function(guid,uid) {
 			}
             preloadImageInsertInDom(preloadArr);
             $this.replaceRotatePhoto(pid, edit);
-
-			if($this.visibleMediaData[pid]['default'] === 'Y') {
-				var userId = $this.visibleMediaData[pid]['user_id'];
-				var images = $('.profile_photo_m_' + userId + '_0, .profile_photo_r_' + userId + '_0');
-				if (images.length) {
-					images.each(function(){
-						var image = $(this);
-						var backgroundImageStyle = image.css('backgroundImage');
-						var regexUrl = /url\("(.*)"\)/i;
-						var backgroundUrlMatch = backgroundImageStyle.match(regexUrl);
-						if(backgroundUrlMatch.length) {
-							var backgroundUrl = backgroundUrlMatch[1];
-							var backgroundUrlNew = addUniqueVariableToURL(backgroundUrl, 'refreshVersion', Date.now() + Math.random());
-							backgroundImageStyle = backgroundImageStyle.replace(backgroundUrl, backgroundUrlNew);
-							image.css({'backgroundImage' : backgroundImageStyle});
-						}
-					})
-				}
-			}
-		} else if ($('.user_pic_frame_ie img').data('pid') == pid) {
-			// Fix for default profile photo on the profile page
-			$('.user_pic_frame_ie img').attr('src', urlAddUniqueVersionParam($('.user_pic_frame_ie img').attr('src')));
-			var userId = $this.guid;
-			var images = $('.profile_photo_m_' + userId + '_0, .profile_photo_r_' + userId + '_0');
-			if (images.length) {
-				images.each(function(){
-					var image = $(this);
-					var backgroundImageStyle = image.css('backgroundImage');
-					var regexUrl = /url\("(.*)"\)/i;
-					var backgroundUrlMatch = backgroundImageStyle.match(regexUrl);
-					if(backgroundUrlMatch.length) {
-						var backgroundUrl = backgroundUrlMatch[1];
-						var backgroundUrlNew = urlAddUniqueVersionParam(backgroundUrl);
-						backgroundImageStyle = backgroundImageStyle.replace(backgroundUrl, backgroundUrlNew);
-						image.css({'backgroundImage' : backgroundImageStyle});
-					}
-				})
-			}
 		}
-
 	}
 
 	this.photoRotateInit = {};
@@ -4632,7 +4573,6 @@ var CProfilePhoto = function(guid,uid) {
                                 if (data.error) {
                                     alertCustom(data.error, l('alert_html_alert'));
                                 } else {
-									$this.isImageEditorEnabled = data.data.isImageEditorEnabled;
 									var photoDefaultId=$this.getPhotoDefaultId(groupId),
 										sel='photos';
 									if(!clPages.myPageReload(sel,true,false,groupId)){

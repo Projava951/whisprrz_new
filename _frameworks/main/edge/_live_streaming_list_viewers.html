@@ -15,7 +15,7 @@
             <!-- begin_ls_list_viewers_item -->
             <li id="ls_list_viewers_item_{ls_list_viewers_item_user_id}" class="ls_list_viewers_item">
 				<!-- begin_ls_list_viewers_item_chat -->
-                <i title="{a_send_message}" onclick="sendMessages('{ls_list_viewers_item_user_id}');" class="fa fa-commenting open_im_user" aria-hidden="true"></i>
+                <i title="{a_send_message}" onclick="imChats.openImWithUser([], '{ls_list_viewers_item_user_id}');" class="fa fa-commenting open_im_user" aria-hidden="true"></i>
 				<!-- end_ls_list_viewers_item_chat -->
                 <a class="profile_photo_r_{ls_list_viewers_item_user_id} to_hide" href="#" onclick="return false;" title="{ls_list_viewers_item_name}" >
                     <img onload="onLoadProfilePhoto('.profile_photo_r_{ls_list_viewers_item_user_id}')" src="{ls_list_viewers_item_photo}" alt=""/>

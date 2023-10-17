@@ -1,84 +1,181 @@
 {header}
-<div class="cham-project-style-1 wrapper-one-article">
-    <div class="container one-article">
+{blogs_header}
+<script type="text/javascript">
+$(function(){
+    <!-- begin_to_comment -->
+    document.location = '#comment{to_comment}';
+    <!-- end_to_comment -->
 
-    <div class="row p-b">
-        <div class="col-md-8 col-md-offset-2 text-center">
-        <h2 class="cham-heading">{post_subject_req}</h2>
+    $('#form').submit(function() {
+        if ($('#write_comment').val() == '{l_blog_write_a_comment}') {
+            alert('{l_please_enter_text}');
+            return false;
+        };
+        return true;
+    });
 
-        <div class="cham-name">
-            <a class="pic" href="{blogger_url}" style="background-image:url({blogger_photo});"></a>
-            <div class="cham-meta">
-                <a href="{blogger_url}">
-                    <span class="status <!-- begin_blogger_online -->online<!-- end_blogger_online -->"></span>
-                    <b>{blogger_name}</b>
-                </a>
-                <span class="blog_edit_post">{post_dt_readable}</span>
+    var box = $("#narrow_box"),
+        hide_box = $("#hide_narrow_box"),
+        box_display = box.css('display'),
+        btn = $('#btn_back'),
+        box_object = $('.blogs_video');
 
-                <!-- begin_post_link -->
-                <!-- begin_post_edit -->
-                <span class="blog_edit_post">
-                        <a href="{page_edit_url}">
-                            <figure>
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M19.607,18.746c0,0.881-0.716,1.624-1.597,1.624H5.231c-0.881,0-1.597-0.743-1.597-1.624V5.967  c0-0.881,0.716-1.571,1.597-1.571h7.454V3.332H5.231c-1.468,0-2.662,1.168-2.662,2.636v12.778c0,1.468,1.194,2.688,2.662,2.688  h12.778c1.468,0,2.662-1.221,2.662-2.688v-7.428h-1.065V18.746z"/>
-                                    <path d="M20.807,3.17c-0.804-0.805-2.207-0.805-3.012,0l-7.143,7.143c-0.068,0.068-0.117,0.154-0.14,0.247L9.76,13.571  c-0.045,0.181,0.008,0.373,0.14,0.506c0.101,0.101,0.237,0.156,0.376,0.156c0.043,0,0.086-0.005,0.129-0.016l3.012-0.753  c0.094-0.023,0.179-0.072,0.247-0.14l7.143-7.143c0.402-0.402,0.624-0.937,0.624-1.506S21.21,3.572,20.807,3.17z M13.016,12.467  l-2.008,0.502l0.502-2.008l5.909-5.909l1.506,1.506L13.016,12.467z M20.054,5.428l-0.376,0.376l-1.506-1.506l0.376-0.376  c0.402-0.402,1.104-0.402,1.506,0c0.201,0.201,0.312,0.468,0.312,0.753C20.366,4.96,20.255,5.227,20.054,5.428z"/>
-                                </svg>
-                            </figure>
+    prepareVideoResize(box_object);
+    videoResize(box_object);
 
-                            {l_blog_edit_post}
-                        </a>
-                </span>
-                <span class="blog_edit_post">
-                        <a data-cl-loader="btn_action_loader_blogs" href="{url_main}blogs_blog.php?del={post_id}" onclick="clBlogs.confirmDeleteBlog($(this)); return false;">
-                            <figure>
-                                <svg viewBox="0 0 32 32">
-                                    <path d="M24,31H8a3,3,0,0,1-3-3V9A1,1,0,0,1,7,9V28a1,1,0,0,0,1,1H24a1,1,0,0,0,1-1V9a1,1,0,0,1,2,0V28A3,3,0,0,1,24,31Z"/>
-                                    <path d="M28,7H4A1,1,0,0,1,4,5H28a1,1,0,0,1,0,2Z"/>
-                                    <path d="M20,7a1,1,0,0,1-1-1V3H13V6a1,1,0,0,1-2,0V2a1,1,0,0,1,1-1h8a1,1,0,0,1,1,1V6A1,1,0,0,1,20,7Z"/>
-                                    <path d="M16,26a1,1,0,0,1-1-1V11a1,1,0,0,1,2,0V25A1,1,0,0,1,16,26Z"/>
-                                    <path d="M21,24a1,1,0,0,1-1-1V13a1,1,0,0,1,2,0V23A1,1,0,0,1,21,24Z"/>
-                                    <path d="M11,24a1,1,0,0,1-1-1V13a1,1,0,0,1,2,0V23A1,1,0,0,1,11,24Z"/>
-                                </svg>
-                            </figure>
+    if (box_display == 'none') {
+        hide_box.attr('title', '{l_narrow_box_expand}');
+        btn.removeClass('btn_bl_show_narrow_box');
+        btn.addClass('btn_bl_hide_narrow_box');
+    } else {
+        hide_box.attr('title', '{l_narrow_box_collapse}');
+    }
 
-                            {l_blog_delete_post}
-                        </a>
-                </span>
-                <!-- end_post_edit -->
+    hide_box.click(function(){
+        var images = $('[id ^= blogsimg-]');
 
-                <!-- begin_post_all -->
-                <span class="blog_edit_post">
-                        <a href="{post_all_link}">
-                            <figure>
-                                <svg viewBox="0 0 32 32">
-                                        <g><rect fill="none" height="32" width="32"/></g>
-                                        <g>
-                                            <path d="M30,2v22H10.416l-6.002,6H2l0,0L2,2 M9.583,22H28V4H4v23.583L9.583,22z"/>
-                                            <rect height="2" width="18" x="8" y="8"/>
-                                            <rect height="2" width="18" x="8" y="12"/>
-                                            <rect height="2" width="12" x="8" y="16"/>
-                                        </g>
-                                </svg>
-                            </figure>
-                            {l_all_blogs}
-                        </a>
-                </span>
-                <!-- end_post_all -->
-                <!-- end_post_link -->
+        imageResize(box, images, '{url_files}blogs', 'o.jpg', 1, '-');
+        videoResizeStepBlog();
+
+        btn.removeClass('btn_bl_hide_narrow_box');
+        btn.addClass('btn_bl_show_narrow_box');
+
+        box.stop().animate(
+                {width: 'toggle'},
+                {duration: 350,
+                 complete: function() {
+                    var isState;
+                    imageResize(box, images, '{url_files}blogs', 's.jpg', 1, '-');
+                    if ($(this).css('display') == 'none') {
+                        hide_box.attr('title', '{l_narrow_box_expand}');
+                        $('#bl_show_narrow_box').css('display', 'block');
+                        $('#bl_hide_narrow_box').css('display', 'none');
+                        btn.removeClass('btn_bl_show_narrow_box');
+                        btn.addClass('btn_bl_hide_narrow_box');
+                        isState = 0;
+                    } else {
+                        hide_box.attr('title', '{l_narrow_box_collapse}');
+                        $('#bl_hide_narrow_box').css('display', 'block');
+                        $('#bl_show_narrow_box').css('display', 'none');
+                        isState = 1;
+                    }
+                    $.post('{url_main}ajax.php', {cmd: 'save_state_narrow_box',
+                                                  type: 'blogs',
+                                                  state: isState}
+                    );
+                    cancelAnimationFrame(globalID);
+                    videoResize($('.blogs_video'));
+                 }
+        });
+        return false;
+    });
+});
+function videoResizeStepBlog() {
+    globalID = requestAnimationFrame(videoResizeStepBlog);
+    videoResize($('.blogs_video'));
+}
+</script>
+
+
+<div class="blogs_new_p pl_top">
+    <a id="hide_narrow_box" href="" title="" style="position:absolute; margin-top:2px; right:0;">
+        <div id="bl_hide_narrow_box" class="bl_hide_narrow_box lower_header_color" style="display: {hide_narrow_box}"></div>
+        <div id="bl_show_narrow_box" class="bl_show_narrow_box upper_header_color" style="display: {show_narrow_box}"></div>
+    </a>
+    <table class="post_header">
+		<tr>
+			<td width="33">
+				<a href="{url_main}blogs_blog.php?id={blogger_user_id}"><img align="left" src="{blogger_photo}" width="26" height="29" alt=""/></a>
+			</td>
+			<td width="75%">
+				<h1 class="txt_upper_header_color">{post_subject_req}</h1></td>
+			<td>
+<!-- 				<div class="fl_right" style="margin: 3px 0 0;">
+                    <input class="btn_red_arrow_left" type="button" value="{l_back}" onclick="history.back()" />
+                </div> -->
+
+                    <div id="btn_back" class="btn_bl_show_narrow_box"><a href="{url_main}blogs_post.php" class="btn round upper_header_color fl_right "><img class="btn_arrows_right" src="{url_tmpl_main}images/btn_arrows_left.png" width="10" height="5" alt="" /> {l_back}&nbsp;</a></div>
+
+			</td>
+		</tr>
+    </table>
+
+
+    <table class="blogs_new_tb_sub">
+<!--         <col width="7px"/>
+        <col width="430px"/> -->
+
+        <tr>
+            <td colspan="3" class="nb nobg_img">
+            <div class="bl_blogs_new_frm">
+
+                <div  <!-- begin_player_custom -->class="player_custom"<!-- end_player_custom -->>
+                    {post_text_readable}
+                </div>
+
+                <ul class="blogs_new_data">
+                    <li class="decor">{post_dt_readable}</li>
+                    <!-- begin_post_edit -->
+                        <li><a class="areyousure" href="{url_main}blogs_blog.php?del={post_id}">{l_blog_delete_post}</a></li>
+                        <li class="list"><a href="{url_main}blogs_write.php?id={post_id}">{l_blog_edit_post}</a></li>
+                    <!-- end_post_edit -->
+                </ul>
+                <div class="cl"></div>
+
+                <!-- begin_post_comment -->
+                    <div class="new_mode_bl_dblue">
+<!--                         <div class="new_mode_bl_dblue_top"></div>
+ -->                        <div class="new_mode_bl_dblue_c">
+                            <a href="{url_main}blogs_blog.php?id={post_comment_user_id}"><img class="fl_left" src="{post_comment_user_photo}" width="21" height="23" alt=""/></a>
+                            <div class="new_mode_bl_dblue_txt" id="comment{post_comment_id}" >
+                                <a href="{url_main}search_results.php?display=profile&uid={post_comment_user_id}">{post_comment_user_name}</a>
+                                {post_comment_text_readable}<br />
+                                <span>{post_comment_dt_readable}</span>
+                            </div>
+                        </div>
+<!--                         <div class="new_mode_bl_dblue_bot"></div>
+ -->                        <!-- begin_post_comment_is_my -->
+                        <div class="new_mode_bl_dblue_delete" ><a class="areyousure" href="{url_main}blogs_post.php?id={post_id}&del={post_comment_id}"><img src="{url_tmpl_main}images/blogs/ico_delete_blue.png" width="13" height="14" alt=""/></a></div>
+                        <!-- end_post_comment_is_my -->
+                    </div>
+                <!-- end_post_comment -->
+
+                <form id="form" action="{url_main}blogs_post.php?id={post_id}" method="post">
+
+          <table class="tb_streight">
+          <col width="100%" />
+          <col width="76px" />
+          <tr>
+            <td>
+                    <div class="blog_input_text_box3 fl_left"><input id="write_comment" name="text" class="no_abk" type="text" value="{l_blog_write_a_comment}" onblur="javascript:if(this.value=='')this.value='{l_blog_write_a_comment}'" onFocus="if(this.value=='{l_blog_write_a_comment}') this.value=''"/></div>
+<!--                     <div class="blog_input_box4 fl_right">
+                        <input class="btn_red" type="submit" value="{l_save}" />
+                    </div> -->
+                    </td>
+                    <td>
+                    <div class="fl_right">
+                    <input style="min-width: 66px;" class="btn upper_header_color round" type="submit" value="{l_save}" />
+                    </div>
+</td>
+</tr>
+</table>
+                </form>
             </div>
-        </div>
-        </div>
-    </div>
+            </td>
+        </tr>
 
+        <tr>
+            <th class="th_b_l nb">&nbsp;</th>
+            <th class="th_b_c nb">&nbsp;</th>
+            <th class="th_b_r nb">&nbsp;</th>
+        </tr>
 
-        <style id="blog_custom_style"></style>
-        <div id="blogs_post_content" class="col-lg-12 wall_post_item">
-            <script>clBlogs.initStyle();</script>
-            {blogs_post}
-        </div>
-    </div>
+    </table>
 
-    <div class="clearfix"></div>
 </div>
+
+
+
+{blogs_side}
+{blogs_footer}
 {footer}

@@ -1,5 +1,5 @@
 <form id="frm_profile_edit_main" name="frm_profile_edit_main"  method="post" action="{url_main}ajax.php">
-<input type="hidden" name="cmd" value="profile_edit_save_all" class="ajax"/>
+<input type="hidden" name="cmd" value="profile_edit_main_save" class="ajax"/>
 <input type="hidden" name="errors_separat" value="1" class="ajax"/>
 <input type="hidden" name="ajax" value="1" class="ajax"/>
 <div class="item">
@@ -100,7 +100,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-5 text-right field">
-                        <span>{l_i_am_from}</span>
+                        <span>{l_location}</span>
                     </div>
                     <div class="col-lg-6 field field_geo">
                         <select id="country" name="country" data-location="geo_states" class="geo selectpicker show-tick" data-live-search="true">
@@ -140,312 +140,7 @@
         </div>
         <!-- end_location -->
 
-<script>
-function ppPrMainSetDisabledSave() {
-	console.log('ppPrMainSetDisabledSave');
-	if (isModifiedBasicInfo() && !is_error_ppPrMain){
-		ppPrMain_btn_save.prop('disabled',false);
-	} else {
-		ppPrMain_btn_save.prop('disabled', true);
-	}
-}
-</script>
-
-        <!-- begin_p_orientations -->
-		<div class="section fields">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-5 text-right field">
-                        <span>{l_im_looking_for}</span>
-                    </div>
-                    <div class="col-lg-6 field field_special_checkbox">
-						<!-- begin_p_orientation -->
-						<div class="one_checkbox s">
-							<label>
-							<input id="p_orientation_{id}" class="niceCheck p_sexuality" name="{name}[]" value="{id}" {checked} type="checkbox">
-							{title}
-							</label>
-						</div>
-						<!-- end_p_orientation -->
-                    </div>
-                </div>
-            </div>
-        </div>
-		<!-- end_p_orientations -->
-
-		<!-- begin_looking_your_orientation -->
-		<div class="section fields">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-5 text-right field">
-                        <span>{l_im_looking_for}</span>
-                    </div>
-                    <div class="col-lg-6 field field_special_checkbox">
-						{name}
-                    </div>
-                </div>
-            </div>
-        </div>
-		<!-- end_looking_your_orientation -->
-
-		<!-- begin_age_range -->
-		<div class="section fields">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-5 text-right field">
-                        <span>{l_field_ages}</span>
-                    </div>
-                    <div class="col-lg-6 field field_looking_for_age">
-						<select id="pp_edit_looking_p_age_from" name="p_age_from" class="select_main select_age selectpicker show-tick" data-live-search="false" style="width: auto;">
-							{p_age_from_options}
-						</select>
-						<span class="mdash">&mdash;</span>
-						<select id="pp_edit_looking_p_age_to" name="p_age_to" class="select_main select_age selectpicker show-tick" data-live-search="false">
-							{p_age_to_options}
-						</select>
-                    </div>
-                </div>
-            </div>
-        </div>
-		<!-- end_age_range -->
-
-		<!-- begin_field_near_me -->
-		<div class="section fields">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-5 text-right field">
-                        <span>{l_field_location}</span>
-                    </div>
-                    <div class="col-lg-6 field field_special_checkbox">
-						<div class="one_checkbox s">
-							<label>
-							<input id="search_near_me" class="niceCheck" <!-- begin_field_near_me_checked -->checked<!-- end_field_near_me_checked --> name="search_near_me" type="checkbox">
-							{l_near_me}
-							</label>
-						</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-		<!-- end_field_near_me -->
-
-        <!-- begin_i_am_here_to -->
-        <div class="section fields">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-5 text-right field">
-                        <span>{l_i_am_here_to}</span>
-                    </div>
-                    <div class="col-lg-6 field">
-						<select id="pp_edit_looking_i_am_here_to" name="{name}" class="selectpicker show-tick" data-live-search="false">
-							<!-- begin_i_am_here_to_item -->
-							<option value="{id}" <!-- begin_i_am_here_to_selected -->selected<!-- end_i_am_here_to_selected -->>{title}</option>
-							<!-- end_i_am_here_to_item -->
-						</select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- end_i_am_here_to -->
-
-<script>
-function disableAgeOptions() {
-	var pp_edit_looking_age_from=$('#pp_edit_looking_p_age_from'),
-		pp_edit_looking_age_to=$('#pp_edit_looking_p_age_to');
-
-	pp_edit_looking_age_from.find('option').disableOptionsByLimit(pp_edit_looking_age_to.val() * 1, true);
-	pp_edit_looking_age_to.find('option').disableOptionsByLimit(pp_edit_looking_age_from.val() * 1, false);
-	setTimeout(function(){
-		pp_edit_looking_age_from.selectpicker('refresh');
-		pp_edit_looking_age_to.selectpicker('refresh');
-	}, 1);
-}
-
-$.fn.disableOptionsByLimit = function(limit, greater) {
-	return this.each(function(){
-		if(greater) {
-			if(this.value > limit) {
-				this.disabled = true;
-			} else {
-				this.disabled = false;
-			}
-		} else {
-			if(this.value < limit) {
-				this.disabled = true;
-			} else {
-				this.disabled = false;
-			}
-		}
-	});
-};
-
-setTimeout(disableAgeOptions, 200);
-
-
-$('select.select_age').on('change', function(){
-	disableAgeOptions();
-	ppPrMainSetDisabledSave();
-})
-</script>
-
-    <div class="section fields field_about">
-        <div class="container">
-
-			<!-- begin_fields_text -->
-			<div class="row">
-                <div class="col-lg-5 text-right field">
-                    <span>{field}</span>
-                </div>
-                <div class="col-lg-6 field">
-                    <input type="hidden" name="name" value="{name}" class="ajax"/>
-                    <!-- begin_textarea -->
-                    <textarea id="profile_about_{name}" name="{name}" maxlength="{maxlen}" placeholder="{field_description}" class="form-control field_profile_text">{value_input}</textarea>
-                    <script>
-						$('#profile_about_{name}').autosize({isSetScrollHeight:false,callback:function(){}})
-					</script>
-					<!-- end_textarea -->
-                    <!-- begin_text -->
-                    <input id="profile_about_{name}" name="{name}" type="text" maxlength="{maxlen}" value="{value_input}" placeholder="{field_description}" class="form-control field_profile_text"/>
-                    <!-- end_text -->
-                </div>
-            </div>
-			<!-- end_fields_text -->
-        </div>
-    </div>
-
-
-    <!-- begin_personal_fields -->
-    <!-- begin_field -->
-
-    <!-- begin_field_item -->
-
-		<!-- begin_field_item_group_decor_start -->
-		<!-- end_field_item_group_decor_start -->
-
-
-		<!-- begin_int -->
-		<div class="section fields">
-			<div class="container">
-				<div class="row">
-					<div class="col-lg-5 text-right field">
-						<span>{field}</span>
-					</div>
-					<div class="col-lg-6 field">
-						<select id="pp_4_{name}" name="{name}" class="selectpicker show-tick" data-live-search="false">
-								<option selected value="0">{l_please_choose}</option>
-								{options}
-						</select>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- end_int -->
-
-		<!-- begin_checkbox -->
-		<!-- begin_checkbox_item -->
-		<div class="section fields field_checkbox_value" id="field_checkbox_{name}_{num}">
-			<div class="container">
-				<div class="row">
-					<div class="col-lg-5 text-right field">
-						<span>{field}</span>
-					</div>
-					<div class="col-lg-6 field">
-						<select id="pp_4_{name}_{num}" data-checkbox="{name}" name="{name}[]" class="selectpicker show-tick" data-live-search="false">
-							<option selected value="0">{l_please_choose}</option>
-							{options}
-						</select>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- end_checkbox_item -->
-
-		<div class="section fields">
-			<div class="container">
-				<div class="row">
-					<div class="col-lg-5 text-right field">
-					</div>
-					<div class="col-lg-6 field">
-						<div id="link_add_{name}" class="field link_add" style="display:{display_add};" >
-							<div class="add_field"><span data-type-add="{name}">{l_add_value_field}</span></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- end_checkbox -->
-
-		<!-- begin_field_item_group_decor_end -->
-		<!-- end_field_item_group_decor_end -->
-
-    <!-- end_field_item -->
-
-    <!-- end_field -->
-<!-- end_personal_fields -->
-
-<script>
-
-	var selectCheckboxPreviousValue = 0;
-
-	$('body').on('shown.bs.select', 'select[data-checkbox]', function(e){
-		selectCheckboxPreviousValue = $(this).val();
-	});
-
-	$('body').on('changed.bs.select', 'select[data-checkbox]', function(e, clickedIndex, isSelected, previousValue){
-		var el = $(this),
-		type = el.data('checkbox'),
-		id = el.attr('id'),
-        val = el.val();
-        if (val != 0) {
-            $('[id != "' + id + '"][data-checkbox=' + type + ']').each(function(){
-                if ($(this).val() == val) {
-                    alertCustom('{j_you_have_already_chosen_this_option}');
-                    el.val(selectCheckboxPreviousValue).selectpicker('refresh');
-                    return false;
-                }
-            })
-        }
-		ppPrMainSetDisabledSave();
-	});
-
-	$('.link_add span').click(function(){
-        var el = $(this),
-            type = el.data('typeAdd'),
-			previousFieldBlock = el.closest('.section.fields').prev('.field_checkbox_value'),
-            baseFieldBlock = $('#field_checkbox_' + type + '_0'),
-            baseSelect = $('#pp_4_' + type + '_0'),
-            countOptions = baseSelect.find('option').length,
-            countSelects = $('[data-checkbox=' + type + ']').length;
-
-		if (countOptions <= (countSelects + 2)) {
-			el.hide();
-		}
-		if (countOptions > (countSelects + 1)) {
-			var newFieldSuffix = '_' + type + '_' + (countSelects + 1);
-			var newSelect = baseSelect.clone(false).attr({id: 'pp_4_' + type + '_' + newFieldSuffix});
-
-			var newFieldBlock = baseFieldBlock.clone(false).attr({id: 'field_checkbox' + newFieldSuffix}).find('.col-lg-6.field').html('').append(newSelect).end().find('.col-lg-5').html('').end();
-			newFieldBlock.find('option').removeAttr('selected').eq(0).attr({selected: 'selected'}).end().end().find('select').selectpicker();
-			newFieldBlock.insertAfter(previousFieldBlock);
-        }
-        return false;
-    });
-
-	function removeEmptyCheckbox(){
-        var typeArr={};
-		$('select[data-checkbox]').each(function(){
-			var el=$(this), type=el.data('checkbox');
-			var countSelect = $('select[data-checkbox='+type+']').length;
-            if (countSelect > 1&&this.value==0&&typeArr[type]) {
-                el.closest('.jq-selectbox').remove();
-				delete ppPersonalInfo[this.id];
-            }
-            typeArr[type]=1;
-            $('#link_add_'+type).show();
-		})
-	}
-
-</script>
+        {profile_edit_about}
 
         <div class="section fields">
             <div class="container">
@@ -478,9 +173,7 @@ $('select.select_age').on('change', function(){
         ppPrMain_city=$('#city', ppPrMain_frm),
 
         basic_info = {}, last_exists_username='#', is_error_ppPrMain = false,
-        is_submit_ppPrMain = false,
-
-		formFieldsSelector = 'input:not(.ajax), select, textarea';
+        is_submit_ppPrMain = false;
 
 
     ppPrMain_btn_save.click(function(){
@@ -513,8 +206,8 @@ $('select.select_age').on('change', function(){
     })
 
     function ppPrMain_response(data) {
-		var data=checkDataAjax(data);
-		disabledControlsProfileSettingsFrm(ppPrMain);
+        var data=checkDataAjax(data);
+        disabledControlsProfileSettingsFrm(ppPrMain);
         if(data!==false){
             var $data=$(data);
             $('.field_profile_text').each(function(){
@@ -558,8 +251,6 @@ $('select.select_age').on('change', function(){
 
                 setBasicInfo();
 
-				$('.right_column_profile_info').html($(data.profileInfoModule).find('.right_column_profile_info').html());
-
                 if ($jq('#right_column_birth')[0]&&data.birthday) {
                     $jq('#right_column_birth').html(data.birthday);
                 }
@@ -587,34 +278,31 @@ $('select.select_age').on('change', function(){
     }
 
     function setBasicInfo() {
-        $(formFieldsSelector, ppPrMain_frm).each(function(){
-            if(this.id) {
-				basic_info[this.id] = profileSettingsGetFieldValue(this);
-			}
+        $('input:not(.ajax), select, textarea', ppPrMain_frm).each(function(){
+            basic_info[this.name]=this.value;
         })
     }
+    setBasicInfo();
 
     function isModifiedBasicInfo() {
-        var isModified = 0;
-        $(formFieldsSelector, ppPrMain_frm).each(function(){
-			if(this.id) {
-				isModified |= (profileSettingsGetFieldValue(this) != basic_info[this.id]);
-			}
+        var is=0;
+        $('input:not(.ajax), select, textarea', ppPrMain_frm).each(function(){
+            is|=(this.value!=basic_info[this.name])
         })
-		//console.log('isModifiedBasicInfo', isModified);
-        return isModified;
+        return is;
     }
 
     function refreshSelectBirthdayEditMain(){
         ppPrMain_day.selectpicker('refresh');
     }
 
-
-	setBasicInfo();
-
-	$(formFieldsSelector, ppPrMain_frm).on('change', function(){
-		ppPrMainSetDisabledSave();
-    })
+    function ppPrMainSetDisabledSave() {
+        if (isModifiedBasicInfo()&&!is_error_ppPrMain){
+            ppPrMain_btn_save.prop('disabled',false);
+        } else {
+            ppPrMain_btn_save.prop('disabled', true);
+        }
+    }
 
     ppPrMain_nick.on('change propertychange input', function(){
         var val=this.value, l=$.trim(val).length;
@@ -638,19 +326,8 @@ $('select.select_age').on('change', function(){
 
     $jq('.geo, #city', ppPrMain_frm).change(function() {
         hideError($jq('.geo, #city', ppPrMain_frm));
-		is_error_ppPrMain = false;
         ppPrMainSetDisabledSave();
     })
-
-	function profileSettingsGetFieldValue(element)
-	{
-		var fieldValue = element.value;
-		if(element.type === 'checkbox' && !element.checked) {
-			fieldValue = null;
-		}
-
-		return fieldValue;
-	}
 
     var ppPrMain_geo=$jq('.geo, #city', ppPrMain_frm),
         ppPrMain_geo_field=$jq('.field_geo', ppPrMain_frm)

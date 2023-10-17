@@ -121,13 +121,13 @@
         </div>
 
         <!-- begin_list_photos_item_default_menu -->
-        <div class="item_editor_image">
+        <!--<div class="item_editor_image">
             <span class="icon_editor_image {editor_hide_class}" onclick="clProfilePhoto.openEditorImage('{list_photos_item_photo_id}'); return false;">
                 <svg viewBox="0 0 24 24">
                     <path d="M17.484 12c0.844 0 1.5-0.656 1.5-1.5s-0.656-1.5-1.5-1.5-1.5 0.656-1.5 1.5 0.656 1.5 1.5 1.5zM14.484 8.016c0.844 0 1.5-0.656 1.5-1.5s-0.656-1.5-1.5-1.5-1.5 0.656-1.5 1.5 0.656 1.5 1.5 1.5zM9.516 8.016c0.844 0 1.5-0.656 1.5-1.5s-0.656-1.5-1.5-1.5-1.5 0.656-1.5 1.5 0.656 1.5 1.5 1.5zM6.516 12c0.844 0 1.5-0.656 1.5-1.5s-0.656-1.5-1.5-1.5-1.5 0.656-1.5 1.5 0.656 1.5 1.5 1.5zM12 3c4.969 0 9 3.609 9 8.016 0 2.766-2.25 4.969-5.016 4.969h-1.734c-0.844 0-1.5 0.656-1.5 1.5 0 0.375 0.141 0.703 0.375 0.984s0.375 0.656 0.375 1.031c0 0.844-0.656 1.5-1.5 1.5-4.969 0-9-4.031-9-9s4.031-9 9-9z"/>
                 </svg>
             </span>
-        </div>
+        </div>-->
 
         <div class="item_settings">
             <span data-no-fade-in="true" class="icon_settings">
@@ -145,8 +145,27 @@
                         <span>{l_make_profile_picture}</span>
                     </a>
                 </li>
+
 				<!-- begin_list_photos_item_default_editor -->
-				<li>
+                <!-- begin_app_ios_image_editor -->
+                <li>
+                    <a onclick="runAppIosPhotoEditor({list_photos_item_photo_id}, true, '{app_ios_auth_key}'); return false;" class="app_ios_image_editor_link app_ios_image_editor_{list_photos_item_photo_id}" href="#">
+                        <span class="icon_fa" data-no-fade-in="true" data-cl-loader="icon_list_media_menu_loader">
+                            <i class="fa fa-magic" aria-hidden="true"></i>
+                        </span>
+                        <span>{l_edit_photo}</span>
+                    </a>
+                </li>
+                <!--<li>
+                    <a onclick="runAppIosPhotoCrop({list_photos_item_photo_id}, true); return false;" class="app_ios_image_crop_link app_ios_image_crop_{list_photos_item_photo_id}" href="#">
+                        <span class="icon_fa" data-no-fade-in="true" data-cl-loader="icon_list_media_menu_loader">
+                            <i class="fa fa-crop" aria-hidden="true"></i>
+                        </span>
+                        <span>{l_crop_photo}</span>
+                    </a>
+                </li>-->
+                <!--end_app_ios_image_editor -->
+				<!--<li>
                     <a onclick="clProfilePhoto.openEditorImage('{list_photos_item_photo_id}'); return false;" class="editor_image_li" href="#">
                         <span class="icon_fa" data-no-fade-in="true" data-cl-loader="icon_list_media_menu_loader">
                             <svg viewBox="0 0 24 24">
@@ -155,8 +174,7 @@
                         </span>
                         <span>{l_edit_photo}</span>
                     </a>
-                </li>
-
+                </li>-->
 				<li>
                     <a href="#" onclick="clProfilePhoto.rotate('{list_photos_item_photo_id}'); return false;">
                         <span class="icon_fa" data-no-fade-in="true" data-cl-loader="icon_list_media_menu_loader">

@@ -7,7 +7,7 @@ $(function(){
     $('.dropdown-menu a').not('.menu_invite_friends_by_sms_edge').click(closeMoreMenu);
 
     $('body, .menu_collapse a').not('.menu_audio_greeting_edge').on('click', function(e){
-		var $target=$(e.target),sel='.menu_collapse.in';
+        var $target=$(e.target),sel='.menu_collapse.in';
         if(!$target.is('.more_menu_collapse')&&!$target.closest('.more_menu_collapse')[0]){
            //&&!$target.is('.btn.btn-success')&&!$target.closest('.btn.btn-success')[0]
             sel +=', .more_menu_collapse.in';
@@ -223,8 +223,7 @@ $(function(){
 
 
 function closeMoreMenu(){
-    //$jq('#navbar_menu_more').click();
-	closeMenuCollapse();
+    $jq('#navbar_menu_more').click();
 }
 
 function closeAllMenuAndPopup(){
@@ -233,7 +232,7 @@ function closeAllMenuAndPopup(){
 
 function closeMenuCollapse(sel){
     sel=sel||'.menu_collapse.in';
-	$(sel).collapse('hide');
+    $(sel).collapse('hide');
 }
 
 function closeNavbarMenuCollapse(fn){

@@ -52,7 +52,7 @@
             $(e).hide();
             $.post('ajax.php',{cmd:'photo_rotate',photo_id:id,angle:90,user_id:user_id},function(res){
                 if(checkDataAjax(res)){
-                    $('#photo_'+id).attr('src', urlAddUniqueVersionParam($('#photo_'+id).attr('src')));
+                    $('#photo_'+id).attr('src',urlFiles+'/photo/'+user_id+'_'+id+'_'+size+'.jpg?'+Math.random());
                 }
                 $(e).show();
             });

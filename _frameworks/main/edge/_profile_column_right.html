@@ -59,7 +59,7 @@
     <!-- end_right_column_friend_online -->
 
     <!-- begin_right_column_profile_info -->
-    <div class="bl wrap_section <!-- begin_right_column_profile_info_bl_group -->bl_right_column_info_group<!-- end_right_column_profile_info_bl_group --> right_column_profile_info">
+    <div class="bl wrap_section <!-- begin_right_column_profile_info_bl_group -->bl_right_column_info_group<!-- end_right_column_profile_info_bl_group -->">
         <div class="title">{l_profile_about_title}</div>
         <div class="wrap_width">
             <ul class="list_info">
@@ -90,74 +90,12 @@
                 </li>
                 <!-- end_right_column_profile_info_orientation -->
 
-				<!-- begin_looking_for_visitor -->
-				<li class="right_column_about_me_bl right_column_looking_for">
-					<span class="icon">
-						<i class="fa fa-search" aria-hidden="true"></i>
-					</span>
-					<strong>{l_i_am_looking_for}</strong>
-					<ul class="list_interest">
-						<!-- begin_looking_for_visitor_orientation -->
-						<li><span class="basic_info">•</span><span>{looking_for_visitor_orientation}</span></li>
-						<!-- end_looking_for_visitor_orientation -->
-						<!-- begin_looking_for_visitor_ages -->
-						<li><span class="basic_info">•</span><span>{looking_for_visitor_ages}</span></li>
-						<!-- end_looking_for_visitor_ages -->
-						<li><span class="basic_info">•</span><span>{looking_for_visitor_near_me}</span></li>
-						<!-- begin_looking_for_visitor_i_am_here_to -->
-						<li><span class="basic_info">•</span><span>{looking_for_visitor_i_am_here_to}</span></li>
-						<!-- end_looking_for_visitor_i_am_here_to -->
-					</ul>
-
-				</li>
-				<!-- end_looking_for_visitor -->
-
-				<!-- begin_looking_for -->
-				<li class="right_column_about_me_bl right_column_looking_for">
-					<span class="icon">
-						<i class="fa fa-search" aria-hidden="true"></i>
-					</span>
-					<strong>{l_i_am_looking_for}</strong>
-					<ul class="list_interest">
-						<!-- begin_looking_for_orientation -->
-						<li><span class="basic_info">•</span><span id="info_looking_for_orientation">{looking_for_orientation}</span></li>
-						<!-- end_looking_for_orientation -->
-						<!-- begin_looking_for_ages -->
-						<li><span class="basic_info">•</span><span id="info_looking_for_ages">{looking_for_ages}</span></li>
-						<!-- end_looking_for_ages -->
-						<!-- begin_looking_for_near_me -->
-						<li><span class="basic_info">•</span><span id="info_looking_for_near_me">{looking_for_near_me}</span></li>
-						<!-- end_looking_for_near_me -->
-						<!-- begin_looking_for_i_am_here_to -->
-						<li><span class="basic_info">•</span><span id="info_looking_for_i_am_here_to">{looking_for_i_am_here_to}</span></li>
-						<!-- end_looking_for_i_am_here_to -->
-					</ul>
-
-				</li>
-				<!-- end_looking_for -->
-
-				<!-- begin_module_fields_urban -->
-				<!-- begin_basic -->
-				<li class="right_column_about_me_bl <!-- begin_right_column_profile_info_about_me_show-->to_show<!-- end_right_column_profile_info_about_me_show-->">
-					<span class="icon">
-						<i class="fa fa-id-card-o" aria-hidden="true"></i>
-					</span>
-					<strong>{field}</strong>
-					<p>{value}</p>
-				</li>
-				<!-- end_basic -->
-				<!-- end_module_fields_urban -->
-
-				<!-- begin_personal_impact -->
-				<li class="right_column_about_me_bl right_column_personal_info">
-					<div class="title">{l_personal_info}</div>
-					<!-- begin_personal_item -->
-					<p>
-						<strong>{field}:</strong> {value}
-					</p>
-					<!-- end_personal_item -->
-				</li>
-				<!-- end_personal_impact -->
+                <li id="right_column_about_me_bl" class="right_column_about_me_bl <!-- begin_right_column_profile_info_about_me_show-->to_show<!-- end_right_column_profile_info_about_me_show-->">
+                    <span class="icon">
+                        <i class="fa fa-id-card-o" aria-hidden="true"></i>
+                    </span>
+                    <span id="right_column_about_me">{right_column_profile_info_about_me}</span>
+                </li>
 
                 <!-- begin_right_column_profile_info_blog_word_count -->
                 <li>

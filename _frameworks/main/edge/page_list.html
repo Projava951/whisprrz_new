@@ -1,25 +1,45 @@
 {header}
-<script>
+<script type="text/javascript" src="{url_tmpl_main}js/pages.js{cache_version_param}"></script>
+
+<script language="javascript" type="text/javascript">
+	var clPages = new CPages('{user_id}');
+
     clPages.setData({
         urlPage:'{url_main}{url_pages}',
         pageType:'{page_type}',
         page:'{page_number}'*1,
         type_order:'{type_order}',
         tags:'{tags}',
-        only_friends:'{only_friends}'*1,
-        only_live:'{only_live}'*1,
+        only_friends:0,
+        only_live:0,
         uid:'{page_user_id}'*1,
         guid:'{page_guid}'*1,
         param:'{page_param}'?'{page_param}':'page',
-        filter:'{page_filter}'*1,
-        isMyFriend:'{page_my_friends}'*1,
-        groupId:'{group_id}'*1,
-        groupType:'{group_type}'
+        filter:0,
+        isMyFriend:0,
+        groupId:0,
+        groupType:''
     });
     clPages.initList();
 </script>
-{list}
-{users_list}
+
+{photos_init}
+
+<div class="col_center page_list_col_center">
+    <div class="head">
+		<!-- begin_page_title_circle -->
+		<span class="page_title_circle">
+			<span class="ls_title_user_play"></span>
+		</span>
+		<!-- end_page_title_circle -->
+		{page_title}
+	</div>
+    <div class="cont">
+        {list}
+		{users_list}
+    </div>
+</div>
+
 
 <script>
 $(function(){

@@ -7,6 +7,13 @@ var CUpgrade = function(requestUri) {
 
     this.isAction=false;
 
+    this.setData = function(data){
+        for (var key in data) {
+           $this[key] = data[key];
+           //console.log(key, data[key]);
+        }
+    }
+
     this.initChoiceSystem = function(boost){
         boost=boost?'_boost':'';
         var dur=250;
@@ -23,6 +30,7 @@ var CUpgrade = function(requestUri) {
     }
 
     this.initReady = function(){
+        $('.upgrade_radio_styled').each(function(){$(this).prettyCheckable({customClass: 'niceRadio'})})
         $('.upgrade_radio_styled:checked').change();
 
         $('.upgrade_package .items .item').each(function() {
@@ -34,28 +42,17 @@ var CUpgrade = function(requestUri) {
 
         $this.initChoiceSystem();
 
-        $('.pp_upgraded').on('click', function(e){
-            if (!$this.isAction && this==e.target) {
-                $this.closePopupPaymentSystem();
-            }
+        $jq('#pp_payment').modalPopup({css:{zIndex:1001},shCss:{}, wrCss:{}, wrClass:'wrapper_custom', shClass:'pp_shadow_white'});
+
+        $('.pp_wrapper').on('click', function(e){
+            if(this==e.target&&!$this.isAction)$this.closePopupPaymentSystem();
         })
     }
 
     this.showPopupPaymentSystem = function(boost){
         boost=boost?'_boost':'';
         var prf=boost?'Boost':'';
-
         var item=$this['selectedPaymentPlanData'+prf]['item'],id='';
-        if(!item) {
-            return;
-        }
-
-        if(typeof inAppPurchaseProducts === 'object') {
-            $(boost ? '#pp_payment_proceed_boost' : '.btn_submit_upgrade').prop('disabled', true).addChildrenLoader();
-            MobileApp.inAppPurchaseBuy(inAppPurchaseProducts[item]['id']);
-            return;
-        }
-
         $('.cont_pp_profile_upgraded_item'+boost).hide().each(function(){
             if($this['availablePaymentSystemToPlan'+prf][item].indexOf(this.id)===-1){
                 $('#payment_'+this.id).hide();
@@ -80,39 +77,17 @@ var CUpgrade = function(requestUri) {
         }
         $('#pp_payment_plan_name'+boost).html($this['selectedPaymentPlanData'+prf].name);
         $('#pp_payment_total_price'+boost).html($this['selectedPaymentPlanData'+prf].total_price);
-
         if (boost) {
             var $pp=openPopupList['#pp_boost_ajax']['el'];
-            $pp.find('.cont_boost_system').show().delay(5).oneTransEnd(function(){
-				$jq('body').addClass('pp_boost_ajax_system_open');
-			}).removeClass('to_hide',0);
-			setPushStateHistory('pp_boost_ajax_system');
+            $pp.find('.cont_boost_system').show().delay(5).removeClass('to_hide',0);
         } else {
-            setPushStateHistory('upgrade');
-            $jq('#pp_payment')
-            .one('show.bs.modal',function(){
-                $jq('body').addClass('pp_upgrade_open');
-            })
-            .one('hide.bs.modal',function(){
-                $jq('body').removeClass('pp_upgrade_open');
-            })
-            .one('hidden.bs.modal',function(){
-                checkOpenModal();
-            }).modal('show');
+            $jq('#pp_payment').open();
         }
     }
 
     this.closePopupPaymentSystem = function(){
-        if(!$jq('body').is('.pp_upgrade_open'))return;
-        if(!backStateHistory()){
-            $this.closePopup();
-        }
+        $jq('#pp_payment').close();
     }
-
-    this.closePopup = function(){
-        $jq('#pp_payment').modal('hide');
-    }
-
 
     this.selectedPaymentPlanData={};
     this.selectedPaymentPlanDataBoost={};
@@ -138,17 +113,7 @@ var CUpgrade = function(requestUri) {
         }).addClass('to_hide');
     }
 
-    this.contactFrmShow = function(){
-        $jq('#pp_payment').one('hidden.bs.modal',function(){
-            contactFrmShow();
-        })
-        $this.closePopupPaymentSystem();
-    }
-
     this.profileUpgrade = function(requestUri){
-        //$jq('#pp_payment_proceed').prop('disabled', true).addChildrenLoader();
-        //setTimeout($this.showErrorProfileUpgrade,1000)
-        //return;
         var system=$('.cont_pp_profile_upgraded_item:visible')[0].id;
         $.ajax({type: 'POST',
                 url: url_main+'upgrade.php?cmd=save&ajax=1',
@@ -156,7 +121,7 @@ var CUpgrade = function(requestUri) {
                        system:system,
                        request_uri:requestUri},
                 beforeSend: function(){
-                    $jq('#pp_payment_proceed').prop('disabled', true).addChildrenLoader();
+                    $jq('#pp_payment_proceed').prop('disabled', true).html(getLoader('btn_payment_proceed'));
                 },
                 error: $this.showErrorProfileUpgrade,
                 success: function(data){
@@ -186,15 +151,16 @@ var CUpgrade = function(requestUri) {
                 }
         });
     }
-    /* Upgrade */
 
-	this.initIncreasePopularityPlan = function(){
-        $('.item_credit_plan:checked').change();
+    /* Boost */
+    this.initIncreasePopularityPlan = function(){
+        $('.boost_radio_styled').each(function(){$(this).prettyCheckable({customClass: 'niceRadio'})})
+        $('.boost_radio_styled:checked').change();
 
         $('.boost_profile .items .item').each(function() {
             $(this).click(function() {
-                $('.boost_profile .items .item').removeClass('selected');
-                $(this).addClass('selected');
+                $('.boost_profile .items .item').removeClass('selected').find('a').removeClass('checked');
+                $(this).addClass('selected').find('a').addClass('checked');
             })
         })
 
@@ -211,6 +177,10 @@ var CUpgrade = function(requestUri) {
 
         if(action=='payment'||action=='refill'){
             return typeof data.type!='undefined'?data:$(trim(data));
+        //} else if(action=='refill' && data.type=='demo') {
+            //console.log();
+           // $this.changeBalance($this.langParts.credit_balance.replace(/_boost/, data.type));
+            //return data;
         }else{
             var $data=$(trim(data));
             if (!$data.is('.increase_payment')){
@@ -227,84 +197,21 @@ var CUpgrade = function(requestUri) {
         }
     }
 
-	this.requestIncreaseGroup = 0;
-	this.requestIncreaseUid = 0;
-	this.requestIncreasePopularity = function(cmd,type,uid,group){
-        if(clProfile.notAccessToSite())return false;
-		uid=uid||0;
-		$this.requestIncreaseUid = uid;
-		group=group||0;
-		$this.requestIncreaseGroup = group;
-        openPopupUpdate('pp_boost_ajax');
-        //return;
-        cmd=cmd||'pp_payment';
-        type=type||'search';
-        var action='payment';
-        if(cmd=='pp_refill'){
-            action='refill';
-            type='refill';
-        }
-        $.post(url_main+'increase_popularity.php?cmd='+cmd,{ajax:1,type:type,action:action,id:0,credits:''},function(data){
-            var $data=$this.checkRequestPopularity(data);
-            if(!$data)return;
-            var $pp=openPopupList['#pp_boost_ajax']['el'];
-
-            if(!$pp.is(':visible'))return;
-            var $cont=$data.find('.pp_cont_have'),type='';
-            if(!$cont[0]){
-                $cont=$data.find('.pp_cont_plan');
-                if($cont[0])type='plan';
-            }
-            if(!$cont[0]){
-                alertServerError();
-                return;
-            }
-            $pp.find('.cont').oneTransEnd(function(){
-				var $ppBody = $pp.find('.modal-body');
-                if (type=='plan') {
-					$pp.addClass('pp_boost_profile');
-                    $ppBody.html('<div class="cont">'+$cont.html()+'</div>')
-						   .find('.cont').append($data.find('.cont_boost_system'));
-                }else{
-                    $pp.find('.modal-body').html('<div class="cont">'+$cont.html()+'</div>').addClass('pp_boost');
-                }
-                $pp.find('.cont:not(.cont_boost_system), .cont_boost_plan').delay(10).removeClass('to_hide',0);
-            }).addClass('to_hide');
-        })
-    }
-
-    this.showPopupPaymentSystemBoost = function(){
-
-		if(typeof inAppPurchaseProducts === 'object') {
-            $this.showPopupPaymentSystem(true);
-            return;
-        }
-
-        var $pp=openPopupList['#pp_boost_ajax']['el'];
-        $pp.find('.cont_boost_plan').oneTransEnd(function(){
-			$(this).hide();
-            //$pp.removeAttr('class').addClass('pp_upgraded pp_cont');
-            $this.showPopupPaymentSystem(true);
-        }).addClass('to_hide', 0);
-    }
-
     this.incPopularityPay = function(action, type, btn){
         action=action||'';
         type=type||'';
         var isMedia=type=='video_chat'||type=='audio_chat'||type=='live_stream'||type=='live_stream_past';
         if (action=='payment_service'&&isMedia) {
-			addChildrenLoader(btn);
+            btn.prop('disabled', true).html(getLoader('loader_boost_btn',false,true));
             if (type=='video_chat') {
-                clVideoChat.invite($this.requestIncreaseUid, btn, $this.requestIncreaseGroup,function(){closePopupUpdate('pp_boost_ajax')});
+                videoChat.invite(requestUserId);
             }else if(type=='audio_chat'){
-                clAudioChat.invite($this.requestIncreaseUid, btn, $this.requestIncreaseGroup,function(){closePopupUpdate('pp_boost_ajax')});
+                audioChat.invite(requestUserId);
             }else if(type=='live_stream'){
 				_lsPaid();
 			}else if(type=='live_stream_past'){
-				if (typeof clProfilePhoto.liveViewAllowed == 'function') clProfilePhoto.liveViewAllowed();
+				if (typeof Photo.liveViewAllowed == 'function') Photo.liveViewAllowed();
 			}
-			$this.requestIncreaseUid=0;
-			$this.requestIncreaseGroup=0;
             return;
         }
         var item='',system='';
@@ -315,27 +222,27 @@ var CUpgrade = function(requestUri) {
                 system=$system[0].id.replace(/_boost/, '');
             }
         }
-		addChildrenLoader(btn.prop('disabled', true));
-
+        var nameBtn=action!='payment_service'?$this.langParts.proceed:$this.langParts.go;
+        btn.prop('disabled', true).html(getLoader('loader_boost_btn',false,true));
         $.ajax({type: 'POST',
                 url: url_main+'increase_popularity.php',
                 data: {ajax:1,action:action,item:item,system:system,type:type,request_uri:$this.requestUri},
                 beforeSend: function(){
-					addChildrenLoader(btn.prop('disabled', true));
+                    btn.prop('disabled',true).html(getLoader('loader_boost_btn',false,true));
                 },
                 error: function(){
-					removeChildrenLoader(btn.prop('disabled', false));
+                    btn.prop('disabled',false).html(nameBtn);
                 },
                 success: function(data){
                     var $data=$this.checkRequestPopularity(data,action);
                     if(!$data){
-						removeChildrenLoader(btn.prop('disabled', false));
+                        btn.prop('disabled',false).html(nameBtn);
                         return;
                     }
                     var isError=false;
                     if((action!='payment_service') && !$data[0]){
                         if($data.type=='url_system'){
-							redirectUrl(url_main+$data.url);
+                            redirectUrl(url_main+$data.url);
                         } else {
                             isError=true;
                         }
@@ -344,21 +251,20 @@ var CUpgrade = function(requestUri) {
                             $pp=openPopupList['#pp_boost_ajax']['el'];
                         if($cont[0]){
                             $this.changeBalance($cont.data('balance'));
-							var $ppBody = $pp.find('.modal-body');
                             if (action=='payment'||action=='refill') {
                                 if (isMedia) {//Demo
-                                    closePopupUpdate('pp_boost_ajax');
+                                    closePopupUpdate('#pp_boost_ajax');
                                     setTimeout(function(){$this.requestIncreasePopularity('pp_payment',type)},300);
                                     return;
                                 }
                                 $pp.find('.cont_boost_system').oneTransEnd(function(){
                                     $pp.addClass('pp_boost_ajax pp_boost');
-                                    $ppBody.html($cont.html());
-                                    $ppBody.find('.cont').delay(1).fadeTo(200,1)
+                                    $pp.html($cont.html());
+                                    $pp.find('.cont').delay(1).fadeTo(200,1)
                                 }).addClass('to_hide');
                             }else{
                                 $pp.find('.cont').fadeTo(200,0,function(){
-                                    $ppBody.html($cont.html());
+                                    $pp.html($cont.html());
                                     $pp.find('.cont').delay(1).fadeTo(200,1)
                                 })
                             }
@@ -376,15 +282,66 @@ var CUpgrade = function(requestUri) {
                 }
         });
     }
-    /* Credits */
+
+    this.requestIncreasePopularity = function(cmd,type){
+        if(Profile.notAccessToSite())return false;
+        openPopupUpdate('#pp_boost_ajax');
+        //return;
+        cmd=cmd||'pp_payment';
+        type=type||'search';
+        var action='payment';
+        if(cmd=='pp_refill'){
+            action='refill';
+            type='refill';
+        }
+        $.post(url_main+'increase_popularity.php?cmd='+cmd,{ajax:1,type:type,action:action,id:0,credits:''},function(data){
+            var $data=$this.checkRequestPopularity(data);
+            if(!$data)return;
+            var $pp=openPopupList['#pp_boost_ajax']['el'];
+            if(!$pp.is(':visible'))return;
+            var $cont=$data.find('.pp_cont_have'),type='';
+            if(!$cont[0]){
+                $cont=$data.find('.pp_cont_plan');
+                if($cont[0])type='plan';
+            }
+            if(!$cont[0]){
+                alertServerError();
+                return;
+            }
+            $pp.find('.cont').oneTransEnd(function(){
+                if (type=='plan') {
+                    $pp.html($cont.html()).addClass('pp_boost_profile');
+                    $data.find('.cont_boost_system').appendTo($pp);
+                }else{
+                    $pp.html($cont.html()).addClass('pp_boost');
+                }
+                $pp.find('.cont:not(.cont_boost_system)').oneTransEnd(function(){
+                    /*if(type!='plan'){
+                        $pp.css('background', '#ff6d85')
+                    }*/
+                }).delay(10).removeClass('to_hide',0);
+                $pp.delay(10).removeClass('no_border',0);
+            }).addClass('to_hide');
+        })
+    }
+
+    this.showPopupPaymentSystemBoost = function(){
+        var $pp=openPopupList['#pp_boost_ajax']['el'];
+        $pp.find('.cont_boost_plan').oneTransEnd(function(){
+            $(this).hide();
+            $pp.removeAttr('class').addClass('pp_upgraded pp_cont');
+            $this.showPopupPaymentSystem(true);
+        }).addClass('to_hide');
+    }
+    /* Boost */
 
     $(function(){
-        if(currentPage=='upgrade.php'){
+        if(activePage=='upgrade.php'){
             $this.initReady();
         }
-        $('body').on('click', '.pp_upgraded', function(e){
+        $('body').on('click', '.pp_wrapper', function(e){
             var target=$(e.target);
-            if(target.is('.pp_upgraded')){
+            if(target.is('.pp_wrapper')){
                 if (openPopupList['#pp_boost_ajax']
                     &&openPopupList['#pp_boost_ajax']['el'].is(':visible')){
                     if(openPopupList['#pp_boost_ajax']['close'])return;
@@ -393,7 +350,6 @@ var CUpgrade = function(requestUri) {
                     if ($ss[0]&&$ss.is(':visible')&&!$('#profile_upgraded_error_boost').is(':visible')) {
                         openPopupList['#pp_boost_ajax']['close']=1;
                         $ss.oneTransEnd(function(){
-							$jq('body').removeClass('pp_boost_ajax_system_open');
                             $(this).hide();
                             $pp.addClass('pp_boost_ajax pp_boost_profile')
                                .find('.cont_boost_plan').show().delay(5).oneTransEnd(function(){
@@ -401,7 +357,7 @@ var CUpgrade = function(requestUri) {
                                }).removeClass('to_hide',0);
                         }).addClass('to_hide')
                     }else{
-                        closePopupUpdate('pp_boost_ajax');
+                        closePopupUpdate('#pp_boost_ajax');
                     }
                 }
             }
@@ -409,12 +365,6 @@ var CUpgrade = function(requestUri) {
             $this.requestIncreasePopularity('pp_refill');
             return false;
         })
-		$('#navbar_menu_refill_credits_edge, .st_credits').click(function(e){
-            $this.requestIncreasePopularity('pp_refill');
-            return false;
-        })
     })
     return this;
 }
-
-var openPopupList={};

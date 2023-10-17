@@ -10,7 +10,7 @@
                 '</div>' +
 
                 '<div class="cookie-popup-right">' +
-                    '<a href="#" class="btn btn-success btn-cookie-accept">Accept</a>' +
+                    '<button class="cookie-popup-accept-cookies-btn btn lower_header_color big">Accept</button>'+
                     '<a href="#" class="cookie-popup-learn-more">Learn More</a>' +
                 '</div>' +
             '</div>' +
@@ -27,7 +27,6 @@
 
             if (!cookiesAccepted) {
                 var cookiePopup = $(cookiePopupHtml);
-
                 var position = "bottom";
 
                 if(options != undefined) {
@@ -38,7 +37,7 @@
                     if(options.text != undefined)
                         cookiePopup.find('.cookie-popup-sub-headline').html(options.text);
                     if(options.acceptButtonText != undefined)
-                        cookiePopup.find(".btn-cookie-accept").text(options.acceptButtonText);
+                        cookiePopup.find(".cookie-popup-accept-cookies-btn").text(options.acceptButtonText);
                     if(options.learnMoreButtonText != undefined)
                         cookiePopup.find(".cookie-popup-learn-more").text(options.learnMoreButtonText);
                     if(options.learnMoreInfoText != undefined)
@@ -56,58 +55,28 @@
                     }
                 }
 
-                var fnWidthPopup=false;
-                if(options != undefined && options.class != undefined && options.class) {
-                    var popup=cookiePopup.find('.cookie-popup').addClass(options.class);
-
-                    if (options.width != undefined && options.width_unit != undefined) {
-                        popup.css('width', options.width+options.width_unit);
-                    }
-                    if (options.position != undefined && options.position && options.position == 'right') {
-                        popup.addClass('to_right');
-                        fnWidthPopup=function(){
-                            var $w=$jq('body'), w=$w.width(), d=w-$w[0].clientWidth;
-                            popup.css({right:(d+5)+'px'});
-                        }
-                    }
-                } else {
-                    fnWidthPopup=function(){
-                        var $w=$jq('body'), w=$w.width(), d=w-$w[0].clientWidth;
-                        w=w-d;
-                        $('.cookie-popup').width(w);
-                    }
-                    cookiePopup.find('.cookie-popup').addClass("position-" + position);
-                }
-
+                cookiePopup.find('.cookie-popup').addClass("position-" + position);
                 cookiePopup.find('.more_link').click(function(){
                     OpenWindow(this.href,'650','400');
                     return false;
                 })
-
-                $jq('#cham-page').append(cookiePopup);
-                if (typeof fnWidthPopup == 'function') {
-                    fnWidthPopup();
-                    $win.on('resize',fnWidthPopup);
-                }
-
+                $('body').append(cookiePopup);
                 $('.cookie-popup').delay(100).slideToggle();
 
             }
         }
     });
 
-    $(function(){
-        $('body').on('click', '.btn-cookie-accept', function (e) {
-            saveCookie();
-            $('.cookie-popup').slideToggle();
-            if (typeof onAccept === "function")
-                onAccept();
-            return false;
-        }).on('click', '.cookie-popup-learn-more', function (e) {
-            $('.cookie-popup-lower').slideToggle();
-            return false;
-        });
-    })
+    $(document).on('click', '.cookie-popup-accept-cookies-btn', function(e) {
+        e.preventDefault();
+        saveCookie();
+        $('.cookie-popup').slideToggle();
+        if (typeof onAccept === "function")
+            onAccept();
+    }).on('click', '.cookie-popup-learn-more', function(e) {
+        e.preventDefault();
+        $('.cookie-popup-lower').slideToggle();
+    });
 
     function getCookie(cname) {
         var name = cname + "=";

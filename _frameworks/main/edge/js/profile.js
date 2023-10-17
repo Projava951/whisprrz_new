@@ -1,15 +1,39 @@
-var CProfile = function(guid, uid) {
+var CProfile = function(guid, uid, spotlightNumber,requestUri,isFreeSite) {
 
     var $this=this;
 
     this.guid=guid*1;
     this.uid=uid*1;
     this.requestAjax={report : 0, reportMedia : {}};
+    this.guid=guid;
+    this.langParts={};
+
+    this.requestUri=requestUri;
+    this.isFreeSite=isFreeSite*1;
+
+    this.isPhotoDefaultPublic;
+    this.spotlightNumber=spotlightNumber;
+    this.spotlightItems={};
+    this.blink = {};
+    this.$spotlightResponse;
+    this.$spotlight;
+
+    $this.dur=400;
+
+    this.cacheJq={};
+    this.cacheData={};
 
     this.setData = function(data){
         for (var key in data) {
            $this[key] = data[key];
         }
+    }
+
+    this.getCacheJq = function(sel){
+        if(typeof $this.cacheJq[sel] == 'undefined'){
+            $this.cacheJq[sel]=$(sel);
+        }
+        return $this.cacheJq[sel];
     }
 
     this.updateServerMyData = function(allowedFeature){
@@ -23,6 +47,21 @@ var CProfile = function(guid, uid) {
         var isMy=currentPage == 'profile_view.php'
                 || (currentPage == 'search_results.php' && requestUserId && $this.guid==requestUserId);
         return isMy;
+    }
+
+    this.init = function(isPhotoDefaultPublic, isPhotoPublic, iAmInspotlight, spotlightCosts, hideMyPresence,
+        minNumberPhotosToUseSite, keyAlertMinNumberPhotosToUseSite, profileStatusMaxLength){
+        $this.isPhotoDefaultPublic = isPhotoDefaultPublic*1;
+        $this.isPhotoPublic = isPhotoPublic*1;
+        $this.iAmInspotlight = iAmInspotlight*1;
+        $this.spotlightCosts = spotlightCosts*1;
+        $this.hideMyPresence = hideMyPresence*1;
+        $this.minNumberPhotosToUseSite=minNumberPhotosToUseSite*1;
+        $this.keyAlertMinNumberPhotosToUseSite=keyAlertMinNumberPhotosToUseSite;
+        $this.profileStatusMaxLength=profileStatusMaxLength*1;
+        if($this.profileStatusMaxLength == 0){
+            $this.profileStatusMaxLength = 30;
+        }
     }
 
     this.statusOnline=0;
@@ -497,6 +536,17 @@ var CProfile = function(guid, uid) {
         $jq('#pp_profile_verification').modal('hide');
     }
 
+    this.closePopupEditor = function(id,fn,t){
+        t=defaultFunctionParamValue(t, durClosePp);
+        getCacheJq(id).close(t,fn);
+    }
+
+    this.closePopupEditorDelay = function(id,fn,d,t){
+        setTimeout(function(){
+            $this.closePopupEditor(id,fn,t);
+        },(d||500))
+    }
+
     this.verifyAccount = function() {
         var url = $('select[name="profile_verification_system"]', '#pp_profile_verification').val();
         if(url) {
@@ -565,29 +615,6 @@ var CProfile = function(guid, uid) {
             return true;
         }*/
     }
-
-	this.showProfileInfoPopupIsLoading = false;
-
-	this.showProfileInfoPopup = function(isUserRun) {
-		if(isUserRun && $this.showProfileInfoPopupIsLoading) {
-			return;
-		} else {
-			$this.showProfileInfoPopupIsLoading = true;
-			var itemForLoader = $('#header_view_profile_button');
-			addChildrenLoader(itemForLoader);
-			if($('#pp_profile_info .modal-body').length === 0 || $('.right_column_profile_info').length === 0) {
-				setTimeout($this.showProfileInfoPopup, 200);
-			} else {
-				$('#pp_profile_info .modal-body').html($('.right_column_profile_info').html());
-				$('#pp_profile_info').modal('show');
-				$('#pp_profile_info .btn.btn-success').click(function(){
-					closeAlert();
-				});
-				removeChildrenLoader(itemForLoader);
-				$this.showProfileInfoPopupIsLoading = false;
-			}
-		}
-	}
 
     $(function(){
         $this.$ppUserReport=$('#pp_user_report');

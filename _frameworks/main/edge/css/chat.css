@@ -1733,6 +1733,7 @@
 	border-width: 0;
 	margin-left: 10px;
 	overflow: hidden;
+	display: none;
 }
 
 .chat .content .message-input .wrap .pp_message_upload_img.disabled #pp_message_img_editor,

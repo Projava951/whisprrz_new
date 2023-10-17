@@ -95,12 +95,6 @@ var CPages = function(guid) {
                 param = '/' + page;
             }
         }
-        /*if ($this.$searchQuery[0]) {
-            var query=trim($this.$searchQuery.val());
-            if (query) {
-                param += (~param.indexOf('?') ? '&' : '?') + 'search_query='+encodeURIComponent(query);
-            }
-        }*/
 
         replaceUrl($this.urlPage+param);
     }
@@ -228,12 +222,6 @@ var CPages = function(guid) {
         alwaysLoad=alwaysLoad||false;
         noScroll=noScroll||false;
         data[$this.param]=page;
-        data['group_id']=$this.groupId;
-        if ($this.groupType) {
-            data['group_id']='groups_photo_all';
-            data['view']=$this.groupType;
-        }
-
         if ($this.filter) {
             $this.$filterFields.each(function(){
                 var val=this.value;
@@ -266,7 +254,7 @@ var CPages = function(guid) {
 
         if(!noScroll){
             $this.replaceUrl(data[$this.param]);
-            clMediaTools.scrollTop();
+			$jq('.main').animate({scrollTop:0},400);
         }
 
         $jq('#loader_search_list').toggleClass('to_hide to_show');

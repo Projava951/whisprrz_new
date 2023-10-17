@@ -121,7 +121,7 @@ $(function(){
 function setBgResizeMainPage(){
     if(isMobileSite&&typeof window.orientation!='undefined'){
 
-		if($('.cham-cover-style-2').hasClass('cham-cover-style-top')) {
+		if($('.cham-cover-style-2').hasStyle('cham-cover-style-top')) {
 			return;
 		}
 

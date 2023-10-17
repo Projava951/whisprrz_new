@@ -28,6 +28,7 @@ var CMessages = function(guid, guidPhoto, imHistoryMessages) {
     }
 
     this.show = function(uid,$el,groupUserId,groupId){
+        alert();
         closeNavbarMenuCollapse(function(){
             $this.showPrepare(uid,$el,groupUserId,groupId);
         })
@@ -2433,7 +2434,7 @@ var CMessages = function(guid, guidPhoto, imHistoryMessages) {
 									$this.fileImageUrl = data.file;
                                     $this.isImageLoaded=indx;
 
-									$this.addImageIm[data.image_editor_enabled?'removeClass':'addClass']('disable_editor_image');
+									$this.addImageIm[data.ext=='gif'?'addClass':'removeClass']('disable_editor_image');
                                     $this.addImageIm.removeClass('disabled');
                                     $this.addImageIm.find('.fa-camera').attr('title', l('upload_image_delete'));
 

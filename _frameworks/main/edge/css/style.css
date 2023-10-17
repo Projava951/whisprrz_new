@@ -1679,7 +1679,7 @@ fieldset[disabled] .btn{
 .bl_grid_inner_photo_center .user_pic_frame .edit_main_user_pic{
 	width: 28px;
 	height: 28px;
-	margin: 0px 25px 5px 2px;
+	margin: 0 25px 5px 15px;
 	cursor: pointer;
 	transition: .3s;
 }
@@ -1688,7 +1688,6 @@ fieldset[disabled] .btn{
 	width: 0px;
 	margin-right: 0px;
 	overflow: hidden;
-	margin: 0px;
 }
 
 .bl_grid_inner_photo_center .user_pic_frame .edit_main_user_pic .edit_icon{
@@ -1829,7 +1828,7 @@ fieldset[disabled] .btn{
   .bl_grid_inner_photo_center .user_pic_frame .edit_main_user_pic{
     width: 26px;
     height: 26px;
-    margin: 0 15px 0 0px;
+    margin: 0 15px 0 5px;
   }
 
   .bl_grid_inner_photo_center .user_pic_frame .edit_main_user_pic .edit_icon{
@@ -5213,15 +5212,6 @@ opacity: 0;
   font-size: 20px;
   font-weight: 400;
   transition: all 0.3s ease;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-}
-
-.cham-blog-style-2 .col-md-4.col-sm-6 {
-	min-height: 374px;
 }
 
 .cham-blog-style-2 .link-block:hover h3 {
@@ -6372,11 +6362,7 @@ opacity: 0;
 .dropdown-menu > li > a{
   padding: 8px 17px 8px 15px;
   transition: all 0.3s ease;
-  color: #333;
-}
-
-.dropdown-menu > li.disabled > a, .bootstrap-select.btn-group .dropdown-menu li.disabled a{
-  cursor: not-allowed;
+  color: #333 !important;
 }
 
 .dropdown-menu > .active > a,
@@ -13019,14 +13005,6 @@ button.ls_send:hover{
   opacity: .65;
 }
 
-.bl_forms.settings .field.link_add {
-	text-align: right;
-}
-
-.bl_forms.settings .field.link_add span {
-    cursor: pointer;
-}
-
 .mobile .bl_forms.settings .fields .field .btn.btn-block span{
   top: -1px;
 }
@@ -14388,10 +14366,6 @@ button.ls_send:hover{
     top: 15px;
     left: 15px;
     width: 45px;
-  }
-
-  .wrap_one_item .cham-post.photo_one .one_item .pp_gallery_btn_additional .btn_additional_first .pp_gallery_restore_image {
-	left: 60px;
   }
 
   .wrap_one_item .cham-post.photo_one .one_item .pp_gallery_btn_additional .btn{
@@ -18952,10 +18926,6 @@ body.email_not_confirmed .wrap_icons_info{display:none!important;}
     background-image: url(../images/icon_upgrade_city.png);
 }
 
-.upgrade_info .item.icon_upgrade_search_options{
-    background-image: url(../images/icon_upgrade_search_options.png);
-}
-
 .upgrade_info .item.icon_upgrade_audiochat{
     background-image: url(../images/icon_upgrade_audiochat.png);
 }
@@ -21077,122 +21047,12 @@ body.drag_cover *{
     color: #2ecc71;
 }
 
+#wall_item_add_upload_img_edit, .comment_upload_img_editor { display: none!important; }
+
 .boost_profile .items { text-align: left; }
 
 .head_link figure.fg_audio_group { margin-top: -2px; }
 
 .ios_app span.thumb_post_image_wall, .ios span.thumb_post_image_wall {
 	display: none;
-}
-
-
-#filerobot-image-editor-root .modal-overlay { z-index: 1050; }
-#fl_image_editor { z-index: 1050; }
-
-
-
-.right_column_about_me_bl { display: block; }
-.right_column_about_me_bl p { margin: 0px; }
-
-.column ul.list_info li.right_column_about_me_bl.right_column_looking_for { margin-top: 0px; }
-.column ul.list_info li.right_column_about_me_bl.right_column_personal_info { margin-top: 25px; }
-.right_column_personal_info p { margin: 0px; }
-
-.column .bl .right_column_personal_info .title { margin-bottom: 10px; white-space: normal; }
-
-.list_interest li span {
-    padding: 0 7px 0 0;
-}
-
-.section.fields .one_checkbox.s label {
-	font-weight: normal;
-}
-
-.bl_forms .fields .field.field_special_checkbox {
-	height: auto;
-	padding-top: 9px;
-}
-
-.field_looking_for_age .bootstrap-select:not([class*="col-"]):not([class*="form-control"]):not(.input-group-btn) {
-	width: auto;
-}
-
-.field.field_i_am_here_to h4 {
-    margin-bottom: 10px;
-    font-weight: normal;
-}
-
-.filter_extended .field_checkbox_value { margin-bottom: 18px; }
-
-.col-lg-12.field_btn_filter_extended {
-	clear: both;
-	float: none;
-}
-
-
-#pp_profile_info .modal-content.column {
-	padding: 15px;
-	padding-bottom: 0px;
-	text-align: left;
-	width: 100%;
-	max-width: 100%;
-}
-#pp_profile_info .modal-body {
-	text-align: left;
-}
-#pp_profile_info .column .bl .wrap_width {
-    width: 100%;
-}
-#pp_profile_info.custom_modal .modal-body {
-	padding:15px;
-	padding-bottom: 0px;
-}
-#pp_profile_info .column {
-	display: block;
-}
-
-#header_view_profile_button {
-	background: var(--member_circular_menu_background_color);
-}
-#header_view_profile_button:hover {
-	background: var(--member_circular_menu_background_color_hover);
-}
-#header_view_profile_button {
-	color: var(--member_circular_menu_color);
-}
-#header_view_profile_button:hover {
-	color: var(--member_circular_menu_color_hover);
-}
-
-#header_view_profile_button .css_loader:not(.hidden) .spinnerw .spinner-blade {
-	background-color: var(--member_circular_menu_color);
-}
-
-#header_view_profile_button.cover_button .btn_action_loader {
-	margin-left: -3px;
-	margin-top: -1px;
-}
-
-@media (max-width: 800px) {
-	#header_view_profile_button.cover_button .icon_fa {
-		top: 2px;
-	}
-}
-
-@media (min-width: 1201px) {
-	#header_view_profile_button {
-		display: none;
-	}
-}
-
-.wall_image_post_music_link  {
-	display: inline-block;
-}
-
-#link_filter_extended {
-	cursor: pointer;
-}
-
-.filter_extended .custom_checkbox label {
-	margin-bottom: 10px;
 }
