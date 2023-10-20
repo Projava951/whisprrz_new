@@ -16,8 +16,9 @@ $g['user_var']['relation']['status'] = 'inactive';
 $listPeopleNumberUsers = Common::getOptionInt('list_people_number_users', 'edge_general_settings');
 
 $g['template_options'] = array(
-    // 'set' => 'urban',
+    // 'set' => 'urban', // Rade 2023-10-20 modified
     'name' => 'edge',
+    'name' => 'oryx',
     'include_template_class' => 'Y',
     '3d_chat_custom_css' => 'Y', 	//Rade 2023-10-12 add
     'type_payment_features' => 'edge',
@@ -70,7 +71,6 @@ $g['template_options'] = array(
         'default_header_color' => array('title' => l('default header color'), 'upper' => '', 'lower' => ''),
         'blue_whisp' => array('title' => 'Blue whisp', 'upper' => '#5a9dd2', 'lower' => '#185f92'),
         'purple_whisprrz' => array('title' => 'Purple Whisprrz', 'upper' => '#7935df', 'lower' => '#2e56ac'),
-        'original_whisprrz' => array('title' => 'Original Whisprrz', 'upper' => '#5b0dab', 'lower' => '#69676a'),
         'Pink_Passion' => array('title' => 'Pink Passion', 'upper' => '#d0328d', 'lower' => '#8e045a'),
         'green_water' => array('title' => 'Green Water', 'upper' => '#63c7b5', 'lower' => '#2b837b'),
         'russian_red' => array('title' => 'Russian Red', 'upper' => '#f23131', 'lower' => '#850000'),
@@ -147,31 +147,33 @@ $g['template_options'] = array(
         'pp_galley_comment_item' => $g['tmpl']['dir_tmpl_main'] . '_pp_gallery_item.html'
     ),
 
-    'index_page_template' => array(
-        'main' => 'index.html',
-        // 'login_frm_index' => '_login.html', //Tauhidul
-        // 'register_frm_index' => '_register.html', //Tauhidul
-        // 'our_app_index' => '_our_app.html', //Tauhidul
-        // 'info_block_index' => '_info_index.html', //Tauhidul
-        // 'list_people_item' => '_list_users_info_item.html', //Tauhidul
-        // 'list_blog_posts_item' => '_list_blogs_item.html', //Tauhidul
-        // 'list_videos_item' => '_list_vids_item.html', //Tauhidul
-        // 'list_songs_item' => '_list_songs_item.html', //Tauhidul
-        'list_live_item' => '_list_live_item.html',
-        'list_photos_item' => '_list_photos_item.html',
-        // 'list_pages_item' => '_list_pages_main_page_item.html', //Tauhidul
-        // 'list_groups_item' => '_list_groups_item.html' //Tauhidul
-    ),
+//Rade 2023-10-20 start
+    // 'index_page_template' => array(
+    //     'main' => 'index.html',
+    //     'login_frm_index' => '_login.html',
+    //     'register_frm_index' => '_register.html',
+    //     'our_app_index' => '_our_app.html',
+    //     'info_block_index' => '_info_index.html',
+    //     'list_people_item' => '_list_users_info_item.html',
+    //     'list_blog_posts_item' => '_list_blogs_item.html',
+    //     'list_videos_item' => '_list_vids_item.html',
+    //     'list_songs_item' => '_list_songs_item.html',
+    //     'list_live_item' => '_list_live_item.html',
+    //     'list_photos_item' => '_list_photos_item.html',
+    //     'list_pages_item' => '_list_pages_main_page_item.html',
+    //     'list_groups_item' => '_list_groups_item.html'
+    // ),
 
-    'login_page_template' => array(
-        'main' => 'login.html',
-        'login_frm' => '_login.html'
-    ),
+    // 'login_page_template' => array(
+    //     'main' => 'login.html',
+    //     'login_frm' => '_login.html'
+    // ),
 
-    'register_page_template' => array(
-        'main' => 'register.html',
-        'register_frm' => '_register.html'
-    ),
+    // 'register_page_template' => array(
+    //     'main' => 'register.html',
+    //     'register_frm' => '_register.html'
+    // ),
+//Rade 2023-10-20 end
 
     /* Columns template */
     'pages_one_column' => array('city.php'),

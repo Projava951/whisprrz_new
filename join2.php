@@ -96,21 +96,71 @@ class CJoin2 extends UserFields//CHtmlBlock
 
 			if ($this->message == "")
 			{
-                set_session("j_state", get_param('state', ''));
-				set_session("j_city", get_param("city", ''));
-				set_session("j_partner_age_from", $paf);
-				set_session("j_partner_age_to", $pat);
-				set_session("j_relation", get_param("relation", ""));
+                $orientation = get_session("j_orientation");
+				//start-nnsscc-diamond
+				$couple_profile = get_session("j_couple_profile");
+				if($couple_profile==1){   //partner page = second user page
+					set_session("j_state_couple", get_param('state', ''));
+					set_session("j_city_couple", get_param("city", ''));
+					set_session("j_nsc_couple_type", get_param('nsc_couple_type', ''));
+					set_session("j_nsc_couple_year", get_param('year', ''));
+					set_session("j_nsc_couple_month", get_param('month', ''));
+					set_session("j_nsc_couple_day", get_param('day', ''));					
+					set_session("j_partner_age_from_couple", $paf);
+					set_session("j_partner_age_to_couple", $pat);
+					set_session("j_relation_couple", get_param("relation", ""));
 
-				foreach ($g['user_var'] as $k => $v)
-				{
-					if ((substr($k, 0, 2) != "p_") && ($v['type'] != 'const'))
+					foreach ($g['user_var'] as $k => $v)
 					{
-						set_session("j_" . $k, get_param($k, ""));
-					}
+						if ((substr($k, 0, 2) != "p_") && ($v['type'] != 'const'))
+						{
+							set_session("j_couple_" . $k, get_param($k, ""));
+						}
+					}				
+					set_session("j_couple_orientation",0);
+					redirect('join3.php');
 				}
+				else if($orientation==5){  //first user page
+					set_session("j_couple_profile", 1);
+					set_session("j_couple_type", get_param('nsc_couple_type', ''));
+					set_session("j_year", get_param('year', ''));
+					set_session("j_month", get_param('month', ''));
+					set_session("j_day", get_param('day', ''));
+					set_session("j_state", get_param('state', ''));
+					set_session("j_city", get_param("city", ''));
+					set_session("j_partner_age_from_couple", $paf);
+					set_session("j_partner_age_to_couple", $pat);
+					set_session("j_relation_couple", get_param("relation", ""));
 
-				redirect('join3.php');
+					foreach ($g['user_var'] as $k => $v)
+					{
+						if ((substr($k, 0, 2) != "p_") && ($v['type'] != 'const'))
+						{
+							set_session("j_" . $k, get_param($k, ""));
+						}
+					}
+					redirect('join2.php');
+				}else{
+					set_session("j_couple_type", get_param('nsc_couple_type', ''));
+					set_session("j_year", get_param('year', ''));
+					set_session("j_month", get_param('month', ''));
+					set_session("j_day", get_param('day', ''));
+					set_session("j_state", get_param('state', ''));
+					set_session("j_city", get_param("city", ''));
+					set_session("j_partner_age_from", $paf);
+					set_session("j_partner_age_to", $pat);
+					set_session("j_relation", get_param("relation", ""));
+
+					foreach ($g['user_var'] as $k => $v)
+					{
+						if ((substr($k, 0, 2) != "p_") && ($v['type'] != 'const'))
+						{
+							set_session("j_" . $k, get_param($k, ""));
+						}
+					}
+					redirect('join3.php');
+				}
+				//end-nnsscc-diamond
 			}
 		}
 	}
@@ -130,12 +180,76 @@ class CJoin2 extends UserFields//CHtmlBlock
         $html->setvar('user_age', User::getAge($year, $month, $day));
         Common::parseCaptcha($html);
         $html->parse('photo', false);
+				   
     }
 
 	function parseBlock(&$html)
 	{
         global $g;
-        $isCustomRegister = Common::isOptionActive('custom_user_registration', 'template_options');
+        //start-nnsscc-diamond
+		$isIos = Common::isAppIos();
+		$formatDateMonths = 'F';
+        $optionFormatDateMonths = Common::getOption('format_date_months_join', 'template_options');
+        if ($optionFormatDateMonths) {
+            $formatDateMonths = $optionFormatDateMonths;
+        }
+
+        $defaultBirthday = Common::getDefaultBirthday();
+        $defaultDay = $defaultBirthday['day'];
+        $defaultMonth = $defaultBirthday['month'];
+        $defaultYear = $defaultBirthday['year'];
+        if ($isIos && Common::getTmplName() != 'edge') {
+            $defaultDay = 0;
+            $defaultMonth = 0;
+            $defaultYear = 0;
+        }
+		$html->setvar('month_options', h_options(Common::plListMonths($formatDateMonths, $isIos), get_param('month', $defaultMonth)));
+        $html->setvar('day_options', n_options(1, 31, get_param('day', $defaultDay), $isIos));
+        $html->setvar('year_options', n_options(date('Y') - $g['options']['users_age_max'], date("Y") - $g['options']['users_age'], get_param("year", $defaultYear), $isIos));
+
+        $nick_sql = "SELECT * FROM var_nickname";
+        $nicknames = DB::rows($nick_sql);
+        $nickname_current = "Select Partner Type";
+
+        $nsc_type_option = "";
+        foreach ($nicknames as $key => $nickname) {
+            $checked = "unselected";
+            $html->setvar('nickname_checked', $checked);
+
+            $html->setvar('nickname_title', $nickname['title']);
+            $html->setvar('nickname_id', $nickname['id']);
+            $html->parse('nickname', true);
+
+        }
+
+        $html->setvar('nickname_current', $nickname_current);
+
+        $first_nickname = get_session('j_couple_type');
+        // echo $first_nickname; die();
+
+        if($first_nickname) {
+            $html->setvar('nsc_nickname_label', l('2nd_half_nickname'));
+        } else {
+            $html->setvar('nsc_nickname_label', l('primary_nickname'));
+
+        }
+        $html->parse("nsc_couple_profile_type",true); //nnsscc_diamond-20200325
+        $html->clean('nickname');
+        
+		// $nick_sql = "SELECT * FROM var_nickname";
+        // $nicknames = DB::rows($nick_sql);
+        // $nsc_couple_type_option = "";
+
+        // foreach ($nicknames as $key => $nickname) {
+        //     $nsc_couple_type_option = $nsc_couple_type_option."<option value='".$nickname['id']."'>".$nickname['title']."</option>";
+        // }
+
+		// $html->setvar('nsc_couple_type_option',$nsc_couple_type_option);
+
+
+
+         //end-nnsscc-diamond
+		$isCustomRegister = Common::isOptionActive('custom_user_registration', 'template_options');
         if ($isCustomRegister) {
             $html->setvar('usersinfo_pages_per_join', Common::getOption('usersinfo_pages_per_join', 'template_options'));
 

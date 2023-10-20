@@ -1,5 +1,8 @@
 <?php
-/* (C) Websplosion LLC, 2001-2021
+/* (C) Websplosion LTD., 2001-2014
+
+gregory modified in 7/4/2023
+
 
 IMPORTANT: This is a commercial software product
 and any kind of using it must agree to the Websplosion's license agreement.
@@ -28,7 +31,7 @@ class CHon extends CHtmlBlock
 		global $l;
 		global $g_user;
 
-        $widgetsCount = 8;
+        $widgetsCount = 10;//nnsscc-diamond-20200317
 
         $widgetsBySections = array(
             2 => 'blogs',
@@ -37,7 +40,10 @@ class CHon extends CHtmlBlock
             6 => 'mail',
             7 => 'forum',
             8 => 'gallery',
+			9 => 'chat',//nnsscc-diamond-20200317
+			10=> 'chat' 
         );
+        
 
         $rowIndex = 0;
 		for($i=1;$i<=$widgetsCount;$i++) {
@@ -86,10 +92,13 @@ class CHon extends CHtmlBlock
                 $html->setvar("widget", $i);
                 $html->parse("widget",true);
         }
+                $html->setvar("email", $g_user['mail']);
 
 		parent::parseBlock($html);
 	}
 }
+
+
 
 $page = new CHon("", $g['tmpl']['dir_tmpl_main'] . "widgets.html");
 $header = new CHeader("header", $g['tmpl']['dir_tmpl_main'] . "_header.html");
