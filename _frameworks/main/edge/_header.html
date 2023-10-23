@@ -438,7 +438,10 @@ var l_wait_to = '{l_wait_to}';
 <script type="text/javascript"> function stopError() { return true; }; window.onError = stopError; window.status=Date();</script>
 <style type="text/css">
 html, body {min-height:100%}
-.upper_header_color {background-color:{upper_header_color};}
+.uppper_header_container {
+    padding: 12px 10px; border-radius: 5px;
+}
+/* .upper_header_color {background-color:{upper_header_color};} */
 .lower_header_color {background-color:{lower_header_color};}
 .progress-bar {background-color:{upper_header_color};}
 .upper_header_color_darker {background-color:{upper_header_color_darker};}
@@ -451,11 +454,20 @@ html, body {min-height:100%}
 .nav_title a b{color: {upper_header_color}; }
 .nav_title b{color: {lower_header_color}; }
 
+#menu .top-ul {
+    background-color:{upper_header_color}; padding-bottom: 15px; margin: 0px;
+}
+
 #menu .btn_search {
-	background: {lower_header_color};
+    background: none;
+    /* Rade 2023-10-23 update */
+	/* background: {lower_header_color}; */
+    padding: 0px;
 }
 #menu .btn_search:hover {
-	background: {lower_header_color_darker};
+    background: none;
+    /* Rade 2023-10-23 update */
+	/* background: {lower_header_color_darker}; */
 }
 
 .profile_bg {
@@ -469,7 +481,9 @@ html, body {min-height:100%}
     background-origin: content-box !important;
 }
 ul#menu-s a {
-	color: {color_scheme_menu_text_color_impact};
+    /* Rade 2023-10-23 delete start */
+	/* color: {color_scheme_menu_text_color_impact};  */
+    /* Rade 2023-10-23 delete end */
 	border-top-color: rgba({color_scheme_menu_item_border_top_color_rgba});
 	border-bottom-color: rgba({color_scheme_menu_item_border_bottom_color_rgba});
 }
@@ -479,7 +493,9 @@ ul#menu-s a.inactive {
 	color: {color_scheme_menu_inactive_text_color_impact};
 }
 #menu-l li a {
-	color: {color_scheme_menu_text_color_impact};
+    color: white;
+    /* Rade 2023-10-23 update */
+	/* color: {color_scheme_menu_text_color_impact}; */
 	border-top-color: rgba({color_scheme_menu_item_border_top_color_rgba});
 	border-bottom-color: rgba({color_scheme_menu_item_border_bottom_color_rgba});
 }
@@ -739,6 +755,11 @@ table.tborder_header { background: {lower_header_color};}
 	box-shadow: 1px 1px 5px #837878;
 }
 
+.bl_nav_js #menu-l {
+    padding-left: 0px;
+    display: -webkit-inline-box;
+}
+
 </style>
 
 
@@ -862,14 +883,14 @@ preloadImagesWidgets('{url_main}');
 					</div>
 				</div>
 			</div> -->
-			<div  style="padding: 12px 10px;" class="lower_header_color flex justify-between items-center">
+			<div class="uppper_header_container lower_header_color flex justify-between items-center">
 				<!-- begin_view -->
                 <div class="module_change_language" style="margin-top: 0;">
                     <a class="module_change_language_current" onclick="return false;" href="">{language_current}</a>
                     <div id="module_change_language_item">
                         <ul>
                             <!-- begin_language -->
-                            <li><a href="{url_page}?{url_page_params}set_language={language_value}" class="text-white"><span class="{language_class} text-white">{language_title}</span></a></li>
+                            <li><a href="{url_page}?{url_page_params}set_language={language_value}" class="text-white"><span class="{language_class} ">{language_title}</span></a></li>
                             <!-- end_language -->
                         </ul>
                     </div>
@@ -880,7 +901,7 @@ preloadImagesWidgets('{url_main}');
                     				    <!-- begin_header_block_info -->
 				    <ul class="list_icon_notify" style="margin-top: 0;">
 				    
-						<li><div title="{l_filter} "class="switch-filter <!-- begin_info_mail_href -->?display=text&mid={mid}<!-- end_info_mail_href -->">
+						<li style="position: relative; right: 30px; top: 10px;"><div title="{l_filter} "class="switch-filter <!-- begin_info_mail_href -->?display=text&mid={mid}<!-- end_info_mail_href -->">
                             
 							<input id="nd_change_filter" type="checkbox" class="control" style="outline:0px;" name="front_checkbox"  {isnd_filter}>
 
@@ -955,8 +976,8 @@ preloadImagesWidgets('{url_main}');
 		</div><!-- header end -->
 
 
-        <div id="menu" class="upper_header_color" style="position: relative;">  
-			<ul>
+        <div id="menu" class="upper_header_color" style="position: relative; padding-bottom: 0px;">  
+			<ul class="top-ul">
 				<!-- begin_news_on -->
 				<li><a href="{url_main}news.php?view=4">{l_site_tour}</a></li>
 				<li><a href="{url_main}news.php?cat=2">{l_success_stories}</a></li>
@@ -979,12 +1000,14 @@ preloadImagesWidgets('{url_main}');
 					<li><a href="./profile_view.php">My Profile</a></li>
 				</ul>
 			</ul>
-            <div class="flex items-center justify-between" style="margin-top: 40px; padding-inline: 10px;">
-                <a href="{url_main}{url_home_page}" style="display: block; width: 30%;">
+            <div class="flex items-center justify-between" style="">
+                <div style="width: 10px; height: 65px; background-color:{upper_header_color};"></div>
+                <a href="{url_main}{url_home_page}" style="display: flex; width: 30%; height: 65px; justify-content: center; align-items: center;">
                     <img src="{header_url_logo}" alt="{title}" style="max-width: 100%; width: 100%; display: block;" />
                 </a>
-                <div style="width: 60%;">
-                    <div class="flex">
+                <div style="width: 62%; padding-left: 10px; padding-right: 10px; background-color:{upper_header_color}; height: 65px; display: flex; flex-direction: column;
+    justify-content: space-around;">
+                    <div class="flex" style="justify-content: space-between;">
                         <div class="inline-flex gap-2 items-center">
                             <div class="cursor-pointer" onclick="zoom_out1();">
                                 <img src="_files/icons/zoom_out.svg" height="24px"/>
@@ -992,9 +1015,26 @@ preloadImagesWidgets('{url_main}');
                             <div class="cursor-pointer" onclick="zoom_in1();">
                                 <img src="_files/icons/zoom_in.svg" height="24px"/>
                             </div>
-                            <a href="#" class="text-white">Mail 1</a>
-                            <a href="#" class="text-white">Mail 2</a>
-                            <a href="#" class="text-white">Settings</a>
+                            <div class="bl_nav_js">
+                            <!-- begin_menu_l -->
+                                <ul id="menu-l">
+                                    <!-- begin_mail_on_item -->
+                                        <!-- begin_mail_on -->
+                                        <li order="info_mail" style="padding: 0px;"><a class="menu_arrow" title={l_mail} " id="xajax_new_mail_menu" href="{url_main}mail.php<!-- begin_mail_one_href -->?display=text&mid={mid}<!-- end_mail_one_href -->" style="border-bottom: none;"> <i>{l_info_mail}: <span id="xajax_new_mail">{new_mails}</span></i></a></li>
+                                        <!-- end_mail_on -->
+                                    <!-- end_mail_on_item -->
+
+                                    <!-- begin_wink_on_item -->
+                                        <!-- begin_wink_on -->
+                                        <li order="info_interests" style="padding: 0px;"><a class="menu_arrow"title={l_winks} " href="{url_main}mail_whos_interest.php" style="border-bottom: none;"><i>{l_info_interests}: <span id="xajax_new_wink">{new_interest}</span></i></a></li>
+                                        <!-- end_wink_on -->
+                                    <!-- end_wink_on_item -->
+                                    <!-- begin_header_your_settings_item -->
+                                        <li order="your_settings" style="padding: 0px;"><a class="menu_settings"title={l_settings} " href="{url_main}profile_settings.php" style="border-bottom: none;"><i>{l_your_settings}</i></a></a></li>
+                                    <!-- end_header_your_settings_item -->                                      
+                                </ul>
+                            <!-- end_menu_l -->
+                            </div>
                         </div>
                         <form action="{url_main}search_results.php" method="get" style="margin-top: 0px; max-width: 50%;  box-sizing: border-box;" class="inline-flex " >
                             <input type="hidden" name="search_header" value="1">
@@ -1002,7 +1042,7 @@ preloadImagesWidgets('{url_main}');
                             <input class="btn_search" type="submit" value="{l_search}" />
                         </form>
                     </div>
-                    <div class="flex gap-1 mt-2">
+                    <div class="flex gap-1 mt-2" style="justify-content: space-between;">
                         <a href="#" class="text-white text-xs font-medium">Albums</a>
                         <span class="text-white text-xs font-medium">/</span>
                         <a href="#" class="text-white text-xs font-medium">Music</a>
@@ -1025,6 +1065,7 @@ preloadImagesWidgets('{url_main}');
                     </div>
                 </div>
             </div>
+            <div style="width: 100%; height: 15px; background-color:{upper_header_color};"></div>
 		</div><!-- menu end -->
         <!-- begin_menu_site -->
         <script language="javascript" type="text/javascript">
@@ -1070,69 +1111,12 @@ preloadImagesWidgets('{url_main}');
 
  </script>
 
-<div class="bl_nav_js">
+<div class="bl_nav_js" style="display: none;">
  		<!-- begin_menu_l -->
             <!-- begin_submenu_container -->
-                <ul id="menu-l">
-                    <!-- begin_auth_info -->
-                    <!-- end_auth_info -->
+                <ul id="menu-l" >
 					<!-- begin_submenu -->
-
-                    <!-- begin_mail_on_item -->
-                        <!-- begin_mail_on -->
-                        <li order="info_mail"><a class="menu_arrow"title={l_mail} " id="xajax_new_mail_menu" href="{url_main}mail.php<!-- begin_mail_one_href -->?display=text&mid={mid}<!-- end_mail_one_href -->"><b class="w"><b></b></b> <i>{l_info_mail}: <span id="xajax_new_mail">{new_mails}</span></i></a></li>
-                        <!-- end_mail_on -->
-                    <!-- end_mail_on_item -->
-
-                    <!-- begin_wink_on_item -->
-                        <!-- begin_wink_on -->
-                        <li order="info_interests"><a class="menu_arrow"title={l_winks} " href="{url_main}mail_whos_interest.php"><b class="w"><b></b></b> <i>{l_info_interests}: <span id="xajax_new_wink">{new_interest}</span></i></a></li>
-                        <!-- end_wink_on -->
-                    <!-- end_wink_on_item -->
-
-                    <!-- begin_online_tab_header_item -->
-                        <!-- begin_online_tab_header -->
-                        <li order="info_online"><a class="menu_arrow" title={l_online} " href="{url_main}users_online.php"><b class="w"><b></b></b> <i>{l_info_online}: <span id="xajax_online_user">{users_online}</span></i></a></li>
-                        <!-- end_online_tab_header -->
-                    <!-- end_online_tab_header_item -->
-
-                    <!-- begin_profile_pics_header_item -->
-                    <li order="profile_pics"><a class="menu_profile"title={l_my_pic} " href="{url_main}profile_photo.php"><b class="w"><b></b></b> <i>{l_profile_pics}</i></a></li>
-                    <!-- end_profile_pics_header_item -->
-
-					<!-- begin_header_gallery_item -->
-                        <!-- begin_header_gallery -->
-                        <li order="my_photos" ><a class="menu_photo"title={l_my_album} " href="{url_main}gallery_albums_user.php?user_id={user_id}" ><b class="w"><b></b></b> <i>{l_my_photos}</i></a></li>
-                        <!-- end_header_gallery -->
-					<!-- end_header_gallery_item -->
-
-                    <!-- begin_header_music_item -->
-                        <!-- begin_header_music -->
-                        <li order="your_audio" ><a class="menu_music"title={l_my_music} " href="{url_main}music_my.php" ><b class="w"><b></b></b> <i>{l_your_audio}</i></a></li>
-                        <!-- end_header_music -->
-                    <!-- end_header_music_item -->
-
-                    <!-- begin_header_videogallery_item -->
-                        <!-- begin_header_videogallery -->
-                        <li order="your_vids" ><a class="menu_videos"title={l_my_video} " href="{url_main}vids_collect.php?m=my" ><b class="w"><b></b></b> <i>{l_your_vids}</i></a></li>
-                        <!-- end_header_videogallery -->
-                    <!-- end_header_videogallery_item -->
-
-					<!-- begin_header_blogs_item -->
-                        <!-- begin_header_blogs -->
-                        <li order="your_blog" ><a class="menu_blog"title={l_my_blogs} " href="{url_main}blogs_blog.php" ><b class="w"><b></b></b> <i>{l_your_blog}</i></a></li>
-                        <!-- end_header_blogs -->
-					<!-- end_header_blogs_item -->
-
-					<!-- begin_header_your_settings_item -->
-					<li order="your_settings" ><a class="menu_settings"title={l_settings} " href="{url_main}profile_settings.php"><b class="w"><b></b></b> <i>{l_your_settings}</i></a></a></li>
-					<!-- end_header_your_settings_item -->
-
-					<!-- begin_header_widgets_item -->
-                        <!-- begin_header_widgets -->
-                        <li order="menu_widgets" class="menu_widgets"><a class="menu_widgets"title={l_widgets} " href="{url_main}widgets.php"><b class="w"><b></b></b> <i>{l_menu_widgets}</i></a></li>
-                        <!-- end_header_widgets -->
-					<!-- end_header_widgets_item -->
+                    
 					<!-- end_submenu -->
 				</ul>
       		<!-- end_submenu_container -->
